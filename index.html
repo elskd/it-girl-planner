@@ -1412,6 +1412,10 @@ let currentPage='today';function go(p){
  const previousHTML=pageEl?pageEl.innerHTML:'';
  currentPage=p;
  document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===p));
+ document.querySelectorAll('.mobile-nav button[data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page===p));
+ const moreActive=['maddy','cabinet','settings'].includes(p);
+ if(mobileMoreBtn)mobileMoreBtn.classList.toggle('active',moreActive);
+ document.querySelectorAll('.mobile-more-menu button[data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page===p));
  let result;
  try{
    if(p==='today')result=renderToday();
@@ -1425,6 +1429,9 @@ let currentPage='today';function go(p){
    console.error('Navigation render failed:',e);
    currentPage=previousPage;
    document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===previousPage));
+   document.querySelectorAll('.mobile-nav button[data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page===previousPage));
+   if(mobileMoreBtn)mobileMoreBtn.classList.toggle('active',['maddy','cabinet','settings'].includes(previousPage));
+   document.querySelectorAll('.mobile-more-menu button[data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page===previousPage));
    if(pageEl)pageEl.innerHTML=previousHTML;
    toast('Раздел не удалось открыть — изменения страницы сохранены');
    return;
@@ -1434,6 +1441,9 @@ let currentPage='today';function go(p){
      console.error('Navigation render failed:',e);
      currentPage=previousPage;
      document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===previousPage));
+     document.querySelectorAll('.mobile-nav button[data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page===previousPage));
+     if(mobileMoreBtn)mobileMoreBtn.classList.toggle('active',['maddy','cabinet','settings'].includes(previousPage));
+     document.querySelectorAll('.mobile-more-menu button[data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page===previousPage));
      if(pageEl)pageEl.innerHTML=previousHTML;
      toast('Раздел не удалось открыть — изменения страницы сохранены');
    });
