@@ -1151,7 +1151,20 @@ function cabinetTabsHTML(active){return '<div class="cabinet-tabs"><button class
 function cabinetRemember(){const ed=document.getElementById('cabinetNoteContent'),s=getSelection();if(ed&&s&&s.rangeCount){const r=s.getRangeAt(0);if(ed.contains(r.startContainer)&&ed.contains(r.endContainer))window._cabinetRange=r.cloneRange()}}
 function cabinetRestore(){const ed=document.getElementById('cabinetNoteContent'),s=getSelection();if(!ed||!window._cabinetRange)return false;try{ed.focus();s.removeAllRanges();s.addRange(window._cabinetRange);return true}catch(e){return false}}
 function cabinetDirty(){cabinetNoteDirty=true;const x=document.querySelector('.cabinet-note-status');if(x)x.textContent='Есть несохранённые изменения'}
-function cabinetCommand(cmd){const ed=document.getElementById('cabinetNoteContent');if(!ed)return;cabinetRestore();ed.focus();try{document.execCommand('styleWithCSS',false,true);document.execCommand(cmd,false,null)}catch(e){}cabinetDirty();cabinetRemember()}
+function cabinetCommand(cmd){
+ const ed=document.getElementById('cabinetNoteContent');if(!ed)return;
+ cabinetRestore();ed.focus();
+ const s=getSelection();if(!s||!s.rangeCount)return;
+ const r=s.getRangeAt(0);
+ if(!ed.contains(r.startContainer)||!ed.contains(r.endContainer))return;
+ if(!r.collapsed&&(cmd==='bold'||cmd==='italic')){
+  const wrap=document.createElement(cmd==='bold'?'strong':'em');
+  try{wrap.appendChild(r.extractContents());r.insertNode(wrap);const nr=document.createRange();nr.selectNodeContents(wrap);s.removeAllRanges();s.addRange(nr)}catch(e){try{document.execCommand(cmd,false,null)}catch(x){}}
+ }else{
+  try{document.execCommand('styleWithCSS',false,true);document.execCommand(cmd,false,null)}catch(e){}
+ }
+ cabinetDirty();cabinetRemember();
+}
 function cabinetBlockFormat(tag){const ed=document.getElementById('cabinetNoteContent');if(!ed)return;cabinetRestore();ed.focus();try{document.execCommand('formatBlock',false,tag)}catch(e){}cabinetDirty();cabinetRemember()}
 function cabinetQuote(){cabinetBlockFormat('blockquote')}
 function cabinetChecklist(){const ed=document.getElementById('cabinetNoteContent');if(!ed)return;cabinetRestore();ed.focus();try{document.execCommand('insertHTML',false,'<div class="cabinet-check-item"><input type="checkbox"><span class="cabinet-check-text"></span></div><p><br></p>')}catch(e){}cabinetDirty();cabinetBindChecks()}
