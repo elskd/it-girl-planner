@@ -1090,35 +1090,81 @@ function cabinetFormatDate(iso){try{return new Date(iso).toLocaleDateString('ru-
 function cabinetNotePreview(html){const d=document.createElement('div');d.innerHTML=html||'';return (d.textContent||'').replace(/\s+/g,' ').trim().slice(0,90)}
 function cleanNoteHTML(html){const box=document.createElement('div');box.innerHTML=html||'';box.querySelectorAll('script,style,iframe,object,embed').forEach(x=>x.remove());box.querySelectorAll('*').forEach(el=>[...el.attributes].forEach(a=>{if(/^on/i.test(a.name))el.removeAttribute(a.name)}));return box.innerHTML}
 let cabinetNoteSavedRange=null;
+let cabinetNoteSelectionBookmark=null;
 function saveCabinetNoteSelection(){
  const ed=document.getElementById('cabinetNoteContent'),sel=window.getSelection();
  if(!ed||!sel||!sel.rangeCount||!ed.contains(sel.anchorNode))return;
  cabinetNoteSavedRange=sel.getRangeAt(0).cloneRange();
 }
+function makeCabinetNoteBookmark(){
+ const ed=document.getElementById('cabinetNoteContent'),sel=window.getSelection();
+ if(!ed||!sel||!sel.rangeCount||!ed.contains(sel.anchorNode))return false;
+ const range=sel.getRangeAt(0).cloneRange();
+ document.querySelectorAll('#cabinetNoteContent .note-selection-marker').forEach(x=>x.remove());
+ const endMarker=document.createElement('span');
+ const startMarker=document.createElement('span');
+ endMarker.className='note-selection-marker';
+ startMarker.className='note-selection-marker';
+ endMarker.setAttribute('data-note-marker','end');
+ startMarker.setAttribute('data-note-marker','start');
+ endMarker.textContent='\u200B';
+ startMarker.textContent='\u200B';
+ const endRange=range.cloneRange();
+ endRange.collapse(false);
+ endRange.insertNode(endMarker);
+ const startRange=range.cloneRange();
+ startRange.collapse(true);
+ startRange.insertNode(startMarker);
+ cabinetNoteSelectionBookmark={start:startMarker,end:endMarker};
+ return true;
+}
 function restoreCabinetNoteSelection(){
  const ed=document.getElementById('cabinetNoteContent'),sel=window.getSelection();
- if(!ed||!sel)return;
+ if(!ed||!sel)return false;
  ed.focus();
- if(cabinetNoteSavedRange){
-  try{sel.removeAllRanges();sel.addRange(cabinetNoteSavedRange)}catch(e){}
+ const bm=cabinetNoteSelectionBookmark;
+ if(bm?.start?.isConnected&&bm?.end?.isConnected&&ed.contains(bm.start)&&ed.contains(bm.end)){
+  try{
+   const range=document.createRange();
+   range.setStartAfter(bm.start);
+   range.setEndBefore(bm.end);
+   sel.removeAllRanges();
+   sel.addRange(range);
+   return true;
+  }catch(e){}
  }
+ if(cabinetNoteSavedRange){
+  try{sel.removeAllRanges();sel.addRange(cabinetNoteSavedRange);return true}catch(e){}
+ }
+ return false;
+}
+function clearCabinetNoteBookmark(){
+ document.querySelectorAll('#cabinetNoteContent .note-selection-marker').forEach(x=>x.remove());
+ cabinetNoteSelectionBookmark=null;
 }
 function execNoteCommand(cmd,value){
  const ed=document.getElementById('cabinetNoteContent');if(!ed)return;
- restoreCabinetNoteSelection();
+ if(!restoreCabinetNoteSelection())return;
  document.execCommand(cmd,false,value||null);
+ clearCabinetNoteBookmark();
+ saveCabinetNoteSelection();
  cabinetNoteDirty=true;
 }
 function execNoteBlock(tag){
  const ed=document.getElementById('cabinetNoteContent');if(!ed)return;
- restoreCabinetNoteSelection();
- document.execCommand('formatBlock',false,tag);
+ if(!restoreCabinetNoteSelection())return;
+ const commandTag=tag==='p'?'p':tag;
+ document.execCommand('formatBlock',false,commandTag);
+ clearCabinetNoteBookmark();
+ saveCabinetNoteSelection();
  cabinetNoteDirty=true;
 }
 function execNoteFontSize(size){
  const ed=document.getElementById('cabinetNoteContent');if(!ed)return;
- restoreCabinetNoteSelection();
+ if(!restoreCabinetNoteSelection())return;
  document.execCommand('fontSize',false,String(size));
+ clearCabinetNoteBookmark();
+ saveCabinetNoteSelection();
  cabinetNoteDirty=true;
 }
 function newCabinetNote(){const n={id:Date.now(),title:'Новая заметка',content:'',createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()};cabinetNotes().unshift(n);cabinetNoteId=n.id;cabinetNoteDirty=false;persist();renderCabinetNotes();setTimeout(()=>document.getElementById('cabinetNoteTitle')?.focus(),0)}
@@ -1134,11 +1180,11 @@ function renderCabinetNotes(){
  '<div class="cabinet-notes-layout"><aside class="cabinet-notes-list"><div class="cabinet-notes-head"><h2>Заметки</h2><button class="btn ghost" onclick="newCabinetNote()">+ Новая</button></div><div class="cabinet-note-list">'+(notes.length?notes.map(n=>'<button class="cabinet-note-item '+(Number(n.id)===Number(cabinetNoteId)?'active':'')+'" onclick="selectCabinetNote('+n.id+')"><span class="cabinet-note-item-title">'+esc(n.title||'Без названия')+'</span><span class="cabinet-note-item-preview">'+esc(cabinetNotePreview(n.content)||'Пустая заметка')+'</span><span class="cabinet-note-item-date">'+cabinetFormatDate(n.updatedAt||n.createdAt)+'</span></button>').join(''):'<div class="empty" style="padding:20px 14px">Создай первую заметку.</div>')+'</div></aside>'+
  '<section class="cabinet-note-editor">'+(active?
  '<div class="cabinet-note-editor-head"><input id="cabinetNoteTitle" class="cabinet-note-title-input" value="'+esc(active.title||'Без названия')+'" placeholder="Название заметки"><button class="mini" onclick="deleteCabinetNote('+active.id+')" title="Удалить">×</button></div>'+
- '<div class="cabinet-note-toolbar"><button class="cabinet-note-tool" onclick="execNoteCommand(\'bold\')" title="Жирный"><strong>B</strong></button><button class="cabinet-note-tool" onclick="execNoteCommand(\'italic\')" title="Курсив"><em>I</em></button><button class="cabinet-note-tool" onclick="execNoteCommand(\'underline\')" title="Подчёркивание"><u>U</u></button><button class="cabinet-note-tool" onclick="execNoteCommand(\'strikeThrough\')" title="Зачёркивание">S̶</button><select class="cabinet-note-format-select" title="Формат текста" onmousedown="saveCabinetNoteSelection()" onchange="execNoteBlock(this.value);this.value=null"><option value="" selected disabled>Формат</option><option value="p">Обычный</option><option value="h1">Заголовок 1</option><option value="h2">Заголовок 2</option><option value="h3">Заголовок 3</option></select><select class="cabinet-note-format-select" title="Размер текста" onmousedown="saveCabinetNoteSelection()" onchange="execNoteFontSize(this.value);this.value=null"><option value="" selected disabled>Размер</option><option value="2">Маленький</option><option value="3">Обычный</option><option value="4">Крупный</option><option value="5">Большой</option><option value="6">Очень большой</option></select><button class="cabinet-note-tool" onclick="execNoteCommand(\'insertUnorderedList\')" title="Список">•</button><button class="cabinet-note-tool" onclick="execNoteCommand(\'insertOrderedList\')" title="Нумерованный список">1.</button><button class="cabinet-note-tool" onclick="execNoteCommand(\'formatBlock\',\'blockquote\')" title="Цитата">“</button><button class="cabinet-note-tool" onclick="document.getElementById(\'cabinetNoteImageInput\').click()" title="Добавить изображение">＋▧</button><input id="cabinetNoteImageInput" type="file" accept="image/*" style="display:none" onchange="insertCabinetImage(this)"></div>'+
+ '<div class="cabinet-note-toolbar"><button class="cabinet-note-tool" onclick="execNoteCommand(\'bold\')" title="Жирный"><strong>B</strong></button><button class="cabinet-note-tool" onclick="execNoteCommand(\'italic\')" title="Курсив"><em>I</em></button><button class="cabinet-note-tool" onclick="execNoteCommand(\'underline\')" title="Подчёркивание"><u>U</u></button><button class="cabinet-note-tool" onclick="execNoteCommand(\'strikeThrough\')" title="Зачёркивание">S̶</button><select class="cabinet-note-format-select" title="Формат текста" onmousedown="makeCabinetNoteBookmark()" onchange="execNoteBlock(this.value);this.value=''"><option value="" selected disabled>Формат</option><option value="p">Обычный</option><option value="h1">Заголовок 1</option><option value="h2">Заголовок 2</option><option value="h3">Заголовок 3</option></select><select class="cabinet-note-format-select" title="Размер текста" onmousedown="makeCabinetNoteBookmark()" onchange="execNoteFontSize(this.value);this.value=''"><option value="" selected disabled>Размер</option><option value="2">Маленький</option><option value="3">Обычный</option><option value="4">Крупный</option><option value="5">Большой</option><option value="6">Очень большой</option></select><button class="cabinet-note-tool" onclick="execNoteCommand(\'insertUnorderedList\')" title="Список">•</button><button class="cabinet-note-tool" onclick="execNoteCommand(\'insertOrderedList\')" title="Нумерованный список">1.</button><button class="cabinet-note-tool" onclick="execNoteCommand(\'formatBlock\',\'blockquote\')" title="Цитата">“</button><button class="cabinet-note-tool" onclick="document.getElementById(\'cabinetNoteImageInput\').click()" title="Добавить изображение">＋▧</button><input id="cabinetNoteImageInput" type="file" accept="image/*" style="display:none" onchange="insertCabinetImage(this)"></div>'+
  '<div class="cabinet-note-editor-body"><div id="cabinetNoteContent" class="cabinet-note-content" contenteditable="true" data-placeholder="Начни писать здесь…">'+(active.content||'')+'</div></div>'+
  '<div class="cabinet-note-editor-foot"><span class="cabinet-note-status">'+(cabinetNoteDirty?'Есть несохранённые изменения':'Сохранено')+'</span><button class="btn" onclick="saveCabinetNote()">Сохранить</button></div>'
  :'<div class="cabinet-note-editor-body" style="display:grid;place-items:center;color:var(--muted);font-size:13px">Выбери заметку или создай новую.</div>')+'</section></div>';
- const ed=document.getElementById('cabinetNoteContent');if(ed){ed.addEventListener('input',()=>{cabinetNoteDirty=true;const s=document.querySelector('.cabinet-note-status');if(s)s.textContent='Есть несохранённые изменения'});ed.addEventListener('keyup',saveCabinetNoteSelection);ed.addEventListener('mouseup',saveCabinetNoteSelection);ed.addEventListener('focus',saveCabinetNoteSelection);ed.addEventListener('keydown',function(e){
+ const ed=document.getElementById('cabinetNoteContent');if(ed){ed.addEventListener('input',()=>{cabinetNoteDirty=true;const s=document.querySelector('.cabinet-note-status');if(s)s.textContent='Есть несохранённые изменения'});ed.addEventListener('keyup',saveCabinetNoteSelection);ed.addEventListener('mouseup',saveCabinetNoteSelection);ed.addEventListener('focus',saveCabinetNoteSelection);ed.addEventListener('select',saveCabinetNoteSelection);ed.addEventListener('keydown',function(e){
 if(e.key!=='Enter'||e.shiftKey)return;
 const sel=window.getSelection();
 if(!sel||!sel.rangeCount||!sel.isCollapsed)return;
