@@ -32,6 +32,54 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}button:focus-vis
 .week-select{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}.week-choice{border:1px solid var(--line);background:#fff;border-radius:10px;padding:8px 9px;min-width:0;text-align:left}.week-choice.active{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}.week-choice b{display:block;font-size:10px;font-weight:400}.week-choice span{display:block;font-size:9px;color:var(--muted);margin-top:3px}.week-detail{display:grid;grid-template-columns:1.25fr .75fr;gap:14px}.goal{border:1px solid var(--line);border-radius:11px;padding:12px;margin-bottom:10px}.goal:last-child{margin-bottom:0}.goal-head{display:flex;justify-content:space-between;gap:10px}.goal-title{font-size:13px}.goal-target{font-size:11px;color:var(--muted);margin-top:3px}.progress-line{height:5px;background:#ece5e2;border-radius:99px;overflow:hidden;margin:10px 0 6px}.progress-line i{display:block;height:100%;background:var(--accent)}.goal-meta{font-size:10px;color:var(--muted)}.subgoals{margin:10px 0 0;padding-left:18px;color:#61585a;font-size:12px;line-height:1.55}.actions-list{margin-top:9px;display:grid;gap:5px}.action-item{font-size:11px;color:#6c6264;padding-left:12px;position:relative}.action-item:before{content:"";width:4px;height:4px;background:var(--accent);border-radius:50%;position:absolute;left:0;top:6px}
 /* maddy */
 .maddy-grid{display:grid;grid-template-columns:130px 1fr;gap:18px;align-items:center}.portrait{height:130px;border-radius:24px;background:#f0dfe2;border:1px solid #e1cdd2;display:grid;place-items:center;font-family:Georgia,serif;color:var(--accent);font-size:44px}.maddy-number{font-family:Georgia,serif;font-size:38px;font-weight:400}.maddy-areas{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.area-card{border:1px solid var(--line);border-radius:13px;padding:13px}.area-card h3{font-family:Georgia,serif;font-size:15px;font-weight:400;margin:0 0 7px}.area-card p{font-size:11px;color:var(--muted);margin:0 0 8px}.moodboard{columns:3 180px;column-gap:10px}.mood-card{break-inside:avoid;margin:0 0 10px;border-radius:13px;overflow:hidden;background:#f0e8e5;border:1px solid var(--line);min-height:110px;position:relative}.mood-card img{display:block;width:100%;height:auto}.mood-placeholder{padding:25px 15px;color:var(--muted);font-size:12px;text-align:center}
+/* my cabinet */
+.cabinet-tabs{display:flex;gap:3px;background:#eee7e4;padding:3px;border-radius:11px;width:max-content;margin-bottom:14px}
+.cabinet-tabs button{border:0;background:transparent;color:#71686a;border-radius:8px;padding:7px 12px;font-size:11px;font-weight:400}
+.cabinet-tabs button.active{background:#fff;color:var(--accent)}
+.cabinet-notes-layout{display:grid;grid-template-columns:250px minmax(0,1fr);gap:14px;min-height:560px}
+.cabinet-notes-list{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.cabinet-notes-head{padding:12px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:8px}
+.cabinet-notes-head h2,.cabinet-materials-head h2{font-family:Georgia,serif;font-size:18px;font-weight:400;margin:0}
+.cabinet-note-list{display:grid}
+.cabinet-note-item{border:0;border-bottom:1px solid var(--line);background:transparent;text-align:left;padding:12px 13px;display:grid;gap:4px;width:100%;color:var(--ink)}
+.cabinet-note-item:hover{background:#fcf7f5}
+.cabinet-note-item.active{background:var(--accent-soft);color:var(--accent)}
+.cabinet-note-item-title{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cabinet-note-item-preview{font-size:10px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cabinet-note-item-date{font-size:9px;color:var(--muted)}
+.cabinet-note-editor{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden;display:flex;flex-direction:column}
+.cabinet-note-editor-head{padding:14px 16px;border-bottom:1px solid var(--line);display:flex;gap:10px;align-items:center}
+.cabinet-note-title-input{border:0;background:transparent;outline:0;font-family:Georgia,serif;font-size:22px;color:var(--ink);min-width:0;flex:1}
+.cabinet-note-title-input::placeholder{color:#aaa0a1}
+.cabinet-note-toolbar{display:flex;align-items:center;gap:3px;flex-wrap:wrap;padding:8px 12px;border-bottom:1px solid var(--line);background:#faf7f5}
+.cabinet-note-tool{width:30px;height:28px;border:1px solid transparent;background:transparent;border-radius:7px;color:#665b5d;padding:0;font-size:12px}
+.cabinet-note-tool:hover{background:#fff;border-color:var(--line);color:var(--accent)}
+.cabinet-note-tool strong{font-weight:700}.cabinet-note-tool em{font-style:italic}.cabinet-note-tool u{text-decoration:underline}
+.cabinet-note-editor-body{padding:18px 20px;flex:1;min-height:390px}
+.cabinet-note-content{min-height:360px;outline:0;font-size:14px;line-height:1.7;color:var(--ink)}
+.cabinet-note-content:empty:before{content:attr(data-placeholder);color:#aaa0a1;pointer-events:none}
+.cabinet-note-content h2{font-family:Georgia,serif;font-weight:400;font-size:24px;margin:14px 0 8px}
+.cabinet-note-content h3{font-family:Georgia,serif;font-weight:400;font-size:19px;margin:12px 0 7px}
+.cabinet-note-content blockquote{border-left:2px solid var(--accent);margin:12px 0;padding:4px 0 4px 14px;color:var(--muted)}
+.cabinet-note-content ul,.cabinet-note-content ol{padding-left:24px}
+.cabinet-note-content img{max-width:100%;height:auto;border-radius:12px;border:1px solid var(--line);margin:8px 0}
+.cabinet-note-editor-foot{padding:10px 14px;border-top:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:10px}
+.cabinet-note-status{font-size:10px;color:var(--muted)}
+.cabinet-materials-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+.cabinet-materials-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.cabinet-material-card{background:var(--card);border:1px solid var(--line);border-radius:15px;overflow:hidden;position:relative}
+.cabinet-material-preview{height:180px;background:#f1e9e6;display:grid;place-items:center;overflow:hidden}
+.cabinet-material-preview img{width:100%;height:100%;object-fit:cover}
+.cabinet-material-preview video{width:100%;height:100%;object-fit:cover}
+.cabinet-material-file{font-family:Georgia,serif;color:var(--accent);font-size:34px}
+.cabinet-material-body{padding:12px}
+.cabinet-material-name{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cabinet-material-meta{font-size:10px;color:var(--muted);margin-top:4px}
+.cabinet-material-note{font-size:11px;color:#62585a;line-height:1.45;margin-top:8px}
+.cabinet-material-actions{display:flex;gap:6px;margin-top:10px}
+.cabinet-material-empty{padding:34px 20px;text-align:center;background:var(--card);border:1px solid var(--line);border-radius:16px;color:var(--muted);font-size:12px}
+@media(max-width:900px){.cabinet-materials-grid{grid-template-columns:1fr 1fr}.cabinet-notes-layout{grid-template-columns:210px minmax(0,1fr)}}
+@media(max-width:700px){.cabinet-tabs{width:100%;overflow:auto}.cabinet-tabs button{flex:1;white-space:nowrap}.cabinet-notes-layout{grid-template-columns:1fr;min-height:0}.cabinet-notes-list{max-height:240px}.cabinet-note-editor-body{min-height:330px}.cabinet-note-content{min-height:290px}.cabinet-note-title-input{font-size:19px}.cabinet-materials-grid{grid-template-columns:1fr}.cabinet-material-preview{height:210px}.cabinet-materials-head{align-items:flex-start;flex-direction:column}}
 /* settings */
 .swatches{display:flex;flex-wrap:wrap;gap:10px}.swatch{width:34px;height:34px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px #ddd;padding:0}.swatch.selected{box-shadow:0 0 0 2px var(--ink)}.palette-row{display:flex;align-items:center;gap:10px}.color-picker{width:40px;height:34px;padding:0;border:1px solid var(--line);background:#fff;border-radius:8px}.setting-note{font-size:12px;color:var(--muted);line-height:1.5}
 
@@ -155,7 +203,7 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}button:focus-vis
     <button data-page="calendar">Календарь</button>
     <button data-page="weeks">12 Weeks</button>
     <button data-page="maddy">Maddy</button>
-    <button data-page="motivation">Мотивация</button>
+    <button data-page="cabinet">Мой кабинет</button>
     <button data-page="settings">Настройки</button>
   </nav>
 </aside>
@@ -200,7 +248,7 @@ function defaultData(){
    {id:103,title:'Тренировка',area:'Health',priority:'medium',date:td,start:'18:00',end:'19:00',repeat:'none',allDay:false,color:'#6d7d6d',done:false,notes:''}
   ],
   goals:[{id:1,title:'Финансовая независимость',target:'350 000 ₽ / месяц',progress:0,subgoals:['Собрать сильное портфолио','Системно искать клиентов','Повысить средний чек'],actions:['1 кейс в портфолио','5 откликов','1 коммерческое предложение']}],
-  settings:{taskColor:'#8d2439',habitColor:'#b64f68',palette:[...BASE_COLORS],calendarStart:'08:00',calendarEnd:'19:00',areas:[...AREAS]},moodboard:[]
+  settings:{taskColor:'#8d2439',habitColor:'#b64f68',palette:[...BASE_COLORS],calendarStart:'08:00',calendarEnd:'19:00',areas:[...AREAS]},moodboard:[],notes:[],cabinetMaterials:[]
  }
 }
 function normalizeData(raw){
@@ -211,7 +259,7 @@ function normalizeData(raw){
  d.habits=(d.habits||[]).map(h=>({...h,area:migrateArea(h.area)||AREAS[0],days:h.days||{},target:Number(h.target)||1,unit:h.unit||'раз',color:h.color||d.settings.habitColor}));
  d.tasks=(d.tasks||[]).map(t=>({...t,area:migrateArea(t.area)||AREAS[0],priority:t.priority||'medium',date:t.date||todayISO(),repeat:t.repeat||'none',repeatDays:Array.isArray(t.repeatDays)?t.repeatDays.map(Number).filter(n=>n>=0&&n<=6):[],overrides:t.overrides||{},start:t.start||'12:30',end:t.end||'13:30',allDay:!!t.allDay,noTime:!!t.noTime,color:t.color||d.settings.taskColor,done:!!t.done,notes:t.notes||''}));
  d.goals=(d.goals||[]).map(g=>({...g,subgoals:g.subgoals||[],actions:g.actions||[],progress:Number(g.progress)||0}));
- d.quote=d.quote||def.quote;d.quotes=d.quotes?.length?d.quotes:def.quotes;d.quoteIndex=Number(d.quoteIndex)||0;d.moodboard=d.moodboard||[];return d;
+ d.quote=d.quote||def.quote;d.quotes=d.quotes?.length?d.quotes:def.quotes;d.quoteIndex=Number(d.quoteIndex)||0;d.moodboard=d.moodboard||[];d.notes=Array.isArray(d.notes)?d.notes:[];d.cabinetMaterials=Array.isArray(d.cabinetMaterials)?d.cabinetMaterials:[];return d;
 }
 /* Cloud sync: the planner keeps a local cache for instant UI, while Supabase is the shared source across devices. */
 const SUPABASE_URL='https://ajrcehwxqgbloixgvcxc.supabase.co';
@@ -795,10 +843,10 @@ async function saveMotivation(editId=0){
    }
    if(editId){const idx=motivationData().findIndex(x=>Number(x.id)===Number(editId));if(idx>=0)state.motivation[idx]=item}
    else state.motivation.push(item);
-   persist();window.__editingMotivationId=0;closeModal();await renderMotivation();toast(editId?'Материал изменён':'Добавлено в мотивацию');
+   persist();window.__editingMotivationId=0;closeModal();await refreshMotivationView();toast(editId?'Материал изменён':'Добавлено в мотивацию');
  }catch(e){console.error(e);toast('Не удалось сохранить материал.');btn.disabled=false;btn.textContent=editId?'Сохранить':'Добавить'}
 }
-async function deleteMotivation(id){state.motivation=motivationData().filter(x=>x.id!==id);persist();await motDelete(id);renderMotivation();toast('Удалено')}
+async function deleteMotivation(id){state.motivation=motivationData().filter(x=>x.id!==id);persist();await motDelete(id);refreshMotivationView();toast('Удалено')}
 function motivationLegacy(x){const raw=(x.label||x.title||'').trim();return {label:raw.toLowerCase()==='без метки'?'':raw,note:x.note!==undefined?x.note:(x.type==='note'?x.text||'':''),url:x.url||(x.type==='link'?x.text:'')||'',data:x.data||''}}
 async function renderMotivation(){
  const items=motivationData();
@@ -844,7 +892,7 @@ async function renderMotivation(){
 }
 function reorderMotivation(fromId,toId){
  const arr=motivationData(); const from=arr.findIndex(x=>Number(x.id)===Number(fromId)); const to=arr.findIndex(x=>Number(x.id)===Number(toId));
- if(from<0||to<0)return; const [item]=arr.splice(from,1); arr.splice(to,0,item); persist(); renderMotivation(); toast('Порядок изменён');
+ if(from<0||to<0)return; const [item]=arr.splice(from,1); arr.splice(to,0,item); persist(); refreshMotivationView(); toast('Порядок изменён');
 }
 function prepareMotivationVideo(video){const wrap=video.closest('.motivation-video-wrap');if(wrap)wrap.classList.add('ready');}
 async function makeVideoPosterFromUrl(id,url){
@@ -928,7 +976,7 @@ async function makeVideoPosterFromUrl(id,url){
    v.removeAttribute('src');
    v.load();
    v.remove();
-   if(currentPage==='motivation')await renderMotivation();
+   if(currentPage==='cabinet'&&cabinetTab==='motivation')await renderCabinetMotivation();
  }catch(e){
    console.warn('Video poster unavailable',e);
  }
@@ -1025,6 +1073,85 @@ document.addEventListener('keydown',e=>{
 function confirmDeleteMotivation(id){
  if(confirm('Точно удалить этот материал из мотивации?')) deleteMotivation(id);
 }
+
+let cabinetTab='notes';
+let cabinetNoteId=0;
+let cabinetNoteDirty=false;
+
+function cabinetNotes(){state.notes=Array.isArray(state.notes)?state.notes:[];return state.notes}
+function cabinetMaterials(){state.cabinetMaterials=Array.isArray(state.cabinetMaterials)?state.cabinetMaterials:[];return state.cabinetMaterials}
+function cabinetFormatDate(iso){try{return new Date(iso).toLocaleDateString('ru-RU',{day:'numeric',month:'short',year:'numeric'})}catch(e){return ''}}
+function cabinetNotePreview(html){const d=document.createElement('div');d.innerHTML=html||'';return (d.textContent||'').replace(/\s+/g,' ').trim().slice(0,90)}
+function cleanNoteHTML(html){const box=document.createElement('div');box.innerHTML=html||'';box.querySelectorAll('script,style,iframe,object,embed').forEach(x=>x.remove());box.querySelectorAll('*').forEach(el=>[...el.attributes].forEach(a=>{if(/^on/i.test(a.name))el.removeAttribute(a.name)}));return box.innerHTML}
+function execNoteCommand(cmd,value){const ed=document.getElementById('cabinetNoteContent');if(!ed)return;ed.focus();document.execCommand(cmd,false,value||null);cabinetNoteDirty=true}
+function newCabinetNote(){const n={id:Date.now(),title:'Новая заметка',content:'',createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()};cabinetNotes().unshift(n);cabinetNoteId=n.id;cabinetNoteDirty=false;persist();renderCabinetNotes();setTimeout(()=>document.getElementById('cabinetNoteTitle')?.focus(),0)}
+function selectCabinetNote(id){if(cabinetNoteDirty&&!confirm('Есть несохранённые изменения. Перейти без сохранения?'))return;cabinetNoteId=Number(id);cabinetNoteDirty=false;renderCabinetNotes()}
+function saveCabinetNote(){const n=cabinetNotes().find(x=>Number(x.id)===Number(cabinetNoteId));if(!n)return;n.title=(document.getElementById('cabinetNoteTitle')?.value||'').trim()||'Без названия';n.content=cleanNoteHTML(document.getElementById('cabinetNoteContent')?.innerHTML||'');n.updatedAt=new Date().toISOString();cabinetNoteDirty=false;persist();renderCabinetNotes();toast('Заметка сохранена')}
+function deleteCabinetNote(id){const n=cabinetNotes().find(x=>Number(x.id)===Number(id));if(!n)return;if(!confirm('Удалить эту заметку?'))return;state.notes=cabinetNotes().filter(x=>Number(x.id)!==Number(id));if(Number(cabinetNoteId)===Number(id))cabinetNoteId=state.notes[0]?.id||0;cabinetNoteDirty=false;persist();renderCabinetNotes();toast('Заметка удалена')}
+function insertCabinetImage(input){const file=input?.files?.[0];if(!file)return;if(!file.type.startsWith('image/')){toast('Выбери изображение');return}const reader=new FileReader();reader.onload=()=>{const img=new Image();img.onload=()=>{const max=1600,scale=Math.min(1,max/Math.max(img.width,img.height));const canvas=document.createElement('canvas');canvas.width=Math.max(1,Math.round(img.width*scale));canvas.height=Math.max(1,Math.round(img.height*scale));const ctx=canvas.getContext('2d');ctx.drawImage(img,0,0,canvas.width,canvas.height);const data=canvas.toDataURL('image/jpeg',.84);const ed=document.getElementById('cabinetNoteContent');if(!ed)return;ed.focus();document.execCommand('insertHTML',false,'<img src="'+data+'" alt=""><p><br></p>');cabinetNoteDirty=true};img.src=reader.result};reader.readAsDataURL(file);input.value=''}
+
+function cabinetTabsHTML(active){return '<div class="cabinet-tabs"><button class="'+(active==='notes'?'active':'')+'" onclick="setCabinetTab(\'notes\')">Заметки</button><button class="'+(active==='materials'?'active':'')+'" onclick="setCabinetTab(\'materials\')">Материалы</button><button class="'+(active==='motivation'?'active':'')+'" onclick="setCabinetTab(\'motivation\')">Мотивация</button></div>'}
+function renderCabinetNotes(){
+ const notes=cabinetNotes();if(!cabinetNoteId&&notes.length)cabinetNoteId=notes[0].id;const active=notes.find(x=>Number(x.id)===Number(cabinetNoteId))||null;
+ document.getElementById('page').innerHTML='<header class="page-head"><div class="eyebrow">Личное пространство</div><h1 class="title">Мой кабинет</h1><div class="date">Твои заметки, важные материалы и всё, что тебя вдохновляет.</div></header>'+cabinetTabsHTML('notes')+
+ '<div class="cabinet-notes-layout"><aside class="cabinet-notes-list"><div class="cabinet-notes-head"><h2>Заметки</h2><button class="btn ghost" onclick="newCabinetNote()">+ Новая</button></div><div class="cabinet-note-list">'+(notes.length?notes.map(n=>'<button class="cabinet-note-item '+(Number(n.id)===Number(cabinetNoteId)?'active':'')+'" onclick="selectCabinetNote('+n.id+')"><span class="cabinet-note-item-title">'+esc(n.title||'Без названия')+'</span><span class="cabinet-note-item-preview">'+esc(cabinetNotePreview(n.content)||'Пустая заметка')+'</span><span class="cabinet-note-item-date">'+cabinetFormatDate(n.updatedAt||n.createdAt)+'</span></button>').join(''):'<div class="empty" style="padding:20px 14px">Создай первую заметку.</div>')+'</div></aside>'+
+ '<section class="cabinet-note-editor">'+(active?
+ '<div class="cabinet-note-editor-head"><input id="cabinetNoteTitle" class="cabinet-note-title-input" value="'+esc(active.title||'Без названия')+'" placeholder="Название заметки"><button class="mini" onclick="deleteCabinetNote('+active.id+')" title="Удалить">×</button></div>'+
+ '<div class="cabinet-note-toolbar"><button class="cabinet-note-tool" onclick="execNoteCommand(\'bold\')" title="Жирный"><strong>B</strong></button><button class="cabinet-note-tool" onclick="execNoteCommand(\'italic\')" title="Курсив"><em>I</em></button><button class="cabinet-note-tool" onclick="execNoteCommand(\'underline\')" title="Подчёркивание"><u>U</u></button><button class="cabinet-note-tool" onclick="execNoteCommand(\'strikeThrough\')" title="Зачёркивание">S̶</button><button class="cabinet-note-tool" onclick="execNoteCommand(\'formatBlock\',\'h2\')" title="Заголовок">H</button><button class="cabinet-note-tool" onclick="execNoteCommand(\'insertUnorderedList\')" title="Список">•</button><button class="cabinet-note-tool" onclick="execNoteCommand(\'insertOrderedList\')" title="Нумерованный список">1.</button><button class="cabinet-note-tool" onclick="execNoteCommand(\'formatBlock\',\'blockquote\')" title="Цитата">“</button><button class="cabinet-note-tool" onclick="document.getElementById(\'cabinetNoteImageInput\').click()" title="Добавить изображение">＋▧</button><input id="cabinetNoteImageInput" type="file" accept="image/*" style="display:none" onchange="insertCabinetImage(this)"></div>'+
+ '<div class="cabinet-note-editor-body"><div id="cabinetNoteContent" class="cabinet-note-content" contenteditable="true" data-placeholder="Начни писать здесь…">'+(active.content||'')+'</div></div>'+
+ '<div class="cabinet-note-editor-foot"><span class="cabinet-note-status">'+(cabinetNoteDirty?'Есть несохранённые изменения':'Сохранено')+'</span><button class="btn" onclick="saveCabinetNote()">Сохранить</button></div>'
+ :'<div class="cabinet-note-editor-body" style="display:grid;place-items:center;color:var(--muted);font-size:13px">Выбери заметку или создай новую.</div>')+'</section></div>';
+ const ed=document.getElementById('cabinetNoteContent');if(ed)ed.addEventListener('input',()=>{cabinetNoteDirty=true;const s=document.querySelector('.cabinet-note-status');if(s)s.textContent='Есть несохранённые изменения'});
+}
+
+function setCabinetTab(tab){if(cabinetNoteDirty&&cabinetTab==='notes'&&tab!=='notes'&&!confirm('Есть несохранённые изменения в заметке. Перейти без сохранения?'))return;cabinetTab=tab;cabinetNoteDirty=false;if(tab==='notes')renderCabinetNotes();else if(tab==='materials')renderCabinetMaterials();else renderCabinetMotivation()}
+async function renderCabinetMotivation(){
+ document.getElementById('page').innerHTML='<header class="page-head"><div class="eyebrow">Личное пространство</div><h1 class="title">Мой кабинет</h1><div class="date">Твои заметки, важные материалы и всё, что тебя вдохновляет.</div></header>'+cabinetTabsHTML('motivation')+'<div id="cabinetMotivationTarget"></div>';
+ const target=document.getElementById('cabinetMotivationTarget');const realPage=document.getElementById('page');const temp=document.createElement('div');temp.id='page';temp.style.display='none';realPage.replaceWith(temp);
+ try{await renderMotivation();const board=temp.querySelector('.motivation-board');if(board)target.appendChild(board)}finally{temp.replaceWith(realPage)}
+}
+
+function openCabinetMaterialModal(id){
+ const existing=id?cabinetMaterials().find(x=>Number(x.id)===Number(id)):null;window.__cabinetEditingMaterialId=id||0;
+ document.getElementById('modal').innerHTML='<div class="modal-head"><div class="modal-title">'+(existing?'Редактировать материал':'Добавить материал')+'</div><button class="close" onclick="closeModal()">×</button></div><div class="form-grid"><div class="field"><label>Тип</label><select id="cabType" class="select" onchange="cabinetMaterialTypeChanged()"><option value="file" '+(existing?.type==='file'?'selected':'')+'>Файл</option><option value="photo" '+(existing?.type==='photo'?'selected':'')+'>Фото</option><option value="video" '+(existing?.type==='video'?'selected':'')+'>Видео</option><option value="link" '+(existing?.type==='link'?'selected':'')+'>Ссылка</option></select></div><div class="field"><label>Название</label><input id="cabName" class="text-input" value="'+esc(existing?.name||'')+'" placeholder="Например, важный файл"></div><div id="cabSource" class="field full"></div><div class="field full"><label>Описание</label><textarea id="cabNote" class="text-input" rows="3" placeholder="Что это и зачем тебе нужно?">'+esc(existing?.note||'')+'</textarea></div></div><div class="modal-actions"><button class="btn ghost" onclick="closeModal()">Отмена</button>'+(existing?'<button class="btn danger" onclick="deleteCabinetMaterial('+existing.id+');closeModal()">Удалить</button>':'')+'<button class="btn" onclick="saveCabinetMaterial('+(id||0)+')">'+(existing?'Сохранить':'Добавить')+'</button></div>';
+ openModal();cabinetMaterialTypeChanged();
+}
+function cabinetMaterialTypeChanged(){
+ const type=document.getElementById('cabType')?.value,box=document.getElementById('cabSource');if(!box)return;const id=window.__cabinetEditingMaterialId||0;
+ if(type==='link'){box.innerHTML='<div class="field"><label>Ссылка</label><input id="cabUrl" class="text-input" type="url" placeholder="https://..."></div>';if(id){const x=cabinetMaterials().find(v=>Number(v.id)===Number(id));if(x?.url)document.getElementById('cabUrl').value=x.url}return}
+ const accept=type==='photo'?'image/*':type==='video'?'video/*':'';const x=id?cabinetMaterials().find(v=>Number(v.id)===Number(id)):null;
+ box.innerHTML='<div class="field"><label>'+(type==='photo'?'Изображение':type==='video'?'Видео':'Файл')+'</label><input id="cabFile" type="file" class="text-input" '+(accept?'accept="'+accept+'"':'')+'><div class="setting-note">'+(x&&x.type===type?'Оставь поле пустым, если хочешь сохранить текущий файл.':'Выбери файл.')+'</div></div>';
+}
+async function saveCabinetMaterial(id){
+ const type=document.getElementById('cabType').value,name=(document.getElementById('cabName').value||'').trim()||'Без названия',note=(document.getElementById('cabNote').value||'').trim(),old=id?cabinetMaterials().find(x=>Number(x.id)===Number(id)):null;const item={...(old||{}),id:id||Date.now(),type,name,note,createdAt:old?.createdAt||new Date().toISOString()};
+ try{
+  if(type==='link'){const url=document.getElementById('cabUrl')?.value.trim();if(!url){toast('Добавь ссылку');return}item.url=url}
+  else{const file=document.getElementById('cabFile')?.files?.[0];if(file){item.fileName=file.name;item.mediaType=file.type;item.fileSize=file.size;await cabPutFile(item.id,file);const path='cabinet-materials/'+String(item.id)+'-'+String(file.name||'file').replace(/[^a-zA-Z0-9._-]+/g,'_').slice(-90);try{await cloudUploadFile(path,file);item.storagePath=path}catch(e){console.warn('Cabinet material cloud upload failed',e)}}else if(!old||old.type!==type){toast('Выбери файл');return}item.url=''}
+  const arr=cabinetMaterials(),idx=arr.findIndex(x=>Number(x.id)===Number(item.id));if(idx>=0)arr[idx]=item;else arr.push(item);persist();closeModal();await renderCabinetMaterials();toast(id?'Материал изменён':'Материал добавлен');
+ }catch(e){console.error(e);toast('Не удалось сохранить материал')}
+}
+async function deleteCabinetMaterial(id){if(!confirm('Удалить этот материал?'))return;const x=cabinetMaterials().find(v=>Number(v.id)===Number(id));state.cabinetMaterials=cabinetMaterials().filter(v=>Number(v.id)!==Number(id));if(x?.storagePath)await cloudDeleteFile(x.storagePath);await cabDeleteFile(id);persist();renderCabinetMaterials();toast('Материал удалён')}
+async function cabPutFile(id,blob){return motPut('cabinet:'+id,blob)}
+async function cabGetFile(id){return motGet('cabinet:'+id)}
+async function cabDeleteFile(id){return motDelete('cabinet:'+id)}
+async function openCabinetMaterialFile(id){
+ const x=cabinetMaterials().find(v=>Number(v.id)===Number(id));if(!x)return;if(x.type==='link'){window.open(x.url,'_blank','noopener');return}
+ let url=x.storagePath?await cloudSignedUrl(x.storagePath,3600):'';if(!url){const blob=await cabGetFile(id);if(blob)url=URL.createObjectURL(blob)}if(!url){toast('Файл недоступен');return}window.open(url,'_blank','noopener');if(!x.storagePath)setTimeout(()=>URL.revokeObjectURL(url),60000);
+}
+async function renderCabinetMaterials(){
+ const items=cabinetMaterials();
+ document.getElementById('page').innerHTML='<header class="page-head"><div class="eyebrow">Личное пространство</div><h1 class="title">Мой кабинет</h1><div class="date">Твои заметки, важные материалы и всё, что тебя вдохновляет.</div></header>'+cabinetTabsHTML('materials')+'<div class="cabinet-materials-head"><h2>Материалы</h2><button class="btn" onclick="openCabinetMaterialModal()">+ Добавить материал</button></div>'+(items.length?'<div class="cabinet-materials-grid" id="cabinetMaterialsGrid"></div>':'<div class="cabinet-material-empty">Здесь пока пусто.<br>Добавь сюда файлы, изображения, видео или важные ссылки.</div>');
+ if(!items.length)return;const grid=document.getElementById('cabinetMaterialsGrid');
+ for(const x of items){
+  let preview='<div class="cabinet-material-file">FILE</div>';
+  if(x.type==='photo'||x.type==='video'){let url=x.storagePath?await cloudSignedUrl(x.storagePath,3600):'';if(!url){const blob=await cabGetFile(x.id);if(blob)url=URL.createObjectURL(blob)}if(url)preview=x.type==='photo'?'<img src="'+esc(url)+'" alt="">':'<video src="'+esc(url)+'" muted playsinline preload="metadata"></video>'}
+  else if(x.type==='link')preview='<div class="cabinet-material-file">↗</div>';
+  const card=document.createElement('article');card.className='cabinet-material-card';card.innerHTML='<div class="cabinet-material-preview">'+preview+'</div><div class="cabinet-material-body"><div class="cabinet-material-name" title="'+esc(x.name)+'">'+esc(x.name)+'</div><div class="cabinet-material-meta">'+(x.type==='photo'?'Фото':x.type==='video'?'Видео':x.type==='link'?'Ссылка':'Файл')+' · '+cabinetFormatDate(x.createdAt)+'</div>'+(x.note?'<div class="cabinet-material-note">'+esc(x.note)+'</div>':'')+'<div class="cabinet-material-actions"><button class="btn ghost" onclick="openCabinetMaterialFile('+x.id+')">Открыть</button><button class="mini" onclick="openCabinetMaterialModal('+x.id+')" title="Редактировать">✎</button><button class="mini" onclick="deleteCabinetMaterial('+x.id+')" title="Удалить">×</button></div></div>';grid.appendChild(card);
+ }
+}
+async function renderCabinet(){if(cabinetTab==='notes')renderCabinetNotes();else if(cabinetTab==='materials')await renderCabinetMaterials();else await renderCabinetMotivation()}
+
+async function refreshMotivationView(){if(currentPage==='cabinet'&&cabinetTab==='motivation')return renderCabinetMotivation();if(currentPage==='motivation')return renderMotivation();}
 function renderSettings(){const pal=state.settings.palette;document.getElementById('page').innerHTML=`<header class="page-head"><div class="eyebrow">Персонализация</div><h1 class="title">Настройки</h1><div class="date">Цвета выбираются по оттенкам — код вводить не нужно.</div></header><div class="grid2"><section class="card"><div class="section-head"><h2>Стандартный цвет задач</h2></div><div class="swatches">${pal.map(c=>`<button class="swatch ${state.settings.taskColor===c?'selected':''}" style="background:${c}" onclick="setColor('taskColor','${c}')" title="${c}"></button>`).join('')}</div></section><section class="card"><div class="section-head"><h2>Стандартный цвет привычек</h2></div><div class="swatches">${pal.map(c=>`<button class="swatch ${state.settings.habitColor===c?'selected':''}" style="background:${c}" onclick="setColor('habitColor','${c}')" title="${c}"></button>`).join('')}</div></section><section class="card"><div class="section-head"><h2>Моя палитра</h2></div><div class="palette-row"><input id="newColor" class="color-picker" type="color" value="#8d2439"><button class="btn ghost" onclick="addPaletteColor()">Добавить оттенок</button></div><p class="setting-note">Добавленный оттенок сразу появится в палитре задач, привычек и попапе редактирования.</p></section><section class="card"><div class="section-head"><h2>Сферы</h2><button class="btn ghost" onclick="openAreaModal()">+ Добавить</button></div><div class="settings-area-list">${AREAS.map((a,i)=>`<div class="settings-area-row"><span>${esc(a)}</span><div class="task-actions"><button class="mini" onclick="openAreaModal(${i})" title="Редактировать">✎</button><button class="mini" onclick="deleteArea(${i})" title="Удалить">×</button></div></div>`).join('')}</div><p class="setting-note">Эти сферы используются в задачах, привычках и автоматическом начислении XP.</p></section><section class="card"><div class="section-head"><h2>Время календаря</h2></div><div class="form-grid calendar-settings-grid"><div class="field"><label>Начало</label><input id="calendarStart" type="time" class="text-input" value="${state.settings.calendarStart||'08:00'}"></div><div class="field"><label>Конец</label><input id="calendarEnd" type="time" class="text-input" value="${state.settings.calendarEnd||'19:00'}"></div></div><p class="setting-note">В календаре будет отображаться только выбранный промежуток времени.</p><button class="btn" onclick="saveCalendarRange()">Сохранить время</button></section><section class="card"><div class="section-head"><h2>Данные</h2></div><button class="btn danger" onclick="resetApp()">Сбросить приложение</button></section></div>`} 
 function openAreaModal(index=-1){const editing=index>=0?AREAS[index]:null;document.getElementById('modal').innerHTML=`<div class="modal-head"><div class="modal-title">${editing?'Редактировать сферу':'Новая сфера'}</div><button class="close" onclick="closeModal()">×</button></div><div class="field"><label>Название</label><input id="areaName" class="text-input" value="${esc(editing||'')}" placeholder="Например, Работа и заработок"></div><div class="modal-actions"><button class="btn ghost" onclick="closeModal()">Отмена</button>${editing?`<button class="btn danger" onclick="deleteArea(${index});closeModal()">Удалить</button>`:''}<button class="btn" onclick="saveArea(${index})">Сохранить</button></div>`;openModal();setTimeout(()=>document.getElementById('areaName')?.focus(),50)}
 function saveArea(index=-1){const name=document.getElementById('areaName').value.trim();if(!name){toast('Напиши название сферы');return}if(AREAS.some((a,i)=>a.toLowerCase()===name.toLowerCase()&&i!==index)){toast('Такая сфера уже есть');return}if(index>=0){const old=AREAS[index];AREAS[index]=name;state.tasks.forEach(t=>{if(t.area===old)t.area=name});state.habits.forEach(h=>{if(h.area===old)h.area=name})}else AREAS.push(name);AREA_LABEL[name]=name;state.settings.areas=[...AREAS];persist();closeModal();renderSettings();toast(index>=0?'Сфера изменена':'Сфера добавлена')}
@@ -1045,7 +1172,7 @@ function openGoalModal(id){const g=id?state.goals.find(x=>x.id==id):null;const x
 function saveGoal(id){const obj={title:document.getElementById('gTitle').value.trim(),target:document.getElementById('gTarget').value.trim(),progress:Math.max(0,Math.min(100,Number(document.getElementById('gProgress').value)||0)),subgoals:document.getElementById('gSubs').value.split('\n').map(x=>x.trim()).filter(Boolean),actions:document.getElementById('gActs').value.split('\n').map(x=>x.trim()).filter(Boolean)};if(!obj.title){toast('Напиши цель');return}if(id){const g=state.goals.find(x=>x.id==id);if(g)Object.assign(g,obj)}else{obj.id=Date.now();state.goals.push(obj)}syncRPGFromPlanner();refresh();closeModal()}
 function openModal(){document.getElementById('modalWrap').classList.add('open')}function closeModal(){document.getElementById('modalWrap').classList.remove('open')}
 document.getElementById('modalWrap').addEventListener('click',e=>{if(e.target.id==='modalWrap')closeModal()});document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
-let currentPage='today';function go(p){currentPage=p;document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===p));if(p==='today')renderToday();else if(p==='planner')renderPlanner();else if(p==='calendar')renderCalendar();else if(p==='weeks')renderWeeks();else if(p==='maddy')renderMaddy();else if(p==='motivation')renderMotivation();else if(p==='settings')renderSettings()}
+let currentPage='today';function go(p){currentPage=p;document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===p));if(p==='today')renderToday();else if(p==='planner')renderPlanner();else if(p==='calendar')renderCalendar();else if(p==='weeks')renderWeeks();else if(p==='maddy')renderMaddy();else if(p==='cabinet')renderCabinet();else if(p==='settings')renderSettings()}
 document.querySelectorAll('.nav button').forEach(b=>b.addEventListener('click',()=>go(b.dataset.page)));
 go('today');
 initCloudSync().then(()=>{if(currentPage)go(currentPage)}).catch(e=>console.warn('Cloud initialization failed',e));
