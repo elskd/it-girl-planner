@@ -228,6 +228,14 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}button:focus-vis
 .all-day-event.done{opacity:1!important;color:#aaa!important}
 .settings-area-list{display:grid;gap:0}.settings-area-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--line);font-size:13px}.settings-area-row:last-child{border-bottom:0}.settings-area-row .task-actions{flex:0 0 auto}
 
+/* final mobile Today layout fixes */
+@media(max-width:700px){
+  .score-row{grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;gap:10px!important}
+  .score-card{min-width:0!important;width:100%!important}
+  .score-completed{white-space:normal!important;overflow-wrap:anywhere}
+  .today-page .tasks-section{order:2!important}
+  .today-page .today-habits-section{order:3!important}
+}
 /* mobile navigation final overrides */
 @media(max-width:700px){
   .sidebar{display:none!important;position:fixed!important;width:0!important;height:0!important;padding:0!important;border:0!important;overflow:hidden!important}
