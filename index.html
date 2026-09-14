@@ -227,6 +227,16 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}button:focus-vis
 .all-day-event{display:flex;align-items:center;gap:5px}
 .all-day-event.done{opacity:1!important;color:#aaa!important}
 .settings-area-list{display:grid;gap:0}.settings-area-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--line);font-size:13px}.settings-area-row:last-child{border-bottom:0}.settings-area-row .task-actions{flex:0 0 auto}
+
+/* mobile navigation final overrides */
+@media(max-width:700px){
+  .sidebar{display:none!important;position:fixed!important;width:0!important;height:0!important;padding:0!important;border:0!important;overflow:hidden!important}
+  .sidebar .brand,.sidebar .nav{display:none!important}
+  .main{margin:0!important;width:100%!important;padding:22px 14px 92px!important}
+  .today-page{display:flex;flex-direction:column}
+  .today-page .today-habits-section{order:2}
+  .today-page .tasks-section{order:3}
+}
 </style>
 </head>
 <body>
@@ -435,7 +445,7 @@ function renderToday(){
   <section class="card score-card"><div class="label">Today Score</div><div class="score-number">${s}%</div><div class="score-copy"><p class="score-completed"><span>Выполнено:</span> <b>${h[0]} / ${h[1]}</b> привычек · <b>${t[0]} / ${t[1]}</b> задач</p><div class="bar"><i style="width:${s}%"></i></div><div class="score-phrase">${scorePhrase(s)}</div></div></section>
   <section class="card score-card"><div class="label">Maddy</div><div class="score-number">${m}%</div><div class="score-copy"><p>Твой текущий прогресс по сферам.</p><div class="bar"><i style="width:${m}%"></i></div><div class="score-phrase">${m>=80?'Ты всё больше живёшь так, как хочешь.':m>=50?'Реальные действия уже меняют картину.':'Сейчас важнее не идеальная система, а повторение действий.'}</div></div></section>
  </div>
- <section class="card section"><div class="section-head"><h2>Привычки</h2><button class="btn ghost" onclick="go('planner');plannerMode='habits';setTimeout(()=>renderPlanner(),0)">Все привычки</button></div><div class="habit-grid">${state.habits.map(habitTodayHTML).join('')}</div></section>
+ <section class="card section today-habits-section"><div class="section-head"><h2>Привычки</h2><button class="btn ghost" onclick="go('planner');plannerMode='habits';setTimeout(()=>renderPlanner(),0)">Все привычки</button></div><div class="habit-grid">${state.habits.map(habitTodayHTML).join('')}</div></section>
  <section class="card section tasks-section"><div class="tasks-header"><div class="tasks-title">Задачи</div><div class="tasks-count">${todayTasks().length ? todayTasks().length + (todayTasks().length === 1 ? ' задача на сегодня' : todayTasks().length < 5 ? ' задачи на сегодня' : ' задач на сегодня') : 'На сегодня задач нет'}</div></div><div class="tasks-divider"></div>${renderTasksGrouped(todayTasks())}<div class="tasks-add-wrap"><button class="btn tasks-add-btn" onclick="openTaskModal()">+ Добавить задачу</button></div></section>`
 }
 function renderTasksGrouped(tasks){if(!tasks.length)return '<div class="empty">На этот день задач нет.</div>';const groups=[['high','Высокий приоритет'],['medium','Средний приоритет'],['low','Низкий приоритет']];return groups.map(([p,label])=>{const arr=tasks.filter(t=>(t.priority||'medium')===p);if(!arr.length)return '';return `<div class="task-group"><div class="label" style="padding:9px 0 2px">${label}</div>${renderTasksHTML(arr)}</div>`}).join('')}
@@ -1411,6 +1421,7 @@ let currentPage='today';function go(p){
  const pageEl=document.getElementById('page');
  const previousHTML=pageEl?pageEl.innerHTML:'';
  currentPage=p;
+ if(pageEl)pageEl.classList.toggle('today-page',p==='today');
  document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===p));
  document.querySelectorAll('.mobile-nav button[data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page===p));
  const moreActive=['maddy','cabinet','settings'].includes(p);
@@ -1449,8 +1460,13 @@ let currentPage='today';function go(p){
    });
  }
 }
-document.querySelectorAll('.nav button').forEach(b=>b.addEventListener('click',()=>go(b.dataset.page)));
-document.querySelectorAll('.mobile-nav button[data-page]').forEach(b=>b.addEventListener('click',()=>{go(b.dataset.page);closeMobileMore();}));
+document.addEventListener('click',e=>{
+ const navButton=e.target.closest('.nav button[data-page], .mobile-nav button[data-page], .mobile-more-menu button[data-page]');
+ if(!navButton)return;
+ e.preventDefault();
+ go(navButton.dataset.page);
+ if(navButton.closest('.mobile-nav')||navButton.closest('.mobile-more-menu'))closeMobileMore();
+});
 const mobileMoreBtn=document.querySelector('.mobile-more-btn');
 const mobileMoreMenu=document.querySelector('.mobile-more-menu');
 function closeMobileMore(){if(!mobileMoreMenu||!mobileMoreBtn)return;mobileMoreMenu.classList.remove('open');mobileMoreMenu.setAttribute('aria-hidden','true');mobileMoreBtn.setAttribute('aria-expanded','false')}
