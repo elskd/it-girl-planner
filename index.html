@@ -295,7 +295,8 @@ async function cloudLoadState(){
 async function cloudSignedUrl(path,expires=3600){
   if(!path)return '';
   try{
-    const r=await fetch(SUPABASE_URL+'/storage/v1/object/sign/'+encodeURIComponent(CLOUD_BUCKET)+'/'+path,{method:'POST',headers:cloudHeaders({'Content-Type':'application/json'}),body:JSON.stringify({expiresIn:expires})});
+    const safePath=String(path).split('/').map(encodeURIComponent).join('/');
+    const r=await fetch(SUPABASE_URL+'/storage/v1/object/sign/'+encodeURIComponent(CLOUD_BUCKET)+'/'+safePath,{method:'POST',headers:cloudHeaders({'Content-Type':'application/json'}),body:JSON.stringify({expiresIn:expires})});
     if(!r.ok) throw new Error('Sign '+r.status);
     const j=await r.json();
     return j.signedURL ? (SUPABASE_URL+'/storage/v1'+j.signedURL) : (j.signedUrl||'');
@@ -306,7 +307,8 @@ function cloudFilePath(id,name){
   return 'motivation/'+String(id)+'-'+clean;
 }
 async function cloudUploadFile(path,blob){
-  const r=await fetch(SUPABASE_URL+'/storage/v1/object/'+encodeURIComponent(CLOUD_BUCKET)+'/'+path,{method:'POST',headers:cloudHeaders({'Content-Type':blob.type||'application/octet-stream','x-upsert':'true'}),body:blob});
+  const safePath=String(path).split('/').map(encodeURIComponent).join('/');
+  const r=await fetch(SUPABASE_URL+'/storage/v1/object/'+encodeURIComponent(CLOUD_BUCKET)+'/'+safePath,{method:'POST',headers:cloudHeaders({'Content-Type':blob.type||'application/octet-stream','x-upsert':'true'}),body:blob});
   if(!r.ok) throw new Error('Cloud upload '+r.status);
 }
 async function cloudDeleteFile(path){
@@ -1137,8 +1139,12 @@ async function cabPutFile(id,blob){return motPut('cabinet:'+id,blob)}
 async function cabGetFile(id){return motGet('cabinet:'+id)}
 async function cabDeleteFile(id){return motDelete('cabinet:'+id)}
 async function openCabinetMaterialFile(id){
- const x=cabinetMaterials().find(v=>Number(v.id)===Number(id));if(!x)return;if(x.type==='link'){window.open(x.url,'_blank','noopener');return}
- let url=x.storagePath?await cloudSignedUrl(x.storagePath,3600):'';if(!url){const blob=await cabGetFile(id);if(blob)url=URL.createObjectURL(blob)}if(!url){toast('Файл недоступен');return}window.open(url,'_blank','noopener');if(!x.storagePath)setTimeout(()=>URL.revokeObjectURL(url),60000);
+ const x=cabinetMaterials().find(v=>Number(v.id)===Number(id));if(!x)return;
+ if(x.type==='link'){const a=document.createElement('a');a.href=x.url;a.target='_blank';a.rel='noopener';a.click();return}
+ let url=x.storagePath?await cloudSignedUrl(x.storagePath,3600):'';if(!url){const blob=await cabGetFile(id);if(blob)url=URL.createObjectURL(blob)}
+ if(!url){toast('Файл недоступен');return}
+ const a=document.createElement('a');a.href=url;a.target='_blank';a.rel='noopener';a.click();
+ if(!x.storagePath)setTimeout(()=>URL.revokeObjectURL(url),60000);
 }
 async function renderCabinetMaterials(){
  const items=cabinetMaterials();
