@@ -1332,7 +1332,7 @@ async function renderCabinetMaterials(){
   const card=document.createElement('article');card.className='cabinet-material-card';card.innerHTML='<div class="cabinet-material-preview">'+preview+'</div><div class="cabinet-material-body"><div class="cabinet-material-name" title="'+esc(x.name)+'">'+esc(x.name)+'</div><div class="cabinet-material-meta">'+(x.type==='photo'?'Фото':x.type==='video'?'Видео':x.type==='link'?'Ссылка':'Файл')+' · '+cabinetFormatDate(x.createdAt)+'</div>'+(x.note?'<div class="cabinet-material-note">'+esc(x.note)+'</div>':'')+'<div class="cabinet-material-actions"><button class="btn ghost" onclick="openCabinetMaterialFile('+x.id+')">Открыть</button><button class="mini" onclick="openCabinetMaterialModal('+x.id+')" title="Редактировать">✎</button><button class="mini" onclick="deleteCabinetMaterial('+x.id+')" title="Удалить">×</button></div></div>';grid.appendChild(card);
  }
 }
-async function renderCabinet(){if(cabinetTab==='notes')renderCabinetNotes();else if(cabinetTab==='materials')await renderCabinetMaterials();else await renderCabinetMotivation()}
+async async function renderCabinet(){if(cabinetTab==='notes')renderCabinetNotes();else if(cabinetTab==='materials')await renderCabinetMaterials();else await renderCabinetMotivation()}
 
 async function refreshMotivationView(){if(currentPage==='cabinet'&&cabinetTab==='motivation')return renderCabinetMotivation();if(currentPage==='motivation')return renderMotivation();}
 function renderSettings(){const pal=state.settings.palette;document.getElementById('page').innerHTML=`<header class="page-head"><div class="eyebrow">Персонализация</div><h1 class="title">Настройки</h1><div class="date">Цвета выбираются по оттенкам — код вводить не нужно.</div></header><div class="grid2"><section class="card"><div class="section-head"><h2>Стандартный цвет задач</h2></div><div class="swatches">${pal.map(c=>`<button class="swatch ${state.settings.taskColor===c?'selected':''}" style="background:${c}" onclick="setColor('taskColor','${c}')" title="${c}"></button>`).join('')}</div></section><section class="card"><div class="section-head"><h2>Стандартный цвет привычек</h2></div><div class="swatches">${pal.map(c=>`<button class="swatch ${state.settings.habitColor===c?'selected':''}" style="background:${c}" onclick="setColor('habitColor','${c}')" title="${c}"></button>`).join('')}</div></section><section class="card"><div class="section-head"><h2>Моя палитра</h2></div><div class="palette-row"><input id="newColor" class="color-picker" type="color" value="#8d2439"><button class="btn ghost" onclick="addPaletteColor()">Добавить оттенок</button></div><p class="setting-note">Добавленный оттенок сразу появится в палитре задач, привычек и попапе редактирования.</p></section><section class="card"><div class="section-head"><h2>Сферы</h2><button class="btn ghost" onclick="openAreaModal()">+ Добавить</button></div><div class="settings-area-list">${AREAS.map((a,i)=>`<div class="settings-area-row"><span>${esc(a)}</span><div class="task-actions"><button class="mini" onclick="openAreaModal(${i})" title="Редактировать">✎</button><button class="mini" onclick="deleteArea(${i})" title="Удалить">×</button></div></div>`).join('')}</div><p class="setting-note">Эти сферы используются в задачах, привычках и автоматическом начислении XP.</p></section><section class="card"><div class="section-head"><h2>Время календаря</h2></div><div class="form-grid calendar-settings-grid"><div class="field"><label>Начало</label><input id="calendarStart" type="time" class="text-input" value="${state.settings.calendarStart||'08:00'}"></div><div class="field"><label>Конец</label><input id="calendarEnd" type="time" class="text-input" value="${state.settings.calendarEnd||'19:00'}"></div></div><p class="setting-note">В календаре будет отображаться только выбранный промежуток времени.</p><button class="btn" onclick="saveCalendarRange()">Сохранить время</button></section><section class="card"><div class="section-head"><h2>Данные</h2></div><button class="btn danger" onclick="resetApp()">Сбросить приложение</button></section></div>`} 
@@ -1355,7 +1355,39 @@ function openGoalModal(id){const g=id?state.goals.find(x=>x.id==id):null;const x
 function saveGoal(id){const obj={title:document.getElementById('gTitle').value.trim(),target:document.getElementById('gTarget').value.trim(),progress:Math.max(0,Math.min(100,Number(document.getElementById('gProgress').value)||0)),subgoals:document.getElementById('gSubs').value.split('\n').map(x=>x.trim()).filter(Boolean),actions:document.getElementById('gActs').value.split('\n').map(x=>x.trim()).filter(Boolean)};if(!obj.title){toast('Напиши цель');return}if(id){const g=state.goals.find(x=>x.id==id);if(g)Object.assign(g,obj)}else{obj.id=Date.now();state.goals.push(obj)}syncRPGFromPlanner();refresh();closeModal()}
 function openModal(){document.getElementById('modalWrap').classList.add('open')}function closeModal(){document.getElementById('modalWrap').classList.remove('open')}
 document.getElementById('modalWrap').addEventListener('click',e=>{if(e.target.id==='modalWrap')closeModal()});document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
-let currentPage='today';function go(p){currentPage=p;document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===p));if(p==='today')renderToday();else if(p==='planner')renderPlanner();else if(p==='calendar')renderCalendar();else if(p==='weeks')renderWeeks();else if(p==='maddy')renderMaddy();else if(p==='cabinet')renderCabinet();else if(p==='settings')renderSettings()}
+let currentPage='today';function go(p){
+ const previousPage=currentPage;
+ const pageEl=document.getElementById('page');
+ const previousHTML=pageEl?pageEl.innerHTML:'';
+ currentPage=p;
+ document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===p));
+ let result;
+ try{
+   if(p==='today')result=renderToday();
+   else if(p==='planner')result=renderPlanner();
+   else if(p==='calendar')result=renderCalendar();
+   else if(p==='weeks')result=renderWeeks();
+   else if(p==='maddy')result=renderMaddy();
+   else if(p==='cabinet')result=renderCabinet();
+   else if(p==='settings')result=renderSettings();
+ }catch(e){
+   console.error('Navigation render failed:',e);
+   currentPage=previousPage;
+   document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===previousPage));
+   if(pageEl)pageEl.innerHTML=previousHTML;
+   toast('Раздел не удалось открыть — изменения страницы сохранены');
+   return;
+ }
+ if(result&&typeof result.catch==='function'){
+   result.catch(e=>{
+     console.error('Navigation render failed:',e);
+     currentPage=previousPage;
+     document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===previousPage));
+     if(pageEl)pageEl.innerHTML=previousHTML;
+     toast('Раздел не удалось открыть — изменения страницы сохранены');
+   });
+ }
+}
 document.querySelectorAll('.nav button').forEach(b=>b.addEventListener('click',()=>go(b.dataset.page)));
 go('today');
 initCloudSync().then(()=>{if(currentPage)go(currentPage)}).catch(e=>console.warn('Cloud initialization failed',e));
