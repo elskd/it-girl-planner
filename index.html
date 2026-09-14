@@ -61,7 +61,7 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}button:focus-vis
 .cabinet-note-content h2{font-family:Georgia,serif;font-weight:400;font-size:24px;margin:14px 0 8px}
 .cabinet-note-content h3{font-family:Georgia,serif;font-weight:400;font-size:19px;margin:12px 0 7px}
 .cabinet-note-content blockquote{border-left:2px solid var(--accent);margin:12px 0;padding:4px 0 4px 14px;color:var(--muted)}
-.cabinet-note-content ul,.cabinet-note-content ol{padding-left:24px}
+.cabinet-note-content ul,.cabinet-note-content ol{padding-left:24px;margin:0}
 .cabinet-note-content img{max-width:100%;height:auto;border-radius:12px;border:1px solid var(--line);margin:8px 0}
 .cabinet-note-editor-foot{padding:10px 14px;border-top:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:10px}
 .cabinet-note-status{font-size:10px;color:var(--muted)}
@@ -1119,11 +1119,17 @@ if(block.tagName==='LI'&&text===''&&!hasMedia){
   const list=block.parentElement;
   const p=document.createElement('p');
   p.innerHTML='<br>';
-  if(list&&list.children.length===1)list.replaceWith(p);
-  else if(list){list.after(p);block.remove()}
+  if(list){
+    if(list.children.length===1) list.replaceWith(p);
+    else { list.after(p); block.remove(); }
+  }else{
+    block.replaceWith(p);
+  }
   const range=document.createRange();
-  range.setStart(p,0);range.collapse(true);
-  sel.removeAllRanges();sel.addRange(range);
+  range.setStart(p,0);
+  range.collapse(true);
+  sel.removeAllRanges();
+  sel.addRange(range);
   cabinetNoteDirty=true;
   const status=document.querySelector('.cabinet-note-status');if(status)status.textContent='Есть несохранённые изменения';
   return;
