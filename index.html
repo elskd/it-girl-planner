@@ -1104,28 +1104,31 @@ function renderCabinetNotes(){
  const ed=document.getElementById('cabinetNoteContent');if(ed){ed.addEventListener('input',()=>{cabinetNoteDirty=true;const s=document.querySelector('.cabinet-note-status');if(s)s.textContent='Есть несохранённые изменения'});ed.addEventListener('keydown',function(e){
 if(e.key!=='Enter'||e.shiftKey)return;
 const sel=window.getSelection();if(!sel||!sel.rangeCount||!sel.isCollapsed)return;
-let node=sel.anchorNode;if(node&&node.nodeType===3)node=node.parentElement;
+let node=sel.anchorNode;
+if(node===ed&&ed.childNodes.length){
+  const idx=Math.max(0,Math.min(sel.anchorOffset-1,ed.childNodes.length-1));
+  node=ed.childNodes[idx];
+}
+if(node&&node.nodeType===3)node=node.parentElement;
 if(!node||!ed.contains(node))return;
 const li=node.closest&&node.closest('li');
 if(li&&!(li.textContent||'').trim()){
- e.preventDefault();
- const list=li.parentElement;
- const p=document.createElement('p');p.innerHTML='<br>';
- if(list&&list.children.length===1)list.replaceWith(p);else{list.after(p);li.remove()}
- const range=document.createRange();range.setStart(p,0);range.collapse(true);sel.removeAllRanges();sel.addRange(range);
- cabinetNoteDirty=true;return;
+  e.preventDefault();
+  const list=li.parentElement,p=document.createElement('p');p.innerHTML='<br>';
+  if(list&&list.children.length===1)list.replaceWith(p);else{list.after(p);li.remove()}
+  const rr=document.createRange();rr.setStart(p,0);rr.collapse(true);sel.removeAllRanges();sel.addRange(rr);
+  cabinetNoteDirty=true;return;
 }
-const block=node.closest&&node.closest('blockquote,h1,h2,h3,h4,h5,h6,p,div');
-if(!block||!ed.contains(block))return;
+let block=node.closest&&node.closest('blockquote,h1,h2,h3,h4,h5,h6,p,div');
+if(!block||block===ed||!ed.contains(block))return;
 if(!(block.textContent||'').trim()){
- e.preventDefault();
- const p=document.createElement('p');p.innerHTML='<br>';
- block.replaceWith(p);
- const range=document.createRange();range.setStart(p,0);range.collapse(true);sel.removeAllRanges();sel.addRange(range);
- cabinetNoteDirty=true;
- const status=document.querySelector('.cabinet-note-status');if(status)status.textContent='Есть несохранённые изменения';
+  e.preventDefault();
+  const p=document.createElement('p');p.innerHTML='<br>';
+  block.replaceWith(p);
+  const rr=document.createRange();rr.setStart(p,0);rr.collapse(true);sel.removeAllRanges();sel.addRange(rr);
+  cabinetNoteDirty=true;
+  const status=document.querySelector('.cabinet-note-status');if(status)status.textContent='Есть несохранённые изменения';
 }
-
 });
 }}
 
