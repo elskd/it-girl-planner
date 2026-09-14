@@ -1134,14 +1134,16 @@ if(block.tagName==='LI'&&text===''&&!hasMedia){
   const status=document.querySelector('.cabinet-note-status');if(status)status.textContent='Есть несохранённые изменения';
   return;
 }
-if(text===''&&!hasMedia&&block!==ed){
+if(text===''&&!hasMedia&&block!==ed&&['BLOCKQUOTE','H1','H2','H3','H4','H5','H6'].includes(block.tagName)){
   e.preventDefault();
   const p=document.createElement('p');
   p.innerHTML='<br>';
   block.replaceWith(p);
   const range=document.createRange();
-  range.setStart(p,0);range.collapse(true);
-  sel.removeAllRanges();sel.addRange(range);
+  range.setStart(p,0);
+  range.collapse(true);
+  sel.removeAllRanges();
+  sel.addRange(range);
   cabinetNoteDirty=true;
   const status=document.querySelector('.cabinet-note-status');if(status)status.textContent='Есть несохранённые изменения';
 }
