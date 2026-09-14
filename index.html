@@ -1140,7 +1140,6 @@ if(text===''&&!hasMedia&&block!==ed){
   const status=document.querySelector('.cabinet-note-status');if(status)status.textContent='Есть несохранённые изменения';
 }
 });
-});
 }}
 
 function setCabinetTab(tab){if(cabinetNoteDirty&&cabinetTab==='notes'&&tab!=='notes'&&!confirm('Есть несохранённые изменения в заметке. Перейти без сохранения?'))return;cabinetTab=tab;cabinetNoteDirty=false;if(tab==='notes')renderCabinetNotes();else if(tab==='materials')renderCabinetMaterials();else renderCabinetMotivation()}
