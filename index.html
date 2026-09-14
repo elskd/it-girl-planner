@@ -839,7 +839,11 @@ async function saveMotivation(editId=0){
      if(old&&old.type!=='note')await motDelete(id);
    }else{
      const file=document.getElementById('motFile')?.files?.[0];
-     if(file){item.mediaType=file.type;item.fileSize=file.size;item.fileName=file.name;await motPut(id,file);if(cloudReady){const path=cloudFilePath(id,file.name);await cloudUploadFile(path,file);item.storagePath=path;}if(type==='video'){const tmp=URL.createObjectURL(file);makeVideoPosterFromUrl(id,tmp).finally(()=>URL.revokeObjectURL(tmp))}}
+     if(file){
+     item.mediaType=file.type;item.fileSize=file.size;item.fileName=file.name;await motPut(id,file);
+     if(cloudReady){const path=cloudFilePath(id,file.name);try{await cloudUploadFile(path,file);item.storagePath=path}catch(e){console.warn('Motivation cloud upload failed',e)}}
+     if(type==='video'){const tmp=URL.createObjectURL(file);makeVideoPosterFromUrl(id,tmp).finally(()=>URL.revokeObjectURL(tmp))}
+   }
      else if(!old||old.type!==type){toast('Выбери файл');btn.disabled=false;btn.textContent=editId?'Сохранить':'Добавить';return}
      item.url='';
    }
@@ -860,8 +864,9 @@ async function renderMotivation(){
    const l=motivationLegacy(x); if(String(l.label).trim().toLowerCase()==='без метки') l.label=''; let media='';
    if(x.type==='photo'||x.type==='video'||x.type==='file'){
      let url='';
-     if(x.data) url=x.data;
-     else { const blob=await motGet(x.id); if(blob) url=URL.createObjectURL(blob); }
+     if(x.storagePath) url=await cloudSignedUrl(x.storagePath,3600);
+     if(!url&&x.data) url=x.data;
+     if(!url){ const blob=await motGet(x.id); if(blob) url=URL.createObjectURL(blob); }
      if(url){
        if(x.type==='photo') media=`<img class="motivation-media" src="${esc(url)}" alt="">`;
        else if(x.type==='video') { const posterBlob=await motGetPoster(x.id); const posterUrl=posterBlob?URL.createObjectURL(posterBlob):''; media=`<div class="motivation-video-wrap">${posterUrl?`<video class="motivation-video" preload="metadata" playsinline muted poster="${esc(posterUrl)}" src="${esc(url)}"></video>`:`<div class="motivation-video-pending"><span>▶</span></div>`}</div>`; if(!posterUrl) queueMicrotask(()=>makeVideoPosterFromUrl(x.id,url)); }
@@ -1037,7 +1042,8 @@ async function renderMotivationViewer(){
  const box=document.getElementById('motivationLightbox');
  const x=motivationViewerItems[motivationViewerIndex];
  if(!x)return;
- let url=x.data||'';
+ let url=x.storagePath?await cloudSignedUrl(x.storagePath,3600):'';
+ if(!url)url=x.data||'';
  if(!url){const blob=await motGet(x.id);if(blob){url=URL.createObjectURL(blob);motivationViewerObjectUrls.push(url)}}
  if(!url)return;
  const hasPrev=motivationViewerIndex>0;
