@@ -1101,8 +1101,20 @@ function renderCabinetNotes(){
  '<div class="cabinet-note-editor-body"><div id="cabinetNoteContent" class="cabinet-note-content" contenteditable="true" data-placeholder="Начни писать здесь…">'+(active.content||'')+'</div></div>'+
  '<div class="cabinet-note-editor-foot"><span class="cabinet-note-status">'+(cabinetNoteDirty?'Есть несохранённые изменения':'Сохранено')+'</span><button class="btn" onclick="saveCabinetNote()">Сохранить</button></div>'
  :'<div class="cabinet-note-editor-body" style="display:grid;place-items:center;color:var(--muted);font-size:13px">Выбери заметку или создай новую.</div>')+'</section></div>';
- const ed=document.getElementById('cabinetNoteContent');if(ed){ed.addEventListener('input',()=>{cabinetNoteDirty=true;const s=document.querySelector('.cabinet-note-status');if(s)s.textContent='Есть несохранённые изменения'});ed.addEventListener('keydown',function(e){if(e.key!=='Enter'||e.shiftKey)return;const s=getSelection();if(!s||!s.rangeCount||!s.isCollapsed)return;let n=s.anchorNode;if(n&&n.nodeType===3)n=n.parentElement;const block=n?.closest?.('blockquote');if(!block||!ed.contains(block))return;const text=(block.textContent||'').replace(/\\u200B/g,'').trim();if(text!=='')return;const p=document.createElement('p');p.innerHTML='<br>';block.replaceWith(p);const r=document.createRange();r.setStart(p,0);r.collapse(true);s.removeAllRanges();s.addRange(r);e.preventDefault();cabinetNoteDirty=true;const st=document.querySelector('.cabinet-note-status');if(st)st.textContent='Есть несохранённые изменения'});}
-}
+ const ed=document.getElementById('cabinetNoteContent');if(ed){ed.addEventListener('input',()=>{cabinetNoteDirty=true;const s=document.querySelector('.cabinet-note-status');if(s)s.textContent='Есть несохранённые изменения'});ed.addEventListener('keydown',function(e){
+if(e.key!=='Enter'||e.shiftKey)return;
+const s=getSelection();if(!s||!s.rangeCount||!s.isCollapsed)return;
+let n=s.anchorNode;if(n&&n.nodeType===3)n=n.parentElement;if(!n||!ed.contains(n))return;
+const li=n.closest&&n.closest('li');
+if(li&&!(li.textContent||'').trim()){e.preventDefault();const list=li.parentElement,p=document.createElement('p');p.innerHTML='<br>';if(list&&list.children.length===1)list.replaceWith(p);else{list.after(p);li.remove()}const rr=document.createRange();rr.setStart(p,0);rr.collapse(true);s.removeAllRanges();s.addRange(rr);cabinetDirty();cabinetRemember();return;}
+const block=n.closest&&n.closest('blockquote,h1,h2,h3,h4,h5,h6,p,div');if(!block||!ed.contains(block))return;
+if((block.textContent||'').trim()!=='')return;
+const styled=n.closest&&n.closest('strong,em,u,s,strike');
+if(styled&&styled!==block){e.preventDefault();const p=document.createElement('p');p.innerHTML='<br>';block.replaceWith(p);const rr=document.createRange();rr.setStart(p,0);rr.collapse(true);s.removeAllRanges();s.addRange(rr);cabinetDirty();cabinetRemember();return;}
+const tag=block.tagName.toLowerCase();
+if(['blockquote','h1','h2','h3','h4','h5','h6'].includes(tag)){e.preventDefault();const p=document.createElement('p');p.innerHTML='<br>';block.replaceWith(p);const rr=document.createRange();rr.setStart(p,0);rr.collapse(true);s.removeAllRanges();s.addRange(rr);cabinetDirty();cabinetRemember();}
+});
+}}
 
 function setCabinetTab(tab){if(cabinetNoteDirty&&cabinetTab==='notes'&&tab!=='notes'&&!confirm('Есть несохранённые изменения в заметке. Перейти без сохранения?'))return;cabinetTab=tab;cabinetNoteDirty=false;if(tab==='notes')renderCabinetNotes();else if(tab==='materials')renderCabinetMaterials();else renderCabinetMotivation()}
 async function renderCabinetMotivation(){
