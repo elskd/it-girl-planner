@@ -1101,28 +1101,47 @@ function renderCabinetNotes(){
  '<div class="cabinet-note-editor-body"><div id="cabinetNoteContent" class="cabinet-note-content" contenteditable="true" data-placeholder="Начни писать здесь…">'+(active.content||'')+'</div></div>'+
  '<div class="cabinet-note-editor-foot"><span class="cabinet-note-status">'+(cabinetNoteDirty?'Есть несохранённые изменения':'Сохранено')+'</span><button class="btn" onclick="saveCabinetNote()">Сохранить</button></div>'
  :'<div class="cabinet-note-editor-body" style="display:grid;place-items:center;color:var(--muted);font-size:13px">Выбери заметку или создай новую.</div>')+'</section></div>';
- const ed=document.getElementById('cabinetNoteContent');if(ed){
-ed.addEventListener('input',function(){cabinetNoteDirty=true;const x=document.querySelector('.cabinet-note-status');if(x)x.textContent='Есть несохранённые изменения'});
-ed.addEventListener('keydown',function(e){
- if(e.key!=='Enter'||e.shiftKey)return;
- const sel=window.getSelection();if(!sel||!sel.rangeCount||!sel.isCollapsed)return;
- let n=sel.anchorNode;if(n&&n.nodeType===3)n=n.parentElement;
- const b=n&&n.closest?n.closest('blockquote,h1,h2,h3,h4,h5,h6,p,div,li'):null;
- if(!b||b===ed||!ed.contains(b))return;
- const empty=!((b.textContent||'').replace(/\u200B/g,'').trim())&&!b.querySelector('img,video,iframe');
- if(!empty)return;
- e.preventDefault();
- const p=document.createElement('p');p.innerHTML='<br>';
- b.replaceWith(p);
- const nx=p.nextElementSibling;
- if(nx&&!(nx.textContent||'').trim()&&!nx.querySelector('img,video,iframe'))nx.remove();
- const range=document.createRange();range.setStart(p,0);range.collapse(true);
- sel.removeAllRanges();sel.addRange(range);
- document.execCommand('removeFormat',false,null);
- cabinetNoteDirty=true;
- const x=document.querySelector('.cabinet-note-status');if(x)x.textContent='Есть несохранённые изменения';
-});
+ const ed=document.getElementById('cabinetNoteContent');if(ed){ed.addEventListener('input',()=>{cabinetNoteDirty=true;const s=document.querySelector('.cabinet-note-status');if(s)s.textContent='Есть несохранённые изменения'});ed.addEventListener('keydown',function(e){
+if(e.key!=='Enter'||e.shiftKey)return;
+const sel=window.getSelection();
+if(!sel||!sel.rangeCount||!sel.isCollapsed)return;
+let node=sel.anchorNode;
+if(node&&node.nodeType===3)node=node.parentElement;
+let block=node&&node.closest?node.closest('blockquote,h1,h2,h3,h4,h5,h6,p,div,li'):null;
+if(!block||block===ed||!ed.contains(block))return;
+
+/* Second Enter: when the newly created line is empty, leave the current
+   formatting/list and create one clean paragraph immediately below it. */
+const text=(block.textContent||'').replace(/\u200B/g,'').trim();
+const hasMedia=!!block.querySelector?.('img,video,iframe');
+if(block.tagName==='LI'&&text===''&&!hasMedia){
+  e.preventDefault();
+  const list=block.parentElement;
+  const p=document.createElement('p');
+  p.innerHTML='<br>';
+  if(list&&list.children.length===1)list.replaceWith(p);
+  else if(list){list.after(p);block.remove()}
+  const range=document.createRange();
+  range.setStart(p,0);range.collapse(true);
+  sel.removeAllRanges();sel.addRange(range);
+  cabinetNoteDirty=true;
+  const status=document.querySelector('.cabinet-note-status');if(status)status.textContent='Есть несохранённые изменения';
+  return;
 }
+if(text===''&&!hasMedia&&block!==ed){
+  e.preventDefault();
+  const p=document.createElement('p');
+  p.innerHTML='<br>';
+  block.replaceWith(p);
+  const range=document.createRange();
+  range.setStart(p,0);range.collapse(true);
+  sel.removeAllRanges();sel.addRange(range);
+  cabinetNoteDirty=true;
+  const status=document.querySelector('.cabinet-note-status');if(status)status.textContent='Есть несохранённые изменения';
+}
+});
+}}
+
 function setCabinetTab(tab){if(cabinetNoteDirty&&cabinetTab==='notes'&&tab!=='notes'&&!confirm('Есть несохранённые изменения в заметке. Перейти без сохранения?'))return;cabinetTab=tab;cabinetNoteDirty=false;if(tab==='notes')renderCabinetNotes();else if(tab==='materials')renderCabinetMaterials();else renderCabinetMotivation()}
 async function renderCabinetMotivation(){
  document.getElementById('page').innerHTML='<header class="page-head"><div class="eyebrow">Личное пространство</div><h1 class="title">Мой кабинет</h1><div class="date">Твои заметки, важные материалы и всё, что тебя вдохновляет.</div></header>'+cabinetTabsHTML('motivation')+'<div id="cabinetMotivationTarget"></div>';
