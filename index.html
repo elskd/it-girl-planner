@@ -1084,10 +1084,58 @@ function cabinetNotes(){state.notes=Array.isArray(state.notes)?state.notes:[];re
 function cabinetMaterials(){state.cabinetMaterials=Array.isArray(state.cabinetMaterials)?state.cabinetMaterials:[];return state.cabinetMaterials}
 function cabinetFormatDate(iso){try{return new Date(iso).toLocaleDateString('ru-RU',{day:'numeric',month:'short',year:'numeric'})}catch(e){return ''}}
 function cabinetNotePreview(html){const d=document.createElement('div');d.innerHTML=html||'';return (d.textContent||'').replace(/\s+/g,' ').trim().slice(0,90)}
-function cleanNoteHTML(html){const box=document.createElement('div');box.innerHTML=html||'';box.querySelectorAll('script,style,iframe,object,embed').forEach(x=>x.remove());box.querySelectorAll('*').forEach(el=>[...el.attributes].forEach(a=>{if(/^on/i.test(a.name))el.removeAttribute(a.name)}));return box.innerHTML}
-function execNoteCommand(cmd,value){const ed=document.getElementById('cabinetNoteContent');if(!ed)return;ed.focus();document.execCommand(cmd,false,value||null);cabinetNoteDirty=true}
-function insertCabinetChecklist(){const ed=document.getElementById('cabinetNoteContent');if(!ed)return;ed.focus();document.execCommand('insertHTML',false,'<div class="cabinet-check-item"><input type="checkbox"><span>&nbsp;</span></div>');cabinetNoteDirty=true}
-function bindCabinetChecklist(){const ed=document.getElementById('cabinetNoteContent');if(!ed)return;ed.querySelectorAll('.cabinet-check-item input').forEach(cb=>cb.addEventListener('change',()=>{cabinetNoteDirty=true}))}
+function cleanNoteHTML(html){
+ const box=document.createElement('div');box.innerHTML=html||'';
+ box.querySelectorAll('script,style,iframe,object,embed').forEach(x=>x.remove());
+ box.querySelectorAll('*').forEach(el=>[...el.attributes].forEach(a=>{if(/^on/i.test(a.name))el.removeAttribute(a.name)}));
+ box.querySelectorAll('.cabinet-check-item input[type="checkbox"]').forEach(cb=>{if(cb.checked)cb.setAttribute('checked','checked');else cb.removeAttribute('checked')});
+ return box.innerHTML
+}
+let cabinetSavedRange=null;
+function rememberCabinetSelection(){
+ const ed=document.getElementById('cabinetNoteContent'),sel=window.getSelection();if(!ed||!sel||!sel.rangeCount)return;
+ const r=sel.getRangeAt(0);if(ed.contains(r.startContainer)&&ed.contains(r.endContainer))cabinetSavedRange=r.cloneRange();
+}
+function restoreCabinetSelection(){
+ const ed=document.getElementById('cabinetNoteContent');if(!ed||!cabinetSavedRange)return false;
+ ed.focus();const sel=window.getSelection();sel.removeAllRanges();sel.addRange(cabinetSavedRange);return true
+}
+function markCabinetNoteDirty(){cabinetNoteDirty=true;const s=document.querySelector('.cabinet-note-status');if(s)s.textContent='Есть несохранённые изменения'}
+function execNoteCommand(cmd,value){
+ const ed=document.getElementById('cabinetNoteContent');if(!ed)return;
+ restoreCabinetSelection();
+ document.execCommand(cmd,false,value||null);
+ rememberCabinetSelection();markCabinetNoteDirty();
+}
+function toggleCabinetQuote(){
+ const ed=document.getElementById('cabinetNoteContent');if(!ed)return;restoreCabinetSelection();
+ const sel=window.getSelection();if(!sel.rangeCount)return;
+ let node=sel.anchorNode;if(node&&node.nodeType===3)node=node.parentElement;
+ let block=node?.closest('blockquote');
+ if(block&&ed.contains(block)){
+   const p=document.createElement('p');while(block.firstChild)p.appendChild(block.firstChild);block.replaceWith(p);
+   const r=document.createRange();r.selectNodeContents(p);r.collapse(false);sel.removeAllRanges();sel.addRange(r);
+ }else{
+   let el=node;while(el&&el.parentElement!==ed)el=el.parentElement;
+   if(!el)el=node;
+   if(!el||el.tagName==='BLOCKQUOTE')return;
+   const q=document.createElement('blockquote');q.innerHTML=el.innerHTML||'';el.replaceWith(q);
+   const r=document.createRange();r.selectNodeContents(q);r.collapse(false);sel.removeAllRanges();sel.addRange(r);
+ }
+ rememberCabinetSelection();markCabinetNoteDirty();
+}
+function insertCabinetChecklist(){
+ const ed=document.getElementById('cabinetNoteContent');if(!ed)return;restoreCabinetSelection();
+ document.execCommand('insertHTML',false,'<div class="cabinet-check-item" contenteditable="false"><input type="checkbox" contenteditable="false"><span class="cabinet-check-text">Новый пункт</span></div><p><br></p>');
+ markCabinetNoteDirty();bindCabinetChecklist()
+}
+function bindCabinetChecklist(){
+ const ed=document.getElementById('cabinetNoteContent');if(!ed)return;
+ ed.querySelectorAll('.cabinet-check-item input[type="checkbox"]').forEach(cb=>{
+   cb.onchange=()=>markCabinetNoteDirty();
+   cb.onclick=e=>e.stopPropagation();
+ });
+}
 function newCabinetNote(){const n={id:Date.now(),title:'Новая заметка',content:'',createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()};cabinetNotes().unshift(n);cabinetNoteId=n.id;cabinetNoteDirty=false;persist();renderCabinetNotes();setTimeout(()=>document.getElementById('cabinetNoteTitle')?.focus(),0)}
 function selectCabinetNote(id){if(cabinetNoteDirty&&!confirm('Есть несохранённые изменения. Перейти без сохранения?'))return;cabinetNoteId=Number(id);cabinetNoteDirty=false;renderCabinetNotes()}
 function saveCabinetNote(){const n=cabinetNotes().find(x=>Number(x.id)===Number(cabinetNoteId));if(!n)return;n.title=(document.getElementById('cabinetNoteTitle')?.value||'').trim()||'Без названия';n.content=cleanNoteHTML(document.getElementById('cabinetNoteContent')?.innerHTML||'');n.updatedAt=new Date().toISOString();cabinetNoteDirty=false;persist();renderCabinetNotes();toast('Заметка сохранена')}
@@ -1105,7 +1153,7 @@ function renderCabinetNotes(){
  '<div class="cabinet-note-editor-body"><div id="cabinetNoteContent" class="cabinet-note-content" contenteditable="true" data-placeholder="Начни писать здесь…">'+(active.content||'')+'</div></div>'+
  '<div class="cabinet-note-editor-foot"><span class="cabinet-note-status">'+(cabinetNoteDirty?'Есть несохранённые изменения':'Сохранено')+'</span><button class="btn" onclick="saveCabinetNote()">Сохранить</button></div>'
  :'<div class="cabinet-note-editor-body" style="display:grid;place-items:center;color:var(--muted);font-size:13px">Выбери заметку или создай новую.</div>')+'</section></div>';
- const ed=document.getElementById('cabinetNoteContent');if(ed){ed.addEventListener('input',()=>{cabinetNoteDirty=true;const s=document.querySelector('.cabinet-note-status');if(s)s.textContent='Есть несохранённые изменения'});bindCabinetChecklist()}
+ const ed=document.getElementById('cabinetNoteContent');if(ed){ed.addEventListener('input',()=>{cabinetNoteDirty=true;const s=document.querySelector('.cabinet-note-status');if(s)s.textContent='Есть несохранённые изменения'});ed.addEventListener('keyup',rememberCabinetSelection);ed.addEventListener('mouseup',rememberCabinetSelection);ed.addEventListener('focus',rememberCabinetSelection);ed.addEventListener('keydown',e=>{if(e.key!=='Enter')return;const sel=window.getSelection();let n=sel?.anchorNode;if(n&&n.nodeType===3)n=n.parentElement;const q=n?.closest?.('blockquote');if(q&&ed.contains(q)&&!q.textContent.trim()){e.preventDefault();const p=document.createElement('p');p.innerHTML='<br>';q.after(p);const r=document.createRange();r.selectNodeContents(p);sel.removeAllRanges();sel.addRange(r);rememberCabinetSelection();markCabinetNoteDirty()}});bindCabinetChecklist()}
 }
 
 function setCabinetTab(tab){if(cabinetNoteDirty&&cabinetTab==='notes'&&tab!=='notes'&&!confirm('Есть несохранённые изменения в заметке. Перейти без сохранения?'))return;cabinetTab=tab;cabinetNoteDirty=false;if(tab==='notes')renderCabinetNotes();else if(tab==='materials')renderCabinetMaterials();else renderCabinetMotivation()}
