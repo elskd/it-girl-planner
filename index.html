@@ -85,6 +85,35 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}button:focus-vis
 .cabinet-material-note{font-size:11px;color:#62585a;line-height:1.45;margin-top:8px}
 .cabinet-material-actions{display:flex;gap:6px;margin-top:10px}
 .cabinet-material-empty{padding:34px 20px;text-align:center;background:var(--card);border:1px solid var(--line);border-radius:16px;color:var(--muted);font-size:12px}
+.mobile-nav,.mobile-more-menu{display:none}
+@media(max-width:700px){
+  .app{display:block}
+  .sidebar{display:none}
+  .main{margin-left:0;width:100%;padding:22px 16px 92px}
+  .mobile-nav{
+    display:grid;grid-template-columns:repeat(5,1fr);position:fixed;left:12px;right:12px;bottom:12px;
+    height:64px;padding:5px 7px;background:rgba(255,253,250,.96);border:1px solid var(--line);
+    border-radius:22px;box-shadow:0 8px 30px rgba(70,45,45,.10);z-index:100;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  }
+  .mobile-nav button{
+    border:0;background:transparent;color:#766b6d;border-radius:16px;display:grid;place-items:center;
+    padding:0;min-width:0;position:relative
+  }
+  .mobile-nav button svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.65;stroke-linecap:round;stroke-linejoin:round}
+  .mobile-nav button.active{color:var(--accent);background:var(--accent-soft)}
+  .mobile-nav button.active:after{content:"";position:absolute;bottom:4px;width:4px;height:4px;border-radius:50%;background:currentColor}
+  .mobile-more-menu{
+    position:fixed;right:18px;bottom:84px;width:190px;padding:6px;background:rgba(255,253,250,.98);
+    border:1px solid var(--line);border-radius:16px;box-shadow:0 10px 32px rgba(70,45,45,.14);z-index:101
+  }
+  .mobile-more-menu.open{display:grid;gap:2px}
+  .mobile-more-menu button{
+    border:0;background:transparent;color:var(--ink);display:flex;align-items:center;gap:10px;
+    text-align:left;padding:10px;border-radius:10px;font-size:12px
+  }
+  .mobile-more-menu button:hover,.mobile-more-menu button.active{background:var(--accent-soft);color:var(--accent)}
+  .more-icon{width:25px;height:25px;border-radius:8px;background:#f2e8e5;display:grid;place-items:center;font-size:11px;color:var(--accent);font-weight:600;flex:0 0 auto}
+}
 @media(max-width:900px){.cabinet-materials-grid{grid-template-columns:1fr 1fr}.cabinet-notes-layout{grid-template-columns:210px minmax(0,1fr)}}
 @media(max-width:700px){.cabinet-tabs{width:100%;overflow:auto}.cabinet-tabs button{flex:1;white-space:nowrap}.cabinet-notes-layout{grid-template-columns:1fr;min-height:0}.cabinet-notes-list{max-height:240px}.cabinet-note-editor-body{min-height:330px}.cabinet-note-content{min-height:290px}.cabinet-note-title-input{font-size:19px}.cabinet-materials-grid{grid-template-columns:1fr}.cabinet-material-preview{height:210px}.cabinet-materials-head{align-items:flex-start;flex-direction:column}}
 /* settings */
@@ -214,6 +243,28 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}button:focus-vis
     <button data-page="settings">Настройки</button>
   </nav>
 </aside>
+<nav class="mobile-nav" aria-label="Основная навигация">
+  <button type="button" data-page="today" aria-label="Главная" title="Главная">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10.8 12 3l9 7.8v9.2a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>
+  </button>
+  <button type="button" data-page="calendar" aria-label="Календарь" title="Календарь">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 9h18M7 13h.01M12 13h.01M17 13h.01M7 17h.01M12 17h.01"/></svg>
+  </button>
+  <button type="button" data-page="planner" aria-label="Планер" title="Планер">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 8h8M8 12h5M8 16h8"/></svg>
+  </button>
+  <button type="button" data-page="weeks" aria-label="12 Weeks" title="12 Weeks">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h4v4H5zM15 5h4v4h-4zM5 15h4v4H5zM15 15h4v4h-4z"/><path d="M11 7h2M11 17h2M7 11v2M17 11v2"/></svg>
+  </button>
+  <button type="button" class="mobile-more-btn" aria-label="Мэдди и ещё" title="Мэдди и ещё" aria-expanded="false">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.2"/><path d="M5.5 20c.8-3.4 2.9-5 6.5-5s5.7 1.6 6.5 5M4 20h16"/></svg>
+  </button>
+</nav>
+<div class="mobile-more-menu" aria-hidden="true">
+  <button type="button" data-page="maddy"><span class="more-icon">M</span><span>Maddy</span></button>
+  <button type="button" data-page="cabinet"><span class="more-icon">⌘</span><span>Мой кабинет</span></button>
+  <button type="button" data-page="settings"><span class="more-icon">⚙</span><span>Настройки</span></button>
+</div>
 <main class="main"><div id="page" class="page"></div></main>
 </div>
 <div id="modalWrap" class="modal-wrap"><div id="modal" class="modal"></div></div>
@@ -1389,6 +1440,12 @@ let currentPage='today';function go(p){
  }
 }
 document.querySelectorAll('.nav button').forEach(b=>b.addEventListener('click',()=>go(b.dataset.page)));
+document.querySelectorAll('.mobile-nav button[data-page]').forEach(b=>b.addEventListener('click',()=>{go(b.dataset.page);closeMobileMore();}));
+const mobileMoreBtn=document.querySelector('.mobile-more-btn');
+const mobileMoreMenu=document.querySelector('.mobile-more-menu');
+function closeMobileMore(){if(!mobileMoreMenu||!mobileMoreBtn)return;mobileMoreMenu.classList.remove('open');mobileMoreMenu.setAttribute('aria-hidden','true');mobileMoreBtn.setAttribute('aria-expanded','false')}
+if(mobileMoreBtn)mobileMoreBtn.addEventListener('click',e=>{e.stopPropagation();const open=mobileMoreMenu.classList.toggle('open');mobileMoreMenu.setAttribute('aria-hidden',String(!open));mobileMoreBtn.setAttribute('aria-expanded',String(open))});
+document.addEventListener('click',e=>{if(mobileMoreMenu?.classList.contains('open')&&!mobileMoreMenu.contains(e.target)&&e.target!==mobileMoreBtn)closeMobileMore();});
 go('today');
 initCloudSync().then(()=>{if(currentPage)go(currentPage)}).catch(e=>console.warn('Cloud initialization failed',e));
 </script>
