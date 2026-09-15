@@ -1128,7 +1128,27 @@ async function openMotivationFile(id,event){
  else body=`<object data="${safeUrl}" type="${esc(mt)}" aria-label="${safeName}"><iframe src="${safeUrl}" title="${safeName}"></iframe></object>`;
  try{
    win.document.open();
-   win.document.write(`<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${safeName}</title><style>html,body{margin:0;width:100%;height:100%;background:#f7f2ef;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif;color:#252122}body{display:flex;flex-direction:column}.head{height:54px;display:flex;align-items:center;padding:0 18px;border-bottom:1px solid #e7ded9;background:#fbf8f5;box-sizing:border-box}.name{font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.viewer{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;padding:18px;box-sizing:border-box}.viewer img{max-width:100%;max-height:100%;object-fit:contain;display:block}.viewer iframe,.viewer object{width:100%;height:100%;border:0;background:#fff;border-radius:10px}.unsupported{padding:30px;text-align:center;font-size:14px;color:#827879}</style></head><body><div class="head"><div class="name">${safeName}</div></div><div class="viewer">${body}</div></body></html>`);
+   win.document.write(`<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${safeName}</title><style>html,body{margin:0;width:100%;height:100%;background:#f7f2ef;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif;color:#252122}body{display:flex;flex-direction:column}.head{height:54px;display:flex;align-items:center;padding:0 18px;border-bottom:1px solid #e7ded9;background:#fbf8f5;box-sizing:border-box}.name{font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.viewer{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;padding:18px;box-sizing:border-box}.viewer img{max-width:100%;max-height:100%;object-fit:contain;display:block}.viewer iframe,.viewer object{width:100%;height:100%;border:0;background:#fff;border-radius:10px}.unsupported{padding:30px;text-align:center;font-size:14px;color:#827879}
+/* mobile navigation shape — visual only, icons and navigation behavior unchanged */
+@media(max-width:700px){
+  .mobile-nav{
+    left:14px!important;
+    right:14px!important;
+    bottom:14px!important;
+    width:auto!important;
+    height:74px!important;
+    padding:6px 9px!important;
+    background:rgba(255,253,250,.98)!important;
+    border:1px solid var(--line)!important;
+    border-radius:24px!important;
+    box-shadow:0 8px 28px rgba(70,45,45,.12)!important;
+    z-index:100!important;
+  }
+  .main{
+    padding-bottom:104px!important;
+  }
+}
+</style></head><body><div class="head"><div class="name">${safeName}</div></div><div class="viewer">${body}</div></body></html>`);
    win.document.close();
    try{win.focus()}catch(e){}
  }catch(e){console.warn('File viewer error',e);}
