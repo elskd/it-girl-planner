@@ -150,9 +150,14 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}button:focus-vis
   .month-head div{padding:7px 2px;font-size:9px;text-align:center}
   .month-cell{min-height:0!important;height:70px!important;padding:4px 3px;overflow:hidden!important;box-sizing:border-box}
   .month-date{font-size:10px;margin-bottom:3px}
-  .month-event{border-radius:5px;margin:2px 0;padding:3px 3px;font-size:7px;line-height:1.15}
-  .month-event .cal-task-check{width:9px;height:9px;flex-basis:9px}
+  .month-event{
+    border-radius:5px!important;margin:2px 0!important;padding:2px 3px!important;
+    font-size:8px!important;line-height:1.15!important;min-height:17px!important;
+    height:17px!important;box-sizing:border-box!important;
+  }
+  .month-event .cal-task-check{width:9px;height:9px;flex-basis:9px;min-width:9px}
   .month-event .cal-task-check.done:after{font-size:6px}
+  .month-event .cal-event-title{display:block;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .month-event .cal-event-title{min-width:0;overflow:hidden;text-overflow:ellipsis}}
 
 
