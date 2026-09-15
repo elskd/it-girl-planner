@@ -102,8 +102,8 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}button:focus-vis
     padding:0;min-width:0;position:relative
   }
   .mobile-nav button svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.65;stroke-linecap:round;stroke-linejoin:round}
-  .mobile-nav button.active{color:var(--accent);background:var(--accent-soft)}
-  .mobile-nav button.active:after{content:"";position:absolute;bottom:4px;width:4px;height:4px;border-radius:50%;background:currentColor}
+  .mobile-nav button.active{color:var(--accent);background:transparent}
+  .mobile-nav button.active:after{display:none}
   .mobile-more-menu{
     position:fixed;right:18px;bottom:84px;width:190px;padding:6px;background:rgba(255,253,250,.98);
     border:1px solid var(--line);border-radius:16px;box-shadow:0 10px 32px rgba(70,45,45,.14);z-index:101
@@ -1134,16 +1134,16 @@ async function openMotivationFile(id,event){
 /* mobile navigation shape — visual only, icons and navigation behavior unchanged */
 @media(max-width:700px){
   .mobile-nav{
-    left:14px!important;
-    right:14px!important;
-    bottom:14px!important;
-    width:auto!important;
-    height:74px!important;
-    padding:6px 9px!important;
+    left:0!important;
+    right:0!important;
+    bottom:0!important;
+    width:100%!important;
+    height:82px!important;
+    padding:8px 28px calc(8px + env(safe-area-inset-bottom))!important;
     background:rgba(255,253,250,.98)!important;
     border:1px solid var(--line)!important;
-    border-radius:24px!important;
-    box-shadow:0 8px 28px rgba(70,45,45,.12)!important;
+    border-radius:0!important;
+    box-shadow:0 -6px 24px rgba(70,45,45,.08)!important;
     z-index:100!important;
   }
   .main{
