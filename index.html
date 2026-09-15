@@ -527,7 +527,8 @@ function deleteTask(id){if(!confirm('Удалить задачу?'))return;state
 let plannerMode='tasks';function switchPlanner(m){plannerMode=m;renderPlanner()}
 function renderPlanner(){document.getElementById('page').innerHTML=`<header class="page-head"><div class="eyebrow">Организация</div><h1 class="title">Планер</h1><div class="date">Все задачи и привычки — в одном разделе, между ними можно переключаться.</div></header><div class="section-head"><div class="tabs"><button class="${plannerMode==='tasks'?'active':''}" onclick="switchPlanner('tasks')">Задачи</button><button class="${plannerMode==='habits'?'active':''}" onclick="switchPlanner('habits')">Привычки</button></div></div>${plannerMode==='tasks'?plannerTasks():plannerHabits()}`}
 function plannerTasks(){
- const tasks=[...state.tasks].sort((a,b)=>{
+ const today=todayISO();
+ const tasks=state.tasks.filter(t=>t.date>=today).sort((a,b)=>{
    const dateCmp=a.date.localeCompare(b.date);
    if(dateCmp!==0)return dateCmp;
    if(a.allDay&&!b.allDay)return -1;
