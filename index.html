@@ -102,8 +102,21 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}button:focus-vis
     padding:0;min-width:0;position:relative
   }
   .mobile-nav button svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.65;stroke-linecap:round;stroke-linejoin:round}
-  .mobile-nav button.active{color:var(--accent);background:transparent}
-  .mobile-nav button.active:after{display:none}
+  .mobile-nav button.active{
+    color:var(--accent)!important;
+    background:transparent!important;
+    background-color:transparent!important;
+    box-shadow:none!important;
+    border-radius:0!important;
+  }
+  .mobile-nav button.active:after{
+    content:none!important;
+    display:none!important;
+  }
+  .mobile-nav button.active svg{
+    color:var(--accent)!important;
+    stroke:currentColor!important;
+  }
   .mobile-more-menu{
     position:fixed;right:18px;bottom:84px;width:190px;padding:6px;background:rgba(255,253,250,.98);
     border:1px solid var(--line);border-radius:16px;box-shadow:0 10px 32px rgba(70,45,45,.14);z-index:101
