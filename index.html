@@ -1737,7 +1737,7 @@ function renderTasksHTML(tasks){
       <button class="task-check ${t.done?'done':''}" onclick="event.stopPropagation();toggleTask(${t.id})"></button>
       <div class="task-title ${t.done?'done':''}">
         <div>${esc(t.title)}</div>
-        <div class="task-sub">${esc(time)}</div>
+        <div class="task-sub">${esc(time)}${taskSubtasks(t).length?' · '+taskSubtasks(t).filter(s=>s.done).length+'/'+taskSubtasks(t).length+' · '+Math.round(taskSubtasks(t).filter(s=>s.done).length/taskSubtasks(t).length*100)+'%':''}</div>
       </div>
       <div class="task-right">
         <span class="priority ${t.priority}" title="${priorityLabel(t.priority)}"></span>
