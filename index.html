@@ -1890,7 +1890,9 @@ go=function(p){
  if(p==='next7'){currentPage=p;document.querySelectorAll('.nav button[data-page],.rail-btn[data-page],.mobile-nav button[data-page],.mobile-more-menu button[data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page===p));renderTaskViewPage('Следующие 7 дней','Задачи на ближайшие 7 дней',listTasksForView('next7'));closeMobileSidebar();return}
  if(p==='inbox'){currentPage=p;document.querySelectorAll('.nav button[data-page],.rail-btn[data-page],.mobile-nav button[data-page],.mobile-more-menu button[data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page===p));renderTaskViewPage('Входящие','Задачи без списка',listTasksForView('inbox'));closeMobileSidebar();return}
  taskListFilter='';
- const r=__goWithTaskViews(p);closeMobileSidebar();return r;
+ const r=__goWithTaskViews(p);
+ document.querySelectorAll('.rail-btn[data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page===p));
+ closeMobileSidebar();return r;
 };
 document.addEventListener('click',e=>{
  const listBtn=e.target.closest('.sidebar-lists button[data-list]');
