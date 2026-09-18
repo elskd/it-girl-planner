@@ -471,9 +471,7 @@ body.menu-open{overflow:hidden}
   </nav>
   <div class="sidebar-divider"></div>
   <div class="sidebar-section-label sidebar-list-heading"><span>Списки</span><button type="button" onclick="go('settings')">＋</button></div>
-  <nav class="nav sidebar-lists">
-    ${AREAS.map((a,i)=>`<button data-list="${esc(a)}" title="${esc(a)}"><span class="sidebar-list-dot" style="background:${BASE_COLORS[i%BASE_COLORS.length]}"></span><span class="sidebar-list-name">${esc(a)}</span><span class="sidebar-list-count">${state.tasks.filter(t=>t.area===a&&!t.done).length||''}</span></button>`).join('')}
-  </nav>
+  <nav id="sidebarLists" class="nav sidebar-lists"></nav>
   <div class="sidebar-divider"></div>
   <nav class="nav sidebar-secondary">
     <button data-page="planner"><span>☷</span>Планер</button>
@@ -1844,6 +1842,10 @@ function deleteSubtask(taskId,index){
 
 
 
+function renderSidebarLists(){
+ const el=document.getElementById('sidebarLists'); if(!el)return;
+ el.innerHTML=AREAS.map((a,i)=>`<button type="button" data-list="${esc(a)}" title="${esc(a)}"><span class="sidebar-list-dot" style="background:${BASE_COLORS[i%BASE_COLORS.length]}"></span><span class="sidebar-list-name">${esc(a)}</span><span class="sidebar-list-count">${state.tasks.filter(t=>t.area===a&&!t.done).length||''}</span></button>`).join('');
+}
 // --- TickTick-like navigation menu ---
 let desktopSidebarCollapsed=false;
 let mobileSidebarOpen=false;
@@ -1901,6 +1903,8 @@ function bindEditableTodayQuote(){
 }
 const __originalRenderTodayForQuote=renderToday;
 renderToday=function(){const r=__originalRenderTodayForQuote();bindEditableTodayQuote();return r};
+
+renderSidebarLists();
 </script>
 </body>
 </html>
