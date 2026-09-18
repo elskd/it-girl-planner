@@ -489,7 +489,7 @@ body.menu-open{overflow:hidden}
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h4v4H5zM15 5h4v4h-4zM5 15h4v4H5zM15 15h4v4h-4z"/><path d="M11 7h2M11 17h2M7 11v2M17 11v2"/></svg>
   </button>
   <button class="rail-btn" data-page="maddy" aria-label="Maddy" title="Maddy">
-    <span class="rail-m">M</span>
+    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="7.5" r="3.5"/><path d="M5 20c.8-3.7 3.2-5.7 7-5.7s6.2 2 7 5.7"/></svg>
   </button>
 </div>
 <aside class="sidebar">
@@ -1868,7 +1868,7 @@ function deleteSubtask(taskId,index){
 
 function renderSidebarLists(){
  const el=document.getElementById('sidebarLists'); if(!el)return;
- el.innerHTML=AREAS.map((a,i)=>`<button type="button" data-list="${esc(a)}" title="${esc(a)}"><span class="sidebar-list-dot" style="background:${BASE_COLORS[i%BASE_COLORS.length]}"></span><span class="sidebar-list-name">${esc(a)}</span><span class="sidebar-list-count">${state.tasks.filter(t=>t.area===a&&!t.done).length||''}</span></button>`).join('');
+ el.innerHTML=AREAS.map((a,i)=>`<button type="button" data-list="${esc(a)}" title="${esc(a)}"><span class="sidebar-list-dot" style="background:${taskListColor(a)}"></span><span class="sidebar-list-name">${esc(a)}</span><span class="sidebar-list-count">${state.tasks.filter(t=>t.area===a&&!t.done).length||''}</span></button>`).join('');
 }
 function bindMobileSidebarBehavior(){
  document.addEventListener('click',e=>{
