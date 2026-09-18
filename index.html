@@ -331,7 +331,58 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}button:focus-vis
     box-shadow:0 -6px 24px rgba(70,45,45,.08)!important;
   }
 }
-</style>
+
+<style id="itgirl-task-upgrades">
+/* Task lists + TickTick-style task details. Scoped so existing calendar/planner layout stays intact. */
+.task{position:relative;--task-list-color:var(--accent)}
+.task::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--task-list-color);border-radius:2px}
+.task-list-label{font-size:10px;color:var(--muted);white-space:nowrap;display:inline-flex;align-items:center;gap:5px}
+.task-list-label .task-list-dot{width:6px;height:6px;border-radius:50%;display:inline-block;flex:0 0 6px}
+.task{padding-left:10px}
+.task-detail-backdrop{position:fixed;inset:0;background:rgba(33,24,26,.18);z-index:180}
+.task-detail-panel{position:fixed;right:0;top:0;bottom:0;width:min(390px,42vw);background:var(--card);border-left:1px solid var(--line);box-shadow:-12px 0 35px rgba(40,25,28,.10);z-index:181;overflow:auto;padding:22px 24px 28px}
+.task-detail-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:20px}
+.task-detail-list{font-size:11px;color:var(--muted);display:flex;align-items:center;gap:7px}
+.task-detail-list-dot{width:7px;height:7px;border-radius:50%;display:inline-block}
+.task-detail-title{font-family:Georgia,serif;font-size:27px;line-height:1.15;font-weight:400;margin:0 0 13px}
+.task-detail-meta{display:flex;flex-wrap:wrap;gap:8px;color:var(--accent);font-size:12px;margin-bottom:20px}
+.task-detail-notes{font-size:13px;line-height:1.55;color:var(--muted);margin:0 0 20px;white-space:pre-wrap}
+.task-detail-section{margin-top:20px}
+.task-detail-section-head{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:12px;font-weight:500;margin-bottom:9px}
+.task-detail-progress{height:5px;background:#ece4e1;border-radius:99px;overflow:hidden;margin:7px 0 12px}
+.task-detail-progress i{display:block;height:100%;background:var(--accent);border-radius:99px}
+.task-subtask-list{display:grid}
+.task-subtask{display:grid;grid-template-columns:20px minmax(0,1fr) 24px;align-items:center;gap:9px;padding:9px 0;border-bottom:1px solid var(--line)}
+.task-subtask-check{width:18px;height:18px;border:1.5px solid #aaa;border-radius:5px;background:#fff;padding:0;position:relative}
+.task-subtask-check.done{background:var(--accent);border-color:var(--accent)}
+.task-subtask-check.done::after{content:"✓";position:absolute;inset:0;display:grid;place-items:center;color:#fff;font-size:12px}
+.task-subtask-title{font-size:13px;line-height:1.35}
+.task-subtask-title.done{text-decoration:line-through;color:#aaa}
+.task-subtask-delete{width:24px;height:24px;border:0;background:transparent;color:#9a8f91;font-size:18px;padding:0}
+.task-subtask-add{display:flex;gap:8px;margin-top:10px}
+.task-subtask-input{flex:1;min-width:0;height:36px;border:1px solid var(--line);background:#fff;border-radius:9px;padding:8px 10px;color:var(--ink)}
+.task-subtask-add-btn{width:36px;height:36px;border:1px solid var(--line);background:#fff;border-radius:9px;color:var(--accent);font-size:18px;padding:0}
+.task-detail-actions{display:flex;gap:8px;margin-top:24px}
+.task-detail-actions .btn{flex:1}
+.quote{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;max-width:none;box-sizing:border-box;display:flex;align-items:flex-start;gap:10px}
+.quote-editable{flex:1;min-width:0;outline:none;cursor:text}
+.quote-editable:focus{outline:none}
+.quote-editable:empty::before{content:attr(data-placeholder);color:var(--muted)}
+.quote .mini{flex:0 0 auto}
+@media(max-width:700px){
+  .quote{padding:14px;border-radius:15px;font-size:15px}
+  .task{grid-template-columns:22px minmax(0,1fr) auto;gap:8px;padding-left:10px}
+  .task-list-label{display:none}
+  .task-detail-backdrop{background:rgba(33,24,26,.24)}
+  .task-detail-panel{
+    left:0;right:0;top:auto;bottom:0;width:100%;max-height:78vh;
+    border-left:0;border-top:1px solid var(--line);border-radius:24px 24px 0 0;
+    box-shadow:0 -12px 35px rgba(40,25,28,.12);padding:20px 18px calc(24px + env(safe-area-inset-bottom));
+  }
+  .task-detail-title{font-size:24px}
+  .task-detail-head{margin-bottom:16px}
+}
+</style></style>
 </head>
 <body>
 <div class="app">
@@ -419,7 +470,7 @@ function normalizeData(raw){
  d.settings.taskColor=d.settings.taskColor||def.settings.taskColor; d.settings.habitColor=d.settings.habitColor||def.settings.habitColor; d.settings.calendarStart=d.settings.calendarStart||def.settings.calendarStart; d.settings.calendarEnd=d.settings.calendarEnd||def.settings.calendarEnd; d.settings.areas=Array.isArray(d.settings.areas)&&d.settings.areas.length?d.settings.areas.map(x=>String(x||'').trim()).filter(Boolean):[...AREAS];
  setAreaList(d.settings.areas); d.settings.areas=[...AREAS];
  d.habits=(Array.isArray(d.habits)?d.habits:[]).map(h=>({...h,area:migrateArea(h.area)||AREAS[0],days:h.days||{},target:Number(h.target)||1,unit:h.unit||'раз',color:h.color||d.settings.habitColor}));
- d.tasks=(Array.isArray(d.tasks)?d.tasks:[]).map(t=>({...t,area:migrateArea(t.area)||AREAS[0],priority:t.priority||'medium',date:t.date||todayISO(),repeat:t.repeat||'none',repeatDays:Array.isArray(t.repeatDays)?t.repeatDays.map(Number).filter(n=>n>=0&&n<=6):[],overrides:t.overrides||{},start:t.start||'12:30',end:t.end||'13:30',allDay:!!t.allDay,noTime:!!t.noTime,color:t.color||d.settings.taskColor,done:!!t.done,notes:t.notes||''}));
+ d.tasks=(Array.isArray(d.tasks)?d.tasks:[]).map(t=>({...t,area:migrateArea(t.area)||AREAS[0],priority:t.priority||'medium',date:t.date||todayISO(),repeat:t.repeat||'none',repeatDays:Array.isArray(t.repeatDays)?t.repeatDays.map(Number).filter(n=>n>=0&&n<=6):[],overrides:t.overrides||{},start:t.start||'12:30',end:t.end||'13:30',allDay:!!t.allDay,noTime:!!t.noTime,color:t.color||d.settings.taskColor,done:!!t.done,notes:t.notes||'',subtasks:Array.isArray(t.subtasks)?t.subtasks.map(s=>({id:s.id||Date.now()+Math.random(),title:String(s.title||'').trim(),done:!!s.done})).filter(s=>s.title):[]}));
  d.goals=(Array.isArray(d.goals)?d.goals:[]).map(g=>({...g,subgoals:g.subgoals||[],actions:g.actions||[],progress:Number(g.progress)||0}));
  d.quote=d.quote||def.quote;d.quotes=d.quotes?.length?d.quotes:def.quotes;d.quoteIndex=Number(d.quoteIndex)||0;d.moodboard=d.moodboard||[];d.notes=Array.isArray(d.notes)?d.notes:[];d.cabinetMaterials=Array.isArray(d.cabinetMaterials)?d.cabinetMaterials:[];return d;
 }
@@ -1519,7 +1570,7 @@ function deleteArea(index){if(index<0||index>=AREAS.length)return;if(AREAS.lengt
 
 function resetApp(){if(!confirm('Сбросить все данные приложения?'))return;state=defaultData();persist();go('today');toast('Данные сброшены')}
 function toggleNoTimeFields(){const nt=document.getElementById('fNoTime'),ad=document.getElementById('fAllDay'),st=document.getElementById('fStart'),en=document.getElementById('fEnd');if(!nt||!ad||!st||!en)return;if(nt.checked){ad.checked=false;st.value='';en.value='';st.disabled=true;en.disabled=true}else if(ad.checked){nt.checked=false;st.value='';en.value='';st.disabled=true;en.disabled=true}else{st.disabled=false;en.disabled=false;if(!st.value)st.value='12:30';if(!en.value)en.value='13:30'}}
-function openTaskModal(id=0,prefill={},fromCalendar=false,occurrenceDate=''){const t=id?state.tasks.find(x=>x.id==id):null;const occ=t&&fromCalendar?calendarTaskOccurrence(t,occurrenceDate||t.date):null;const x=occ||t||{title:'',area:'',priority:'',date:prefill.date||todayISO(),start:prefill.start||'12:30',end:prefill.end||'13:30',repeat:'none',repeatDays:[],allDay:false,noTime:false,color:state.settings.taskColor,notes:''};const pal=state.settings.palette;const repeat=x.repeat||'none';const days=x.repeatDays||[];const repeatField=fromCalendar?`<div class="field"><label>Повтор</label><select id="fRepeat" class="select" onchange="toggleCalendarRepeatDays()"><option value="none" ${repeat==='none'?'selected':''}>Не повторять</option><option value="daily" ${repeat==='daily'?'selected':''}>Каждый день</option><option value="weekly" ${repeat==='weekly'?'selected':''}>Каждую неделю</option><option value="monthly" ${repeat==='monthly'?'selected':''}>Каждый месяц</option><option value="weekdays" ${repeat==='weekdays'?'selected':''}>Конкретные дни недели</option></select></div>`:`<div class="field"><label>Повтор</label><select id="fRepeat" class="select"><option value="none" ${repeat==='none'?'selected':''}>Не повторять</option><option value="daily" ${repeat==='daily'?'selected':''}>Каждый день</option></select></div>`;const daysField=fromCalendar?`<div id="repeatDaysField" class="field full" style="display:${repeat==='weekdays'?'grid':'none'}"><label>Дни недели</label><div style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px">${DAYS.map((d,i)=>`<label style="display:flex;align-items:center;justify-content:center;gap:4px;font-size:10px"><input type="checkbox" class="repeat-day" value="${i}" ${days.includes(i)?'checked':''}>${d}</label>`).join('')}</div></div>`:'';document.getElementById('modal').innerHTML=`<div class="modal-head"><div class="modal-title">${t?'Редактировать задачу':'Новая задача'}</div><button class="close" onclick="closeModal()">×</button></div><div class="form-grid"><div class="field full"><label>Название</label><input id="fTitle" class="text-input" value="${esc(x.title)}" placeholder="Что нужно сделать?"></div><div class="field"><label>Area</label><select id="fArea" class="select"><option value="">Не выбрана</option>${AREAS.map(a=>`<option value="${a}" ${x.area===a?'selected':''}>${a}</option>`).join('')}</select></div><div class="field"><label>Приоритет</label><select id="fPriority" class="select"><option value="">Не выбран</option><option value="high" ${x.priority==='high'?'selected':''}>Высокий</option><option value="medium" ${x.priority==='medium'?'selected':''}>Средний</option><option value="low" ${x.priority==='low'?'selected':''}>Низкий</option></select></div><div class="field"><label>Дата</label><input id="fDate" type="date" class="text-input" value="${x.date}"></div>${repeatField}${daysField}<div class="field full"><label>Время</label><div class="inline"><input id="fStart" type="time" class="text-input" value="${x.start||''}"><span>—</span><input id="fEnd" type="time" class="text-input" value="${x.end||''}"></div></div><div class="field full"><label class="inline"><input id="fNoTime" type="checkbox" ${x.noTime?'checked':''} onchange="toggleNoTimeFields()"> <span>Без времени</span></label></div><div class="field full"><label class="inline"><input id="fAllDay" type="checkbox" ${x.allDay?'checked':''} onchange="toggleNoTimeFields()"> <span>Весь день</span></label></div><div class="field full"><label>Цвет</label><div class="modal-color-grid">${pal.map(c=>`<button type="button" class="modal-color ${x.color===c?'selected':''}" style="background:${c}" onclick="selectModalColor('${c}')"></button>`).join('')}</div><input id="fColor" type="hidden" value="${x.color||state.settings.taskColor}"></div><div class="field full"><label>Заметка</label><textarea id="fNotes" class="text-input" rows="3" placeholder="Если нужно, добавь контекст">${esc(x.notes||'')}</textarea></div></div><div class="modal-actions"><button class="btn ghost" onclick="closeModal()">Отмена</button>${t?`<button class="btn danger" onclick="deleteTask(${t.id});closeModal()">Удалить</button>`:''}<button class="btn" onclick="saveTask(${id||0},${fromCalendar},'${occurrenceDate||''}')">${t?'Сохранить':'Добавить задачу'}</button></div>`;openModal();toggleNoTimeFields()}
+function openTaskModal(id=0,prefill={},fromCalendar=false,occurrenceDate=''){const t=id?state.tasks.find(x=>x.id==id):null;const occ=t&&fromCalendar?calendarTaskOccurrence(t,occurrenceDate||t.date):null;const x=occ||t||{title:'',area:'',priority:'',date:prefill.date||todayISO(),start:prefill.start||'12:30',end:prefill.end||'13:30',repeat:'none',repeatDays:[],allDay:false,noTime:false,color:state.settings.taskColor,notes:''};const pal=state.settings.palette;const repeat=x.repeat||'none';const days=x.repeatDays||[];const repeatField=fromCalendar?`<div class="field"><label>Повтор</label><select id="fRepeat" class="select" onchange="toggleCalendarRepeatDays()"><option value="none" ${repeat==='none'?'selected':''}>Не повторять</option><option value="daily" ${repeat==='daily'?'selected':''}>Каждый день</option><option value="weekly" ${repeat==='weekly'?'selected':''}>Каждую неделю</option><option value="monthly" ${repeat==='monthly'?'selected':''}>Каждый месяц</option><option value="weekdays" ${repeat==='weekdays'?'selected':''}>Конкретные дни недели</option></select></div>`:`<div class="field"><label>Повтор</label><select id="fRepeat" class="select"><option value="none" ${repeat==='none'?'selected':''}>Не повторять</option><option value="daily" ${repeat==='daily'?'selected':''}>Каждый день</option></select></div>`;const daysField=fromCalendar?`<div id="repeatDaysField" class="field full" style="display:${repeat==='weekdays'?'grid':'none'}"><label>Дни недели</label><div style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px">${DAYS.map((d,i)=>`<label style="display:flex;align-items:center;justify-content:center;gap:4px;font-size:10px"><input type="checkbox" class="repeat-day" value="${i}" ${days.includes(i)?'checked':''}>${d}</label>`).join('')}</div></div>`:'';document.getElementById('modal').innerHTML=`<div class="modal-head"><div class="modal-title">${t?'Редактировать задачу':'Новая задача'}</div><button class="close" onclick="closeModal()">×</button></div><div class="form-grid"><div class="field full"><label>Название</label><input id="fTitle" class="text-input" value="${esc(x.title)}" placeholder="Что нужно сделать?"></div><div class="field"><label>Список</label><select id="fArea" class="select"><option value="">Не выбран</option>${AREAS.map(a=>`<option value="${a}" ${x.area===a?'selected':''}>${a}</option>`).join('')}</select></div><div class="field"><label>Приоритет</label><select id="fPriority" class="select"><option value="">Не выбран</option><option value="high" ${x.priority==='high'?'selected':''}>Высокий</option><option value="medium" ${x.priority==='medium'?'selected':''}>Средний</option><option value="low" ${x.priority==='low'?'selected':''}>Низкий</option></select></div><div class="field"><label>Дата</label><input id="fDate" type="date" class="text-input" value="${x.date}"></div>${repeatField}${daysField}<div class="field full"><label>Время</label><div class="inline"><input id="fStart" type="time" class="text-input" value="${x.start||''}"><span>—</span><input id="fEnd" type="time" class="text-input" value="${x.end||''}"></div></div><div class="field full"><label class="inline"><input id="fNoTime" type="checkbox" ${x.noTime?'checked':''} onchange="toggleNoTimeFields()"> <span>Без времени</span></label></div><div class="field full"><label class="inline"><input id="fAllDay" type="checkbox" ${x.allDay?'checked':''} onchange="toggleNoTimeFields()"> <span>Весь день</span></label></div><div class="field full"><label>Цвет</label><div class="modal-color-grid">${pal.map(c=>`<button type="button" class="modal-color ${x.color===c?'selected':''}" style="background:${c}" onclick="selectModalColor('${c}')"></button>`).join('')}</div><input id="fColor" type="hidden" value="${x.color||state.settings.taskColor}"></div><div class="field full"><label>Описание</label><textarea id="fNotes" class="text-input" rows="3" placeholder="Если нужно, добавь контекст">${esc(x.notes||'')}</textarea></div></div><div class="modal-actions"><button class="btn ghost" onclick="closeModal()">Отмена</button>${t?`<button class="btn danger" onclick="deleteTask(${t.id});closeModal()">Удалить</button>`:''}<button class="btn" onclick="saveTask(${id||0},${fromCalendar},'${occurrenceDate||''}')">${t?'Сохранить':'Добавить задачу'}</button></div>`;openModal();toggleNoTimeFields()}
 function toggleCalendarRepeatDays(){const el=document.getElementById('repeatDaysField');if(el)el.style.display=document.getElementById('fRepeat').value==='weekdays'?'grid':'none'}
 function selectModalColor(c){document.getElementById('fColor').value=c;document.querySelectorAll('.modal-color').forEach(b=>b.classList.toggle('selected',b.style.backgroundColor===hexToRgb(c)||b.style.backgroundColor===c))}
 function hexToRgb(hex){const h=hex.replace('#','');const n=parseInt(h,16);return `rgb(${n>>16 & 255}, ${n>>8 & 255}, ${n & 255})`}
@@ -1590,6 +1641,139 @@ if(mobileMoreBtn)mobileMoreBtn.addEventListener('click',e=>{e.stopPropagation();
 document.addEventListener('click',e=>{if(mobileMoreMenu?.classList.contains('open')&&!mobileMoreMenu.contains(e.target)&&e.target!==mobileMoreBtn)closeMobileMore();});
 go('today');
 initCloudSync().then(()=>{if(currentPage)go(currentPage)}).catch(e=>console.warn('Cloud initialization failed',e));
-</script>
+
+<script>
+/* --- It Girl task/list detail layer --- */
+function taskListColor(area){
+  const i=AREAS.indexOf(area);
+  return BASE_COLORS[(i>=0?i:0)%BASE_COLORS.length];
+}
+function taskSubtasks(t){
+  if(!Array.isArray(t.subtasks)) t.subtasks=[];
+  return t.subtasks;
+}
+let openTaskDetailId=0;
+function openTaskDetail(id){
+  if(!state.tasks.some(t=>t.id==id))return;
+  openTaskDetailId=id;
+  renderTaskDetail();
+}
+function closeTaskDetail(){
+  openTaskDetailId=0;
+  document.getElementById('taskDetailLayer')?.remove();
+}
+function taskDetailHtml(t){
+  const subs=taskSubtasks(t),done=subs.filter(s=>s.done).length,pct=subs.length?Math.round(done/subs.length*100):0;
+  const list=t.area||'Без списка', lc=taskListColor(list);
+  const time=t.noTime?'Без времени':(t.allDay?'Весь день':(t.start||'')+(t.end?' — '+t.end:''));
+  return `
+  <div class="task-detail-backdrop" onclick="if(event.target===this)closeTaskDetail()"></div>
+  <aside class="task-detail-panel" role="dialog" aria-label="Задача">
+    <div class="task-detail-head">
+      <div class="task-detail-list"><span class="task-detail-list-dot" style="background:${lc}"></span>${esc(list)}</div>
+      <div style="display:flex;gap:7px">
+        <button class="mini" onclick="openTaskModal(${t.id});closeTaskDetail()" title="Редактировать">✎</button>
+        <button class="mini" onclick="closeTaskDetail()" title="Закрыть">×</button>
+      </div>
+    </div>
+    <h2 class="task-detail-title">${esc(t.title)}</h2>
+    <div class="task-detail-meta">
+      <span>${esc(fmtDate(t.date))}</span><span>·</span><span>${esc(time)}</span>
+      ${t.repeat&&t.repeat!=='none'?'<span>·</span><span>↻ Повторяется</span>':''}
+    </div>
+    ${t.notes?'<div class="task-detail-notes">'+esc(t.notes)+'</div>':''}
+    <div class="task-detail-section">
+      <div class="task-detail-section-head"><span>Подзадачи</span><span>${done} / ${subs.length}${subs.length?' · '+pct+'%':''}</span></div>
+      ${subs.length?'<div class="task-detail-progress"><i style="width:'+pct+'%"></i></div>':''}
+      <div class="task-subtask-list">
+        ${subs.map((s,i)=>`<div class="task-subtask">
+          <button class="task-subtask-check ${s.done?'done':''}" onclick="toggleSubtask(${t.id},${i})"></button>
+          <div class="task-subtask-title ${s.done?'done':''}">${esc(s.title)}</div>
+          <button class="task-subtask-delete" onclick="deleteSubtask(${t.id},${i})">×</button>
+        </div>`).join('')}
+      </div>
+      <div class="task-subtask-add">
+        <input id="taskSubtaskInput" class="task-subtask-input" placeholder="Добавить подзадачу" onkeydown="if(event.key==='Enter'){event.preventDefault();addSubtask(${t.id})}">
+        <button class="task-subtask-add-btn" onclick="addSubtask(${t.id})">+</button>
+      </div>
+    </div>
+    <div class="task-detail-actions">
+      <button class="btn ghost" onclick="toggleTask(${t.id});renderTaskDetail()">${t.done?'Вернуть в работу':'Выполнить'}</button>
+      <button class="btn" onclick="openTaskModal(${t.id});closeTaskDetail()">Редактировать</button>
+    </div>
+  </aside>`;
+}
+function renderTaskDetail(){
+  document.getElementById('taskDetailLayer')?.remove();
+  const t=state.tasks.find(x=>x.id==openTaskDetailId);
+  if(!t)return;
+  const layer=document.createElement('div');
+  layer.id='taskDetailLayer';
+  layer.innerHTML=taskDetailHtml(t);
+  document.body.appendChild(layer);
+}
+function toggleSubtask(taskId,index){
+  const t=state.tasks.find(x=>x.id==taskId);if(!t||!Array.isArray(t.subtasks)||!t.subtasks[index])return;
+  t.subtasks[index].done=!t.subtasks[index].done;
+  persist();renderTaskDetail();
+}
+function addSubtask(taskId){
+  const t=state.tasks.find(x=>x.id==taskId),input=document.getElementById('taskSubtaskInput');
+  const title=input?.value.trim();if(!t||!title)return;
+  taskSubtasks(t).push({id:Date.now(),title,done:false});
+  persist();renderTaskDetail();
+}
+function deleteSubtask(taskId,index){
+  const t=state.tasks.find(x=>x.id==taskId);if(!t||!Array.isArray(t.subtasks))return;
+  t.subtasks.splice(index,1);persist();renderTaskDetail();
+}
+
+/* Replace the task row renderer only; calendar rendering is untouched. */
+function renderTasksHTML(tasks){
+  if(!tasks.length)return '<div class="empty">На этот день задач нет.</div>';
+  return `<div class="task-list">${tasks.map(t=>{
+    const lc=taskListColor(t.area), list= t.area || 'Без списка';
+    const time=t.noTime?'Без времени':(t.allDay?'Весь день':((t.start||'')+(t.end?' – '+t.end:'')));
+    return `<div class="task" style="--task-list-color:${lc}" onclick="openTaskDetail(${t.id})">
+      <button class="task-check ${t.done?'done':''}" onclick="event.stopPropagation();toggleTask(${t.id})"></button>
+      <div class="task-title ${t.done?'done':''}">
+        <div>${esc(t.title)}</div>
+        <div class="task-sub">${esc(time)}</div>
+      </div>
+      <div class="task-right">
+        <span class="priority ${t.priority}" title="${priorityLabel(t.priority)}"></span>
+        <span class="task-list-label"><span class="task-list-dot" style="background:${lc}"></span>${esc(list)}</span>
+        <div class="task-actions">
+          <button class="mini" onclick="event.stopPropagation();openTaskModal(${t.id})" title="Редактировать">✎</button>
+          <button class="mini" onclick="event.stopPropagation();deleteTask(${t.id})" title="Удалить">×</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('')}</div>`;
+}
+
+/* Normalize existing tasks without touching their existing data. */
+(function ensureTaskSubtasks(){
+  if(Array.isArray(state?.tasks)){
+    let changed=false;
+    state.tasks.forEach(t=>{if(!Array.isArray(t.subtasks)){t.subtasks=[];changed=true}});
+    if(changed)persist();
+  }
+})();
+
+/* Directly editable quote on Today, while preserving the existing quote rotation button. */
+const __baseRenderToday=renderToday;
+renderToday=function(){
+  __baseRenderToday();
+  const q=document.querySelector('.quote');
+  if(!q)return;
+  const current=state.quote||'';
+  q.innerHTML='<div class="quote-editable" contenteditable="true" data-placeholder="Напиши свою цитату…">'+esc(current)+'</div><button class="mini" onclick="changeQuote()" title="Сменить цитату">↻</button>';
+  const ed=q.querySelector('.quote-editable');
+  ed.addEventListener('input',()=>{state.quote=ed.innerText});
+  ed.addEventListener('blur',()=>{state.quote=ed.innerText.trim();persist()});
+  document.querySelectorAll('.score-phrase').forEach(el=>el.remove());
+};
+</script></script>
 </body>
 </html>
