@@ -382,20 +382,106 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}button:focus-vis
   .task-detail-title{font-size:24px}
   .task-detail-head{margin-bottom:16px}
 }
-</style></style>
-</head>
+</style>
+<style id="itgirl-ticktick-navigation-fixes">
+/* Exact fixes requested; all rules are scoped to navigation/task/Today UI. */
+.quote{max-width:none!important;width:100%;box-sizing:border-box;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:15px 16px!important;margin-top:15px;min-height:0;display:block}
+.quote-editable{display:block;width:100%;min-height:24px;box-sizing:border-box;font:400 15px/1.45 Georgia,serif;color:#62585a;outline:0;white-space:pre-wrap;overflow-wrap:anywhere;cursor:text}
+.quote-editable:empty:before{content:attr(data-placeholder);color:var(--muted)}
+.quote-editable:focus{outline:0}
+.score-card{min-height:0!important}
+.score-copy{margin-bottom:0!important}
+.score-card .score-copy{padding-bottom:0}
+.task{position:relative;box-sizing:border-box;border-left:4px solid var(--task-list-color);padding-left:10px!important;min-height:48px;overflow:hidden}
+.task::before{content:none!important;display:none!important}
+.task-list{min-width:0}
+.task-title{min-width:0}
+.task-right{min-width:0}
+.task-list-tag{background:transparent!important;border:1px solid var(--list-color)!important;color:var(--list-color)!important}
+.task-list-tag:before{content:none!important}
+.sidebar-rail{position:fixed;left:0;top:0;bottom:0;width:56px;background:var(--panel);border-right:1px solid var(--line);z-index:31;display:flex;flex-direction:column;align-items:center;padding:12px 7px;gap:7px}
+.rail-btn{width:40px;height:40px;border:0;background:transparent;border-radius:11px;color:#74696b;font-size:17px;display:grid;place-items:center;padding:0}
+.rail-btn:hover,.rail-btn.active{background:var(--accent-soft);color:var(--accent)}
+.rail-spacer{flex:1}
+.sidebar{left:56px!important;width:246px!important;padding:18px 12px!important;z-index:30;display:block;transition:transform .2s ease,opacity .2s ease}
+.sidebar-panel-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:0 4px 14px}
+.sidebar .brand{padding:4px 5px 0;font-size:22px}
+.sidebar-collapse{width:30px;height:30px;border:1px solid var(--line);background:#fff;border-radius:8px;color:#74696b;font-size:18px}
+.sidebar-section-label{padding:8px 8px 6px;font-size:9px;text-transform:uppercase;letter-spacing:.15em;color:var(--muted)}
+.sidebar .nav{display:grid;gap:2px}
+.sidebar .nav button{display:flex;align-items:center;gap:9px;padding:9px 9px;border-radius:9px;min-width:0}
+.sidebar-system button span:first-child,.sidebar-secondary button span:first-child{width:18px;text-align:center;color:var(--muted)}
+.sidebar-divider{height:1px;background:var(--line);margin:10px 7px}
+.sidebar-list-heading{display:flex;align-items:center;justify-content:space-between}
+.sidebar-list-heading button{border:0;background:transparent;color:var(--accent);font-size:16px;padding:0 5px}
+.sidebar-lists button{gap:8px}
+.sidebar-list-dot{width:7px;height:7px;border-radius:50%;flex:0 0 7px}
+.sidebar-list-name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sidebar-list-count{margin-left:auto;color:var(--muted);font-size:10px}
+.app.desktop-sidebar-collapsed .sidebar{transform:translateX(-100%);opacity:0;pointer-events:none}
+.main{margin-left:302px;width:calc(100% - 302px)}
+.mobile-sidebar-toggle{display:none}
+body.menu-open{overflow:hidden}
+@media(max-width:700px){
+  html,body{max-width:100%;overflow-x:hidden}
+  input,textarea,select,.text-input,.select,.quote-editable,[contenteditable="true"]{font-size:16px!important}
+  .quote{width:100%;padding:14px 16px!important;margin-top:15px;border-radius:16px;line-height:1.45;box-sizing:border-box}
+  .quote-editable{font-size:16px!important;min-height:24px;line-height:1.45}
+  .score-card{min-height:0!important}
+  .score-copy{margin-bottom:0!important}
+  .task{border-left-width:4px;padding-left:10px!important;min-width:0;width:100%;overflow:hidden}
+  .task-right{min-width:0}
+  .task-list-tag{display:none!important}
+  .mobile-sidebar-toggle{display:flex;position:fixed;left:16px;top:18px;width:46px;height:46px;border:1px solid var(--line);border-radius:50%;background:rgba(255,253,250,.96);z-index:170;align-items:center;justify-content:center;flex-direction:column;gap:5px;box-shadow:0 4px 18px rgba(50,35,38,.08)}
+  .mobile-sidebar-toggle span{width:19px;height:1.7px;background:#332d2f;border-radius:2px}
+  .sidebar-rail{display:none}
+  .sidebar{display:block!important;position:fixed!important;left:0!important;top:0!important;bottom:0!important;width:min(320px,86vw)!important;height:100vh!important;transform:translateX(-105%);opacity:1;padding:22px 14px!important;background:#fff!important;border-right:1px solid var(--line);box-shadow:12px 0 35px rgba(40,25,28,.12);overflow:auto;z-index:160;transition:transform .22s ease}
+  .app.mobile-sidebar-open .sidebar{transform:translateX(0)}
+  .app.mobile-sidebar-open:after{content:"";position:fixed;inset:0;background:rgba(33,24,26,.24);z-index:150}
+  .sidebar-panel-head{padding-top:4px}
+  .sidebar .brand{font-size:23px}
+  .sidebar-collapse{display:none}
+  .sidebar .nav button{font-size:14px;padding:11px 10px}
+  .main{margin-left:0!important;width:100%!important}
+  .main{padding-top:74px!important}
+  .mobile-nav{z-index:140!important}
+  .mobile-more-menu{z-index:141!important}
+}
+</style></head>
 <body>
-<div class="app">
+<div class="app"><button class="mobile-sidebar-toggle" type="button" aria-label="Открыть меню" aria-expanded="false" onclick="toggleMobileSidebar()"><span></span><span></span><span></span></button>
+<div class="sidebar-rail" aria-label="Разделы">
+  <button class="rail-btn active" data-page="today" title="Сегодня">⌂</button>
+  <button class="rail-btn" data-page="planner" title="Планер">☷</button>
+  <button class="rail-btn" data-page="calendar" title="Календарь">▦</button>
+  <button class="rail-btn" data-page="weeks" title="12 Weeks">▧</button>
+  <button class="rail-btn" data-page="maddy" title="Maddy">M</button>
+  <div class="rail-spacer"></div>
+  <button class="rail-btn" data-page="cabinet" title="Мой кабинет">⌂</button>
+  <button class="rail-btn" data-page="settings" title="Настройки">⚙</button>
+</div>
 <aside class="sidebar">
-  <div class="brand">It Girl <span>Planner</span></div>
-  <nav class="nav">
-    <button data-page="today" class="active">Today</button>
-    <button data-page="planner">Планер</button>
-    <button data-page="calendar">Календарь</button>
-    <button data-page="weeks">12 Weeks</button>
-    <button data-page="maddy">Maddy</button>
-    <button data-page="cabinet">Мой кабинет</button>
-    <button data-page="settings">Настройки</button>
+  <div class="sidebar-panel-head"><div class="brand">It Girl <span>Planner</span></div><button class="sidebar-collapse" type="button" onclick="toggleDesktopSidebar()" title="Скрыть меню">‹</button></div>
+  <div class="sidebar-section-label">Экраны</div>
+  <nav class="nav sidebar-system">
+    <button data-page="today" class="active"><span>▣</span>Сегодня</button>
+    <button data-page="tomorrow"><span>◷</span>Завтра</button>
+    <button data-page="next7"><span>▤</span>Следующие 7 дней</button>
+    <button data-page="inbox"><span>▢</span>Входящие</button>
+  </nav>
+  <div class="sidebar-divider"></div>
+  <div class="sidebar-section-label sidebar-list-heading"><span>Списки</span><button type="button" onclick="go('settings')">＋</button></div>
+  <nav class="nav sidebar-lists">
+    ${AREAS.map((a,i)=>`<button data-list="${esc(a)}" title="${esc(a)}"><span class="sidebar-list-dot" style="background:${BASE_COLORS[i%BASE_COLORS.length]}"></span><span class="sidebar-list-name">${esc(a)}</span><span class="sidebar-list-count">${state.tasks.filter(t=>t.area===a&&!t.done).length||''}</span></button>`).join('')}
+  </nav>
+  <div class="sidebar-divider"></div>
+  <nav class="nav sidebar-secondary">
+    <button data-page="planner"><span>☷</span>Планер</button>
+    <button data-page="calendar"><span>▦</span>Календарь</button>
+    <button data-page="weeks"><span>▧</span>12 Weeks</button>
+    <button data-page="maddy"><span>M</span>Maddy — My Character</button>
+    <button data-page="cabinet"><span>⌂</span>Мой кабинет</button>
+    <button data-page="settings"><span>⚙</span>Настройки</button>
   </nav>
 </aside>
 <nav class="mobile-nav" aria-label="Основная навигация">
@@ -427,7 +513,7 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}button:focus-vis
 <script>
 const KEY='it-girl-planner-v1';
 const BASE_COLORS=['#8d2439','#b64f68','#c7778e','#9d5b62','#7a4251','#c59a8b','#6d7d6d','#6e748d','#9a7b55','#7d6b83','#4f7773','#a56d54','#c9a28f','#d9b7bd','#6f5360','#a18b76'];
-const QUOTES=['Я выбираю свою жизнь, а не жду, пока жизнь выберет меня.','Один плохой день ничего обо мне не говорит.','Мне не нужно быть идеальной, чтобы быть охуенной.','Маленькое действие лучше идеального плана.'];
+const QUOTES=[];
 const AREAS=['Работа и заработок','Фигура мечты','Ментальное здоровье','Внешность','Здоровье','Дом и быт','Блог','Отношения','Саморазвитие','Планирование'];
 const AREA_LABEL={};
 function areaLabel(a){return a||'Без сферы'}
@@ -472,7 +558,7 @@ function normalizeData(raw){
  d.habits=(Array.isArray(d.habits)?d.habits:[]).map(h=>({...h,area:migrateArea(h.area)||AREAS[0],days:h.days||{},target:Number(h.target)||1,unit:h.unit||'раз',color:h.color||d.settings.habitColor}));
  d.tasks=(Array.isArray(d.tasks)?d.tasks:[]).map(t=>({...t,area:migrateArea(t.area)||AREAS[0],priority:t.priority||'medium',date:t.date||todayISO(),repeat:t.repeat||'none',repeatDays:Array.isArray(t.repeatDays)?t.repeatDays.map(Number).filter(n=>n>=0&&n<=6):[],overrides:t.overrides||{},start:t.start||'12:30',end:t.end||'13:30',allDay:!!t.allDay,noTime:!!t.noTime,color:t.color||d.settings.taskColor,done:!!t.done,notes:t.notes||'',subtasks:Array.isArray(t.subtasks)?t.subtasks.map(s=>({id:s.id||Date.now()+Math.random(),title:String(s.title||'').trim(),done:!!s.done})).filter(s=>s.title):[]}));
  d.goals=(Array.isArray(d.goals)?d.goals:[]).map(g=>({...g,subgoals:g.subgoals||[],actions:g.actions||[],progress:Number(g.progress)||0}));
- d.quote=d.quote||def.quote;d.quotes=d.quotes?.length?d.quotes:def.quotes;d.quoteIndex=Number(d.quoteIndex)||0;d.moodboard=d.moodboard||[];d.notes=Array.isArray(d.notes)?d.notes:[];d.cabinetMaterials=Array.isArray(d.cabinetMaterials)?d.cabinetMaterials:[];return d;
+ d.quote=typeof d.quote==='string'?d.quote:'';d.quotes=[];d.quoteIndex=0;d.moodboard=d.moodboard||[];d.notes=Array.isArray(d.notes)?d.notes:[];d.cabinetMaterials=Array.isArray(d.cabinetMaterials)?d.cabinetMaterials:[];return d;
 }
 /* Cloud sync: the planner keeps a local cache for instant UI, while Supabase is the shared source across devices. */
 const SUPABASE_URL='https://ajrcehwxqgbloixgvcxc.supabase.co';
@@ -585,10 +671,10 @@ function maddyScore(){const vals=AREAS.map(areaProgress);return vals.length?Math
 function renderToday(){
  const s=todayScore(),m=maddyScore(),h=todayHabitDone(),t=todayTaskDone();
  document.getElementById('page').innerHTML=`
- <header class="page-head"><div class="eyebrow">It Girl Planner</div><h1 class="title">Today</h1><div class="date">${fmtDate(todayISO())}</div><div class="quote">“${esc(state.quote)}” <button class="mini" onclick="changeQuote()" title="Сменить цитату">↻</button></div></header>
+ <header class="page-head"><div class="eyebrow">It Girl Planner</div><h1 class="title">Today</h1><div class="date">${fmtDate(todayISO())}</div><div class="quote"><div class="quote-editable" contenteditable="true" spellcheck="false" data-placeholder="Напиши свою цитату…">${esc(state.quote||'')}</div></div></header>
  <div class="score-row">
-  <section class="card score-card"><div class="label">Today Score</div><div class="score-number">${s}%</div><div class="score-copy"><p class="score-completed"><span>Выполнено:</span> <b>${h[0]} / ${h[1]}</b> привычек · <b>${t[0]} / ${t[1]}</b> задач</p><div class="bar"><i style="width:${s}%"></i></div><div class="score-phrase">${scorePhrase(s)}</div></div></section>
-  <section class="card score-card"><div class="label">Maddy</div><div class="score-number">${m}%</div><div class="score-copy"><p>Твой текущий прогресс по сферам.</p><div class="bar"><i style="width:${m}%"></i></div><div class="score-phrase">${m>=80?'Ты всё больше живёшь так, как хочешь.':m>=50?'Реальные действия уже меняют картину.':'Сейчас важнее не идеальная система, а повторение действий.'}</div></div></section>
+  <section class="card score-card"><div class="label">Today Score</div><div class="score-number">${s}%</div><div class="score-copy"><p class="score-completed"><span>Выполнено:</span> <b>${h[0]} / ${h[1]}</b> привычек · <b>${t[0]} / ${t[1]}</b> задач</p><div class="bar"><i style="width:${s}%"></i></div></div></section>
+  <section class="card score-card"><div class="label">Maddy — My Character</div><div class="score-number">${m}%</div><div class="score-copy"><p>Твой текущий прогресс по сферам.</p><div class="bar"><i style="width:${m}%"></i></div></div></section>
  </div>
  <section class="card section today-habits-section"><div class="section-head"><h2>Привычки</h2><button class="btn ghost" onclick="go('planner');plannerMode='habits';setTimeout(()=>renderPlanner(),0)">Все привычки</button></div><div class="habit-grid">${state.habits.map(habitTodayHTML).join('')}</div></section>
  <section class="card section tasks-section"><div class="tasks-header"><div class="tasks-title">Задачи</div><div class="tasks-count">${todayTasks().length ? todayTasks().length + (todayTasks().length === 1 ? ' задача на сегодня' : todayTasks().length < 5 ? ' задачи на сегодня' : ' задач на сегодня') : 'На сегодня задач нет'}</div></div><div class="tasks-divider"></div>${renderTasksGrouped(todayTasks())}<div class="tasks-add-wrap"><button class="btn tasks-add-btn" onclick="openTaskModal()">+ Добавить задачу</button></div></section>`
@@ -596,9 +682,28 @@ function renderToday(){
 function renderTasksGrouped(tasks){if(!tasks.length)return '<div class="empty">На этот день задач нет.</div>';const groups=[['high','Высокий приоритет'],['medium','Средний приоритет'],['low','Низкий приоритет']];return groups.map(([p,label])=>{const arr=tasks.filter(t=>(t.priority||'medium')===p);if(!arr.length)return '';return `<div class="task-group"><div class="label" style="padding:9px 0 2px">${label}</div>${renderTasksHTML(arr)}</div>`}).join('')}
 
 function habitTodayHTML(h){const pct=habitPct(h),done=pct>=100;return `<div class="habit-tile"><button class="habit-check ${done?'done':pct>0?'partial':''}" style="--pct:${pct}%" onclick="habitToggle(${h.id})" aria-label="${esc(h.name)}"></button><div><div class="habit-area">${esc(AREA_LABEL[h.area]||h.area)}</div><div class="habit-name" title="${esc(h.name)}">${esc(h.name)}</div><div class="habit-meta">${h.target>1?`${habitValue(h)} / ${h.target} ${esc(h.unit)}`:`🔥 ${habitStreak(h)} дн.`}</div></div></div>`}
-function renderTasksHTML(tasks){if(!tasks.length)return '<div class="empty">На этот день задач нет.</div>';return `<div class="task-list">${tasks.map(t=>`<div class="task"><button class="task-check ${t.done?'done':''}" onclick="toggleTask(${t.id})"></button><div class="task-title ${t.done?'done':''}"><div>${esc(t.title)}</div><div class="task-sub">${t.noTime?'Без времени':(t.allDay?'Весь день':`${esc(t.start||'')} ${t.end?'– '+esc(t.end):''}`)} · ${esc(t.area)}</div></div><div class="task-right"><span class="priority ${t.priority}" title="${priorityLabel(t.priority)}"></span><span class="tag">${esc(t.area)}</span><div class="task-actions"><button class="mini" onclick="openTaskModal(${t.id})" title="Редактировать">✎</button><button class="mini" onclick="deleteTask(${t.id})" title="Удалить">×</button></div></div></div>`).join('')}</div>`}
+function renderTasksHTML(tasks){
+ if(!tasks.length)return '<div class="empty">На этот день задач нет.</div>';
+ return `<div class="task-list">${tasks.map(t=>{
+   const lc=taskListColor(t.area),list=t.area||'Без списка',subs=taskSubtasks(t),sdone=subs.filter(s=>s.done).length;
+   const time=t.noTime?'Без времени':(t.allDay?'Весь день':((t.start||'')+(t.end?' – '+t.end:'')));
+   const progress=subs.length?` · ${sdone}/${subs.length} · ${Math.round(sdone/subs.length*100)}%`:'';
+   return `<div class="task" style="--task-list-color:${lc}" onclick="openTaskDetail(${t.id})">
+     <button class="task-check ${t.done?'done':''}" onclick="event.stopPropagation();toggleTask(${t.id})"></button>
+     <div class="task-title ${t.done?'done':''}"><div>${esc(t.title)}</div><div class="task-sub">${esc(time)}${progress}</div></div>
+     <div class="task-right">
+       <span class="priority ${t.priority}" title="${priorityLabel(t.priority)}"></span>
+       <span class="tag task-list-tag" style="--list-color:${lc}">${esc(list)}</span>
+       <div class="task-actions">
+         <button class="mini" onclick="event.stopPropagation();openTaskModal(${t.id})" title="Редактировать">✎</button>
+         <button class="mini" onclick="event.stopPropagation();deleteTask(${t.id})" title="Удалить">×</button>
+       </div>
+     </div>
+   </div>`;
+ }).join('')}</div>`;
+}
 function priorityLabel(p){return p==='high'?'Высокий':p==='low'?'Низкий':'Средний'}
-function changeQuote(){state.quoteIndex=(state.quoteIndex+1)%state.quotes.length;state.quote=state.quotes[state.quoteIndex];refresh()}
+function changeQuote(){}
 function toggleTask(id){const t=state.tasks.find(x=>x.id==id);if(!t)return;t.done=!t.done;if(!t.done)rpgRemoveTransactionsByPrefix('auto:task:'+t.id);else syncRPGFromPlanner();refresh();toast(t.done?'Задача выполнена':'Отметка снята')}
 function deleteTask(id){if(!confirm('Удалить задачу?'))return;state.tasks=state.tasks.filter(t=>t.id!=id);refresh();toast('Задача удалена')}
 let plannerMode='tasks';function switchPlanner(m){plannerMode=m;renderPlanner()}
@@ -964,7 +1069,7 @@ function renderMaddy(){
     return `<section class="rpg-trait-group"><div class="rpg-group-title"><span>${esc(title)}</span><span class="rpg-group-line"></span></div><div class="rpg-traits">${cards}</div></section>`;
   }).join('');
   document.getElementById('page').innerHTML=`
-    <header class="page-head"><div class="eyebrow">MADDY</div><h1 class="title">Maddy</h1><div class="date">The version of me I'm building.</div></header>
+    <header class="page-head"><div class="eyebrow">MADDY</div><h1 class="title">Maddy — My Character</h1><div class="date">The version of me I'm building.</div></header>
     <div class="maddy-rpg maddy-page-v2">
       <section class="card section maddy-hero-card">
         <div class="maddy-hero">
@@ -1727,29 +1832,6 @@ function deleteSubtask(taskId,index){
   t.subtasks.splice(index,1);persist();renderTaskDetail();
 }
 
-/* Replace the task row renderer only; calendar rendering is untouched. */
-function renderTasksHTML(tasks){
-  if(!tasks.length)return '<div class="empty">На этот день задач нет.</div>';
-  return `<div class="task-list">${tasks.map(t=>{
-    const lc=taskListColor(t.area), list= t.area || 'Без списка';
-    const time=t.noTime?'Без времени':(t.allDay?'Весь день':((t.start||'')+(t.end?' – '+t.end:'')));
-    return `<div class="task" style="--task-list-color:${lc}" onclick="openTaskDetail(${t.id})">
-      <button class="task-check ${t.done?'done':''}" onclick="event.stopPropagation();toggleTask(${t.id})"></button>
-      <div class="task-title ${t.done?'done':''}">
-        <div>${esc(t.title)}</div>
-        <div class="task-sub">${esc(time)}${taskSubtasks(t).length?' · '+taskSubtasks(t).filter(s=>s.done).length+'/'+taskSubtasks(t).length+' · '+Math.round(taskSubtasks(t).filter(s=>s.done).length/taskSubtasks(t).length*100)+'%':''}</div>
-      </div>
-      <div class="task-right">
-        <span class="priority ${t.priority}" title="${priorityLabel(t.priority)}"></span>
-        <span class="task-list-label"><span class="task-list-dot" style="background:${lc}"></span>${esc(list)}</span>
-        <div class="task-actions">
-          <button class="mini" onclick="event.stopPropagation();openTaskModal(${t.id})" title="Редактировать">✎</button>
-          <button class="mini" onclick="event.stopPropagation();deleteTask(${t.id})" title="Удалить">×</button>
-        </div>
-      </div>
-    </div>`;
-  }).join('')}</div>`;
-}
 
 /* Normalize existing tasks without touching their existing data. */
 (function ensureTaskSubtasks(){
@@ -1760,19 +1842,65 @@ function renderTasksHTML(tasks){
   }
 })();
 
-/* Directly editable quote on Today, while preserving the existing quote rotation button. */
-const __baseRenderToday=renderToday;
-renderToday=function(){
-  __baseRenderToday();
-  const q=document.querySelector('.quote');
-  if(!q)return;
-  const current=state.quote||'';
-  q.innerHTML='<div class="quote-editable" contenteditable="true" data-placeholder="Напиши свою цитату…">'+esc(current)+'</div><button class="mini" onclick="changeQuote()" title="Сменить цитату">↻</button>';
-  const ed=q.querySelector('.quote-editable');
-  ed.addEventListener('input',()=>{state.quote=ed.innerText});
-  ed.addEventListener('blur',()=>{state.quote=ed.innerText.trim();persist()});
-  document.querySelectorAll('.score-phrase').forEach(el=>el.remove());
+
+
+// --- TickTick-like navigation menu ---
+let desktopSidebarCollapsed=false;
+let mobileSidebarOpen=false;
+let taskListFilter='';
+function toggleDesktopSidebar(){
+ desktopSidebarCollapsed=!desktopSidebarCollapsed;
+ document.querySelector('.app')?.classList.toggle('desktop-sidebar-collapsed',desktopSidebarCollapsed);
+}
+function toggleMobileSidebar(){
+ mobileSidebarOpen=!mobileSidebarOpen;
+ document.querySelector('.app')?.classList.toggle('mobile-sidebar-open',mobileSidebarOpen);
+ document.querySelector('.mobile-sidebar-toggle')?.setAttribute('aria-expanded',String(mobileSidebarOpen));
+}
+function closeMobileSidebar(){
+ mobileSidebarOpen=false;
+ document.querySelector('.app')?.classList.remove('mobile-sidebar-open');
+ document.querySelector('.mobile-sidebar-toggle')?.setAttribute('aria-expanded','false');
+}
+function listTasksForView(kind){
+ const today=todayISO(),tom=isoDate(addDays(parseDate(today),1));
+ if(kind==='tomorrow')return state.tasks.filter(t=>t.date===tom);
+ if(kind==='next7'){const end=isoDate(addDays(parseDate(today),7));return state.tasks.filter(t=>t.date>=today&&t.date<=end)}
+ if(kind==='inbox')return state.tasks.filter(t=>!t.date||t.date==='');
+ return state.tasks.filter(t=>t.date===today);
+}
+function renderTaskViewPage(title,subtitle,tasks){
+ document.getElementById('page').innerHTML=`<header class="page-head"><div class="eyebrow">Задачи</div><h1 class="title">${esc(title)}</h1><div class="date">${esc(subtitle)}</div></header><section class="card tasks-section"><div class="tasks-header"><div class="tasks-title">Задачи</div><div class="tasks-count">${tasks.length} ${tasks.length===1?'задача':tasks.length<5?'задачи':'задач'}</div></div><div class="tasks-divider"></div>${renderTasksGrouped(tasks)}<div class="tasks-add-wrap"><button class="btn tasks-add-btn" onclick="openTaskModal()">+ Добавить задачу</button></div></section>`;
+}
+function renderListView(name){
+ const tasks=state.tasks.filter(t=>t.area===name);
+ renderTaskViewPage(name,'Все задачи этого списка',tasks);
+}
+function selectTaskList(name){
+ taskListFilter=name;
+ renderListView(name);
+ document.querySelectorAll('.sidebar-lists button[data-list]').forEach(b=>b.classList.toggle('active',b.dataset.list===name));
+ closeMobileSidebar();
+}
+const __goWithTaskViews=go;
+go=function(p){
+ if(p==='tomorrow'){currentPage=p;document.querySelectorAll('.nav button[data-page],.rail-btn[data-page],.mobile-nav button[data-page],.mobile-more-menu button[data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page===p));renderTaskViewPage('Завтра','Задачи на завтра',listTasksForView('tomorrow'));closeMobileSidebar();return}
+ if(p==='next7'){currentPage=p;document.querySelectorAll('.nav button[data-page],.rail-btn[data-page],.mobile-nav button[data-page],.mobile-more-menu button[data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page===p));renderTaskViewPage('Следующие 7 дней','Задачи на ближайшие 7 дней',listTasksForView('next7'));closeMobileSidebar();return}
+ if(p==='inbox'){currentPage=p;document.querySelectorAll('.nav button[data-page],.rail-btn[data-page],.mobile-nav button[data-page],.mobile-more-menu button[data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page===p));renderTaskViewPage('Входящие','Задачи без списка',listTasksForView('inbox'));closeMobileSidebar();return}
+ taskListFilter='';
+ const r=__goWithTaskViews(p);closeMobileSidebar();return r;
 };
+document.addEventListener('click',e=>{
+ const listBtn=e.target.closest('.sidebar-lists button[data-list]');
+ if(listBtn){e.preventDefault();selectTaskList(listBtn.dataset.list)}
+});
+function bindEditableTodayQuote(){
+ const ed=document.querySelector('.quote-editable'); if(!ed)return;
+ ed.addEventListener('input',()=>{state.quote=ed.innerText.replace(/\u00a0/g,' ')});
+ ed.addEventListener('blur',()=>{state.quote=ed.innerText.trim();persist()});
+}
+const __originalRenderTodayForQuote=renderToday;
+renderToday=function(){const r=__originalRenderTodayForQuote();bindEditableTodayQuote();return r};
 </script>
 </body>
 </html>
