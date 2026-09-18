@@ -1642,7 +1642,6 @@ document.addEventListener('click',e=>{if(mobileMoreMenu?.classList.contains('ope
 go('today');
 initCloudSync().then(()=>{if(currentPage)go(currentPage)}).catch(e=>console.warn('Cloud initialization failed',e));
 
-<script>
 /* --- It Girl task/list detail layer --- */
 function taskListColor(area){
   const i=AREAS.indexOf(area);
@@ -1774,6 +1773,6 @@ renderToday=function(){
   ed.addEventListener('blur',()=>{state.quote=ed.innerText.trim();persist()});
   document.querySelectorAll('.score-phrase').forEach(el=>el.remove());
 };
-</script></script>
+</script>
 </body>
 </html>
