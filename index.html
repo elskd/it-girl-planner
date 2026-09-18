@@ -529,7 +529,7 @@ function fmtShort(d){return d.toLocaleDateString('ru-RU',{day:'2-digit',month:'2
 function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
 function defaultData(){
  const td=todayISO();
- return {version:2,quote:QUOTES[0],quoteIndex:0,quotes:[...QUOTES],
+ return {version:2,quote:'',quoteIndex:0,quotes:[],
   habits:[
    {id:1,name:'Встать до 10:00',area:'Personal',target:1,unit:'раз',days:{},color:'#c59a8b'},
    {id:2,name:'Лечь до 2:00',area:'Health',target:1,unit:'раз',days:{},color:'#7d6b83'},
@@ -556,7 +556,7 @@ function normalizeData(raw){
  d.habits=(Array.isArray(d.habits)?d.habits:[]).map(h=>({...h,area:migrateArea(h.area)||AREAS[0],days:h.days||{},target:Number(h.target)||1,unit:h.unit||'раз',color:h.color||d.settings.habitColor}));
  d.tasks=(Array.isArray(d.tasks)?d.tasks:[]).map(t=>({...t,area:migrateArea(t.area)||AREAS[0],priority:t.priority||'medium',date:t.date||todayISO(),repeat:t.repeat||'none',repeatDays:Array.isArray(t.repeatDays)?t.repeatDays.map(Number).filter(n=>n>=0&&n<=6):[],overrides:t.overrides||{},start:t.start||'12:30',end:t.end||'13:30',allDay:!!t.allDay,noTime:!!t.noTime,color:t.color||d.settings.taskColor,done:!!t.done,notes:t.notes||'',subtasks:Array.isArray(t.subtasks)?t.subtasks.map(s=>({id:s.id||Date.now()+Math.random(),title:String(s.title||'').trim(),done:!!s.done})).filter(s=>s.title):[]}));
  d.goals=(Array.isArray(d.goals)?d.goals:[]).map(g=>({...g,subgoals:g.subgoals||[],actions:g.actions||[],progress:Number(g.progress)||0}));
- d.quote=typeof d.quote==='string'?d.quote:'';d.quotes=[];d.quoteIndex=0;d.moodboard=d.moodboard||[];d.notes=Array.isArray(d.notes)?d.notes:[];d.cabinetMaterials=Array.isArray(d.cabinetMaterials)?d.cabinetMaterials:[];return d;
+ const oldPreparedQuotes=['Я выбираю свою жизнь, а не жду, пока жизнь выберет меня.','Один плохой день ничего обо мне не говорит.','Мне не нужно быть идеальной, чтобы быть охуенной.','Маленькое действие лучше идеального плана.'];d.quote=typeof d.quote==='string'&& !oldPreparedQuotes.includes(d.quote.trim())?d.quote:'';d.quotes=[];d.quoteIndex=0;d.moodboard=d.moodboard||[];d.notes=Array.isArray(d.notes)?d.notes:[];d.cabinetMaterials=Array.isArray(d.cabinetMaterials)?d.cabinetMaterials:[];return d;
 }
 /* Cloud sync: the planner keeps a local cache for instant UI, while Supabase is the shared source across devices. */
 const SUPABASE_URL='https://ajrcehwxqgbloixgvcxc.supabase.co';
