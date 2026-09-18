@@ -335,7 +335,7 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}button:focus-vis
 <style id="itgirl-task-upgrades">
 /* Task lists + TickTick-style task details. Scoped so existing calendar/planner layout stays intact. */
 .task{position:relative;--task-list-color:var(--accent)}
-.task::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--task-list-color);border-radius:2px}
+.task::before{content:none!important;display:none!important}
 .task-list-label{font-size:10px;color:var(--muted);white-space:nowrap;display:inline-flex;align-items:center;gap:5px}
 .task-list-label .task-list-dot{width:6px;height:6px;border-radius:50%;display:inline-block;flex:0 0 6px}
 .task{padding-left:10px}
@@ -392,12 +392,12 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}button:focus-vis
 .score-card{min-height:0!important}
 .score-copy{margin-bottom:0!important}
 .score-card .score-copy{padding-bottom:0}
-.task{position:relative;box-sizing:border-box;border-left:4px solid var(--task-list-color);padding-left:10px!important;min-height:48px;overflow:hidden}
+.task{position:relative;box-sizing:border-box;border-left:0!important;padding-left:0!important;min-height:48px;overflow:hidden}
 .task::before{content:none!important;display:none!important}
 .task-list{min-width:0}
 .task-title{min-width:0}
 .task-right{min-width:0}
-.task-list-tag{background:var(--list-color)!important;border:1px solid var(--list-color)!important;color:#fff!important;font-weight:600}
+.task-list-tag{background:color-mix(in srgb,var(--list-color) 12%,#fffdfa)!important;border:1px solid transparent!important;color:var(--list-color)!important;font-weight:500}
 .task-list-tag:before{content:none!important}
 .sidebar-rail{position:fixed;left:0;top:0;bottom:0;width:56px;background:var(--panel);border-right:1px solid var(--line);z-index:31;display:flex;flex-direction:column;align-items:center;padding:12px 7px;gap:7px}
 .rail-btn{width:40px;height:40px;border:0;background:transparent;border-radius:11px;color:#74696b;font-size:17px;display:grid;place-items:center;padding:0}
@@ -1090,7 +1090,7 @@ function renderMaddy(){
     return `<section class="rpg-trait-group"><div class="rpg-group-title"><span>${esc(title)}</span><span class="rpg-group-line"></span></div><div class="rpg-traits">${cards}</div></section>`;
   }).join('');
   document.getElementById('page').innerHTML=`
-    <header class="page-head"><div class="eyebrow">MADDY</div><h1 class="title">Maddy</h1><div class="date">The version of me I'm building.</div></header>
+    <header class="page-head"><div class="eyebrow">MY CHARACTER</div><h1 class="title">Maddy</h1><div class="date">The version of me I'm building.</div></header>
     <div class="maddy-rpg maddy-page-v2">
       <section class="card section maddy-hero-card">
         <div class="maddy-hero">
