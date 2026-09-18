@@ -1970,6 +1970,15 @@ renderSidebarLists();
 </script>
 </body>
 </html>
+<style id="planner-navigation-overrides">/* Navigation controls: compact circular arrows, matching the date-card height. */
+.planner-week-arrow{flex:0 0 92px!important;width:92px!important;height:92px!important;min-height:92px!important;padding:0!important;align-self:center;border-radius:50%!important;display:flex;align-items:center;justify-content:center;font-size:24px;line-height:1}
+.planner-calendar-picker{width:92px!important;height:92px!important;flex-basis:92px!important;border-radius:50%!important}
+.cal-nav>.mini{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;padding:0;font-size:20px;line-height:1}
+@media(max-width:700px){
+ .planner-week-arrow{flex-basis:64px!important;width:64px!important;height:64px!important;min-height:64px!important}
+ .planner-calendar-picker{width:64px!important;height:64px!important;flex-basis:64px!important}
+}
+</style>
 <style id="planner-final-overrides">
 .planner-tasks-card .task{background:#fff!important;color:var(--ink)!important;border-radius:0!important;margin:0!important;border-bottom:1px solid var(--line)!important}
 .planner-tasks-card .task-title,.planner-tasks-card .task-title>div:first-child,.planner-tasks-card .task-sub{color:var(--ink)!important}
