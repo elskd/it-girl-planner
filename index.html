@@ -1716,8 +1716,14 @@ function openGoalModal(id){const g=id?state.goals.find(x=>x.id==id):null;const x
 function saveGoal(id){const obj={title:document.getElementById('gTitle').value.trim(),target:document.getElementById('gTarget').value.trim(),progress:Math.max(0,Math.min(100,Number(document.getElementById('gProgress').value)||0)),subgoals:document.getElementById('gSubs').value.split('\n').map(x=>x.trim()).filter(Boolean),actions:document.getElementById('gActs').value.split('\n').map(x=>x.trim()).filter(Boolean)};if(!obj.title){toast('Напиши цель');return}if(id){const g=state.goals.find(x=>x.id==id);if(g)Object.assign(g,obj)}else{obj.id=Date.now();state.goals.push(obj)}syncRPGFromPlanner();refresh();closeModal()}
 function openModal(){document.getElementById('modalWrap').classList.add('open')}function closeModal(){document.getElementById('modalWrap').classList.remove('open')}
 document.getElementById('modalWrap').addEventListener('click',e=>{if(e.target.id==='modalWrap')closeModal()});document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
-let currentPage='today';function go(p){
+let currentPage='today';
+function pageFromHash(){
+ const p=String(location.hash||'').replace(/^#/,'').trim().toLowerCase();
+ return ['today','planner','calendar','weeks','maddy','cabinet','settings'].includes(p)?p:'today';
+}
+function go(p, updateUrl=true){
  const previousPage=currentPage;
+ if(updateUrl && location.hash!=='#'+p) history.pushState({page:p},'', '#'+p);
  const pageEl=document.getElementById('page');
  const previousHTML=pageEl?pageEl.innerHTML:'';
  currentPage=p;
@@ -1773,8 +1779,10 @@ const mobileMoreMenu=document.querySelector('.mobile-more-menu');
 function closeMobileMore(){if(!mobileMoreMenu||!mobileMoreBtn)return;mobileMoreMenu.classList.remove('open');mobileMoreMenu.setAttribute('aria-hidden','true');mobileMoreBtn.setAttribute('aria-expanded','false')}
 if(mobileMoreBtn)mobileMoreBtn.addEventListener('click',e=>{e.stopPropagation();const open=mobileMoreMenu.classList.toggle('open');mobileMoreMenu.setAttribute('aria-hidden',String(!open));mobileMoreBtn.setAttribute('aria-expanded',String(open))});
 document.addEventListener('click',e=>{if(mobileMoreMenu?.classList.contains('open')&&!mobileMoreMenu.contains(e.target)&&e.target!==mobileMoreBtn)closeMobileMore();});
-go('today');
-initCloudSync().then(()=>{if(currentPage)go(currentPage)}).catch(e=>console.warn('Cloud initialization failed',e));
+window.addEventListener('hashchange',()=>{go(pageFromHash(),false)});
+const initialPage=pageFromHash();
+go(initialPage,false);
+initCloudSync().then(()=>{if(currentPage)go(currentPage,false)}).catch(e=>console.warn('Cloud initialization failed',e));
 
 /* --- It Girl task/list detail layer --- */
 function taskListColor(area){
