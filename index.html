@@ -988,7 +988,7 @@ function bindPlannerTaskSwipes(){
     function settle(){
       const shouldAnimate=moved&&Math.abs(dx)>10;
       dragging=false;
-      shell.classList.remove('is-swiping','swipe-delete','swipe-complete');
+      shell.classList.remove('tap-static','is-swiping','swipe-delete','swipe-complete');
       task.style.transform='translate3d(0,0,0)';
       shell.style.setProperty('--swipe-progress','0');
       if(!shouldAnimate){
@@ -1005,7 +1005,8 @@ function bindPlannerTaskSwipes(){
       const t=e.touches[0];
       sx=t.clientX;sy=t.clientY;dx=0;dragging=true;moved=false;
       task.style.transition='none';
-      shell.classList.remove('is-swiping','swipe-delete','swipe-complete');
+      shell.classList.add('tap-static');
+      shell.classList.remove('is-swiping','is-settling','swipe-delete','swipe-complete');
     },{passive:true});
 
     shell.addEventListener('touchmove',e=>{
@@ -1016,7 +1017,10 @@ function bindPlannerTaskSwipes(){
       if(Math.abs(dx)<3)return;
       if(e.cancelable)e.preventDefault();
       moved=Math.abs(dx)>10;
-      if(moved)shell.classList.add('is-swiping');
+      if(moved){
+        shell.classList.remove('tap-static');
+        shell.classList.add('is-swiping');
+      }
       const max=window.innerWidth*.72;
       const x=Math.max(-max,Math.min(max,dx));
       task.style.transform='translate3d('+x+'px,0,0)';
@@ -1026,6 +1030,7 @@ function bindPlannerTaskSwipes(){
     },{passive:false});
 
     shell.addEventListener('touchend',()=>{
+      shell.classList.remove('tap-static');
       if(!dragging)return;
       const direction=dx>0?'delete':'complete';
       const threshold=Math.min(110,Math.max(78,window.innerWidth*.22));
@@ -2548,7 +2553,7 @@ function bindTodayTaskSwipes(){
     function settle(){
       const shouldAnimate=moved&&Math.abs(dx)>10;
       dragging=false;
-      shell.classList.remove('is-swiping','swipe-delete','swipe-complete');
+      shell.classList.remove('tap-static','is-swiping','swipe-delete','swipe-complete');
       task.style.transform='translate3d(0,0,0)';
       shell.style.setProperty('--swipe-progress','0');
       if(!shouldAnimate){
@@ -2565,7 +2570,8 @@ function bindTodayTaskSwipes(){
       const t=e.touches[0];
       sx=t.clientX;sy=t.clientY;dx=0;dragging=true;moved=false;
       task.style.transition='none';
-      shell.classList.remove('is-swiping','swipe-delete','swipe-complete');
+      shell.classList.add('tap-static');
+      shell.classList.remove('is-swiping','is-settling','swipe-delete','swipe-complete');
     },{passive:true});
 
     shell.addEventListener('touchmove',e=>{
@@ -2576,7 +2582,10 @@ function bindTodayTaskSwipes(){
       if(Math.abs(dx)<3)return;
       if(e.cancelable)e.preventDefault();
       moved=Math.abs(dx)>10;
-      if(moved)shell.classList.add('is-swiping');
+      if(moved){
+        shell.classList.remove('tap-static');
+        shell.classList.add('is-swiping');
+      }
       const max=window.innerWidth*.72;
       const x=Math.max(-max,Math.min(max,dx));
       task.style.transform='translate3d('+x+'px,0,0)';
@@ -2586,6 +2595,7 @@ function bindTodayTaskSwipes(){
     },{passive:false});
 
     shell.addEventListener('touchend',()=>{
+      shell.classList.remove('tap-static');
       if(!dragging)return;
       const direction=dx>0?'delete':'complete';
       const threshold=Math.min(110,Math.max(78,window.innerWidth*.22));
@@ -3345,6 +3355,28 @@ html,body{-webkit-text-size-adjust:100%!important}
     transition:none!important;
     animation:none!important;
     box-shadow:none!important;
+  }
+}
+</style>
+
+<style id="task-press-kill-v3">
+@media(max-width:700px){
+  .today-page .today-task-swipe-shell.tap-static,
+  .planner-tasks-card .planner-task-swipe-shell.tap-static{
+    transition:none!important;
+  }
+  .today-page .today-task-swipe-shell.tap-static .task,
+  .today-page .today-task-swipe-shell.tap-static .task *,
+  .today-page .today-task-swipe-shell.tap-static .today-task-swipe-action,
+  .planner-tasks-card .planner-task-swipe-shell.tap-static .task,
+  .planner-tasks-card .planner-task-swipe-shell.tap-static .task *,
+  .planner-tasks-card .planner-task-swipe-shell.tap-static .planner-task-swipe-action{
+    transition:none!important;
+    animation:none!important;
+  }
+  .today-page .today-task-swipe-shell.tap-static .task,
+  .planner-tasks-card .planner-task-swipe-shell.tap-static .task{
+    transform:none!important;
   }
 }
 </style>
