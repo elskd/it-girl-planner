@@ -602,7 +602,39 @@ body.menu-open{overflow:hidden}
 .task-custom-repeat-sheet header{display:grid;grid-template-columns:52px 1fr 52px;align-items:center;gap:10px}.task-custom-repeat-sheet header strong{text-align:center;font-size:18px}.task-custom-label{font-size:15px;margin-bottom:25px}.task-custom-repeat-card{background:#fff;border-radius:20px;padding:20px;margin-top:18px;box-shadow:0 3px 16px rgba(30,25,27,.05)}.task-custom-frequency{display:flex;justify-content:space-around;font-size:18px;padding:45px 0}.task-custom-caption{color:#777}.task-repeat-days{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:15px}.task-repeat-days label{background:#f1f1f2;border-radius:25px;padding:11px;text-align:center;color:#777}.task-repeat-days label.active{background:#d97f9a;color:#fff}.task-repeat-days input{display:none}
 @media(max-width:700px){.task-editor-panel{padding-left:34px!important;padding-right:34px!important}.task-editor-list-menu{left:34px!important}.task-detail-more-menu{right:34px!important}.task-schedule-sheet{padding-left:34px;padding-right:34px}.task-editor-title-input{font-size:22px}.task-editor-taskline{margin-bottom:15px}.task-editor-subtasks{margin-top:22px}.task-editor-labels{margin-top:20px}}
 </style>
-</head>
+<style id="absolute-no-task-tap-motion-v2">
+@media(max-width:700px){
+  .today-task-swipe-shell .task,
+  .planner-task-swipe-shell .task{
+    -webkit-tap-highlight-color:transparent!important;
+  }
+  .today-task-swipe-shell .task:not(.is-swiping):not(.is-removing):not(.is-completing),
+  .today-task-swipe-shell .task:not(.is-swiping):not(.is-removing):not(.is-completing):active,
+  .today-task-swipe-shell .task:not(.is-swiping):not(.is-removing):not(.is-completing):focus,
+  .today-task-swipe-shell .task:not(.is-swiping):not(.is-removing):not(.is-completing):hover,
+  .planner-task-swipe-shell .task:not(.is-swiping):not(.is-removing):not(.is-completing),
+  .planner-task-swipe-shell .task:not(.is-swiping):not(.is-removing):not(.is-completing):active,
+  .planner-task-swipe-shell .task:not(.is-swiping):not(.is-removing):not(.is-completing):focus,
+  .planner-task-swipe-shell .task:not(.is-swiping):not(.is-removing):not(.is-completing):hover{
+    transition:none!important;
+    animation:none!important;
+    box-shadow:none!important;
+  }
+}
+</style><script>
+(function(){
+  function lockTaskTapMotion(e){
+    const task=e.target.closest?.('.today-task-swipe-shell .task, .planner-task-swipe-shell .task');
+    if(!task)return;
+    if(e.type==='touchstart'){
+      task.style.setProperty('transition','none','important');
+      task.style.setProperty('animation','none','important');
+      task.style.setProperty('transform','none','important');
+    }
+  }
+  document.addEventListener('touchstart',lockTaskTapMotion,{capture:true,passive:true});
+})();
+</script></head>
 <body>
 <div class="app"><button class="mobile-sidebar-toggle" type="button" aria-label="Открыть меню" aria-expanded="false" onclick="toggleMobileSidebar()"><span></span><span></span><span></span></button>
 <div class="sidebar-rail" aria-label="Разделы">
