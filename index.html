@@ -2351,18 +2351,28 @@ renderSidebarLists();
 <style id="mobile-header-gradient-and-edge-swipe">
 @media(max-width:700px){
   .mobile-scroll-header-strip{
-    height:125px!important;
+    height:180px!important;
     background:linear-gradient(
       to bottom,
-      rgba(255,255,255,.22) 0%,
-      rgba(255,255,255,.16) 28%,
-      rgba(255,255,255,.09) 58%,
-      rgba(255,255,255,.035) 82%,
+      rgba(255,255,255,.78) 0%,
+      rgba(255,255,255,.68) 18%,
+      rgba(255,255,255,.52) 38%,
+      rgba(255,255,255,.32) 58%,
+      rgba(255,255,255,.14) 78%,
       rgba(255,255,255,0) 100%
     )!important;
+    opacity:0;
+    visibility:hidden;
   }
-}
-</style>
+  .app.mobile-scroll-header-visible .mobile-scroll-header-strip{
+    opacity:1!important;
+    visibility:visible!important;
+  }
+  .app.mobile-sidebar-open .mobile-scroll-header-strip{
+    opacity:0!important;
+    visibility:hidden!important;
+  }
+}</style>
 <script>
 (function bindMobileEdgeSwipeMenu(){
   const app=document.querySelector('.app');
