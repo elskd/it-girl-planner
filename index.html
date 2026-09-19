@@ -2115,7 +2115,7 @@ function saveTaskDetail(id){
  t.repeat=document.getElementById('tdRepeat')?.value||'none';t.notes=document.getElementById('tdNotes')?.value||'';t.reminder=document.getElementById('tdReminder')?.value||'';
  persist();renderTaskDetail();refresh();
 }
-function toggleTaskDetailMenu(){openTaskDetailMenu=!openTaskDetailMenu;renderTaskDetail()}
+function toggleTaskDetailMenu(){openTaskDetailMenu=openTaskDetailMenu===true?false:true;const layer=document.getElementById('taskDetailLayer');if(layer){const menu=layer.querySelector('.task-detail-more-menu');menu?.classList.toggle('open',openTaskDetailMenu===true)}}
 function pinTask(id){const t=state.tasks.find(x=>x.id==id);if(!t)return;t.pinned=!t.pinned;persist();openTaskDetailMenu=false;renderTaskDetail();refresh();toast(t.pinned?'Задача закреплена':'Закрепление снято')}
 function markTaskNotDoing(id){const t=state.tasks.find(x=>x.id==id);if(!t)return;t.status='not-done';t.done=false;persist();closeTaskDetail();refresh();toast('Задача перемещена в «Не будет выполнено»')}
 function taskDeleteConfirm(id){
