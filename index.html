@@ -537,6 +537,46 @@ body.menu-open{overflow:hidden}
 }
 @media(min-width:701px){.planner-calendar-label{display:none}}
 </style>
+<style id="task-swipe-single-action-background-final">
+@media(max-width:700px){
+  .today-page .tasks-section .today-task-swipe-action,
+  .planner-tasks-card .planner-task-swipe-action{
+    width:100%!important;
+  }
+
+  .today-page .tasks-section .today-task-swipe-shell .today-task-swipe-action.complete,
+  .today-page .tasks-section .planner-task-swipe-action.complete,
+  .planner-tasks-card .planner-task-swipe-action.complete{
+    opacity:0!important;
+    visibility:hidden!important;
+    background:transparent!important;
+    color:transparent!important;
+  }
+
+  .today-page .tasks-section .today-task-swipe-shell.swipe-delete .today-task-swipe-action.delete,
+  .planner-tasks-card .planner-task-swipe-shell.swipe-delete .planner-task-swipe-action.delete{
+    opacity:1!important;
+    visibility:visible!important;
+    background:#f5d2c4!important;
+    color:#e86d68!important;
+  }
+
+  .today-page .tasks-section .today-task-swipe-shell.swipe-complete .today-task-swipe-action.complete,
+  .planner-tasks-card .planner-task-swipe-shell.swipe-complete .planner-task-swipe-action.complete{
+    opacity:1!important;
+    visibility:visible!important;
+    background:#cce5b8!important;
+    color:#2fc56a!important;
+  }
+
+  .today-page .tasks-section .today-task-swipe-shell:not(.swipe-delete):not(.swipe-complete) .today-task-swipe-action,
+  .planner-tasks-card .planner-task-swipe-shell:not(.swipe-delete):not(.swipe-complete) .planner-task-swipe-action{
+    opacity:0!important;
+    visibility:hidden!important;
+    background:transparent!important;
+  }
+}
+</style>
 </head>
 <body>
 <div class="app"><button class="mobile-sidebar-toggle" type="button" aria-label="Открыть меню" aria-expanded="false" onclick="toggleMobileSidebar()"><span></span><span></span><span></span></button>
