@@ -652,10 +652,10 @@ body.menu-open{overflow:hidden}
 .task-delete-confirm-card{position:relative;width:min(340px,90vw);background:#fff;border-radius:22px;padding:22px;text-align:center;box-shadow:0 18px 50px rgba(40,25,28,.2)}
 .task-delete-cat{font-size:38px;margin-bottom:8px}.task-delete-confirm-title{font-size:19px;font-weight:500}.task-delete-confirm-copy{font-size:12px;line-height:1.5;color:var(--muted);margin:7px 0 18px}.task-delete-confirm-actions{display:flex;gap:8px}.task-delete-confirm-actions .btn{flex:1}
 @media(max-width:700px){
- .task-detail-panel.task-editor-panel{left:0;right:0;top:auto;bottom:0;width:100%;max-height:89vh;border:0;border-radius:30px 30px 0 0;padding:22px 40px calc(22px + env(safe-area-inset-bottom));box-shadow:0 -18px 45px rgba(40,25,28,.17)}
+ .task-detail-panel.task-editor-panel{left:0;right:0;top:auto;bottom:0;width:100%;max-height:89vh;border:0;border-radius:30px 30px 0 0;padding:22px 24px calc(22px + env(safe-area-inset-bottom));box-shadow:0 -18px 45px rgba(40,25,28,.17)}
  .task-editor-top{margin-bottom:15px}.task-editor-list-button{font-size:20px}.task-editor-icon{width:48px;height:48px}
- .task-editor-list-menu{left:40px;top:84px;width:calc(100% - 80px)}
- .task-detail-more-menu{right:40px;top:84px;width:calc(100% - 80px)}
+ .task-editor-list-menu{left:24px;top:84px;width:calc(100% - 48px)}
+ .task-detail-more-menu{right:24px;top:84px;width:calc(100% - 48px)}
  .task-editor-meta-row{gap:8px;min-height:62px}.task-editor-date-button{font-size:17px}.task-editor-time-wrap{font-size:17px}.task-editor-time-wrap input{width:64px!important;font-size:17px!important}
  .task-editor-title-input{font-size:25px}.task-editor-notes{font-size:17px}
  .task-editor-subtasks{margin-top:44px}.task-editor-labels{margin-top:45px}
@@ -3007,3 +3007,16 @@ renderToday=function(){
   },{passive:true,capture:true});
 })();
 </script>
+<style id="task-editor-reference-spacing-final">
+@media(max-width:700px){
+  .task-editor-panel{padding-left:24px!important;padding-right:24px!important}
+  .task-editor-top{padding-bottom:14px!important}
+  .task-editor-meta-row{padding-left:0!important;padding-right:0!important}
+  .task-editor-subtasks{margin-top:30px!important}
+  .task-editor-labels{margin-top:32px!important}
+  .task-editor-bottom{margin-top:32px!important}
+  .task-editor-check-row{white-space:nowrap!important}
+  .task-editor-list-menu{left:24px!important;width:calc(100% - 48px)!important}
+  .task-detail-more-menu{right:24px!important;width:calc(100% - 48px)!important}
+}
+</style>
