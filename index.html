@@ -671,6 +671,12 @@ body.menu-open{overflow:hidden}
   <div class="sidebar-divider"></div>
   <div class="sidebar-section-label sidebar-list-heading"><span>СПИСКИ</span><button type="button" onclick="go('settings')">＋</button></div>
   <nav id="sidebarLists" class="nav sidebar-lists"></nav>
+  <div class="sidebar-divider"></div>
+  <nav class="nav sidebar-task-status">
+    <button type="button" onclick="go('completed')"><span class="side-icon">✓</span><span>Выполнено</span><span class="sidebar-list-count" id="sidebarCompletedCount"></span></button>
+    <button type="button" onclick="go('not-done')"><span class="side-icon">×</span><span>Не будет выполнено</span><span class="sidebar-list-count" id="sidebarNotDoneCount"></span></button>
+    <button type="button" onclick="go('trash')"><span class="side-icon">⌫</span><span>Корзина</span><span class="sidebar-list-count" id="sidebarTrashCount"></span></button>
+  </nav>
 </aside>
 <nav class="mobile-nav" aria-label="Основная навигация">
   <button type="button" data-page="today" aria-label="Главная" title="Главная">
@@ -2193,7 +2199,11 @@ function renderTaskDetail(){document.getElementById('taskDetailLayer')?.remove()
 
 function renderSidebarLists(){
  const el=document.getElementById('sidebarLists'); if(!el)return;
- el.innerHTML=AREAS.map((a,i)=>`<button type="button" data-list="${esc(a)}" title="${esc(a)}"><span class="sidebar-list-dot" style="background:${taskListColor(a)}"></span><span class="sidebar-list-name">${esc(a)}</span><span class="sidebar-list-count">${state.tasks.filter(t=>t.area===a&&!t.done).length||''}</span></button>`).join('');
+ el.innerHTML=AREAS.map((a,i)=>`<button type="button" data-list="${esc(a)}" title="${esc(a)}"><span class="sidebar-list-dot" style="background:${taskListColor(a)}"></span><span class="sidebar-list-name">${esc(a)}</span><span class="sidebar-list-count">${state.tasks.filter(t=>taskIsActive(t)&&t.area===a).length||''}</span></button>`).join('');
+ const c=document.getElementById('sidebarCompletedCount'),n=document.getElementById('sidebarNotDoneCount'),tr=document.getElementById('sidebarTrashCount');
+ if(c)c.textContent=state.tasks.filter(taskIsCompleted).length||'';
+ if(n)n.textContent=state.tasks.filter(taskIsNotDoing).length||'';
+ if(tr)tr.textContent=state.tasks.filter(taskIsTrash).length||'';
 }
 function bindMobileSidebarBehavior(){
  document.addEventListener('click',e=>{
@@ -2227,16 +2237,16 @@ function closeMobileSidebar(){
 }
 function listTasksForView(kind){
  const today=todayISO(),tom=isoDate(addDays(parseDate(today),1));
- if(kind==='tomorrow')return state.tasks.filter(t=>t.date===tom);
- if(kind==='next7'){const end=isoDate(addDays(parseDate(today),7));return state.tasks.filter(t=>t.date>=today&&t.date<=end)}
- if(kind==='inbox')return state.tasks.filter(t=>!t.date||t.date==='');
+ if(kind==='tomorrow')return state.tasks.filter(t=>taskIsActive(t)&&t.date===tom);
+ if(kind==='next7'){const end=isoDate(addDays(parseDate(today),7));return state.tasks.filter(t=>taskIsActive(t)&&t.date>=today&&t.date<=end)}
+ if(kind==='inbox')return state.tasks.filter(t=>taskIsActive(t)&&(!t.date||t.date===''));
  return state.tasks.filter(t=>t.date===today);
 }
 function renderTaskViewPage(title,subtitle,tasks){
  document.getElementById('page').innerHTML=`<header class="page-head"><div class="eyebrow">Задачи</div><h1 class="title">${esc(title)}</h1><div class="date">${esc(subtitle)}</div></header><section class="card tasks-section"><div class="tasks-header"><div class="tasks-title">Задачи</div><div class="tasks-count">${tasks.length} ${tasks.length===1?'задача':tasks.length<5?'задачи':'задач'}</div></div><div class="tasks-divider"></div>${renderTasksGrouped(tasks)}<div class="tasks-add-wrap"><button class="btn tasks-add-btn" onclick="openTaskModal()">+ Добавить задачу</button></div></section>`;
 }
 function renderListView(name){
- const tasks=state.tasks.filter(t=>t.area===name);
+ const tasks=state.tasks.filter(t=>taskIsActive(t)&&t.area===name);
  renderTaskViewPage(name,'Все задачи этого списка',tasks);
 }
 function selectTaskList(name){
@@ -2294,6 +2304,18 @@ document.addEventListener('click',e=>{
   }
   plannerSwipeHandled=false;
 },true);
+function renderTaskStatusPage(kind,title,subtitle){
+ const tasks=kind==='completed'?state.tasks.filter(taskIsCompleted):kind==='not-done'?state.tasks.filter(taskIsNotDoing):state.tasks.filter(taskIsTrash);
+ document.getElementById('page').innerHTML='<header class="page-head"><div class="eyebrow">Задачи</div><h1 class="title">'+esc(title)+'</h1><div class="date">'+esc(subtitle)+'</div></header><section class="card tasks-section"><div class="tasks-count">'+tasks.length+' задач</div>'+renderTasksHTML(tasks)+'</section>';
+ bindTodayTaskSwipes();
+}
+const __goWithStatusViews=go;
+go=function(p){
+ if(p==='completed'){currentPage=p;renderTaskStatusPage('completed','Выполнено','Все выполненные задачи');closeMobileSidebar();return}
+ if(p==='not-done'){currentPage=p;renderTaskStatusPage('not-done','Не будет выполнено','Задачи, которые ты решила не делать');closeMobileSidebar();return}
+ if(p==='trash'){currentPage=p;renderTaskStatusPage('trash','Корзина','Удалённые задачи');closeMobileSidebar();return}
+ return __goWithStatusViews(p);
+}
 applyAppTheme();
 renderSidebarLists();
 </script>
