@@ -1014,13 +1014,13 @@ function bindPlannerTaskSwipes(){
       const t=e.touches[0],dy=t.clientY-sy;
       dx=t.clientX-sx;
       if(Math.abs(dy)>Math.abs(dx)*1.15 && Math.abs(dy)>8){settle();return}
-      if(Math.abs(dx)<3)return;
+      /* A tap must NEVER move the task. Do not touch transform until a real horizontal swipe exists. */
+      if(Math.abs(dx)<=10)return;
+      if(Math.abs(dy)>Math.abs(dx)*1.15)return;
       if(e.cancelable)e.preventDefault();
-      moved=Math.abs(dx)>10;
-      if(moved){
-        shell.classList.remove('tap-static');
-        shell.classList.add('is-swiping');
-      }
+      moved=true;
+      shell.classList.remove('tap-static');
+      shell.classList.add('is-swiping');
       const max=window.innerWidth*.72;
       const x=Math.max(-max,Math.min(max,dx));
       task.style.transform='translate3d('+x+'px,0,0)';
@@ -2579,13 +2579,13 @@ function bindTodayTaskSwipes(){
       const t=e.touches[0],dy=t.clientY-sy;
       dx=t.clientX-sx;
       if(Math.abs(dy)>Math.abs(dx)*1.15 && Math.abs(dy)>8){settle();return}
-      if(Math.abs(dx)<3)return;
+      /* A tap must NEVER move the task. Do not touch transform until a real horizontal swipe exists. */
+      if(Math.abs(dx)<=10)return;
+      if(Math.abs(dy)>Math.abs(dx)*1.15)return;
       if(e.cancelable)e.preventDefault();
-      moved=Math.abs(dx)>10;
-      if(moved){
-        shell.classList.remove('tap-static');
-        shell.classList.add('is-swiping');
-      }
+      moved=true;
+      shell.classList.remove('tap-static');
+      shell.classList.add('is-swiping');
       const max=window.innerWidth*.72;
       const x=Math.max(-max,Math.min(max,dx));
       task.style.transform='translate3d('+x+'px,0,0)';
