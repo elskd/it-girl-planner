@@ -807,7 +807,7 @@ let plannerCalendarMonth=new Date();
 
 function plannerDatePicker(kind='tasks'){
  const isHabit=kind==='habits', selected=isHabit?selectedHabitDate:selectedPlannerDate, ws=monday(parseDate(selected));
- return '<div class="planner-date-picker"><button class="mini planner-week-arrow" type="button" aria-label="Предыдущая неделя" onclick="plannerShiftDate(\''+kind+'\',-1)">‹</button><div class="habit-weekbar planner-weekbar" data-kind="'+kind+'">'+DAYS.map((day,i)=>{const ds=isoDate(addDays(ws,i));return '<button class="habit-day '+(ds===selected?'active ':'')+(ds===todayISO()?'today':'')+'" onclick="plannerPickDate(\''+kind+'\',\''+ds+'\')"><span>'+day+'</span><b>'+parseDate(ds).getDate()+'</b></button>'}).join('')+'</div><button class="mini planner-week-arrow" type="button" aria-label="Следующая неделя" onclick="plannerShiftDate(\''+kind+'\',1)">›</button><button class="planner-calendar-picker" data-kind="'+kind+'" type="button" aria-label="Выбрать дату" onclick="togglePlannerCalendar(\''+kind+'\',this)"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="16" rx="2.5"></rect><path d="M7 3.5v4M17 3.5v4M3.5 9.5h17"></path></svg><span class="planner-calendar-label">Выбрать дату</span></button></div>';
+ return '<div class="planner-date-picker"><button class="mini planner-week-arrow" type="button" aria-label="Предыдущая неделя" onclick="plannerShiftDate(\''+kind+'\',-1)">‹</button><div class="habit-weekbar planner-weekbar" data-swipe-kind="'+kind+'">'+DAYS.map((day,i)=>{const ds=isoDate(addDays(ws,i));return '<button class="habit-day '+(ds===selected?'active ':'')+(ds===todayISO()?'today':'')+'" onclick="plannerPickDate(\''+kind+'\',\''+ds+'\')"><span>'+day+'</span><b>'+parseDate(ds).getDate()+'</b></button>'}).join('')+'</div><button class="mini planner-week-arrow" type="button" aria-label="Следующая неделя" onclick="plannerShiftDate(\''+kind+'\',1)">›</button><button class="planner-calendar-picker" data-kind="'+kind+'" type="button" aria-label="Выбрать дату" onclick="togglePlannerCalendar(\''+kind+'\',this)"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="16" rx="2.5"></rect><path d="M7 3.5v4M17 3.5v4M3.5 9.5h17"></path></svg></button><button class="planner-mobile-date-button" type="button" onclick="togglePlannerCalendar(\''+kind+'\',this)">Выбрать дату</button></div>';
 }
 function plannerPickDate(kind,ds){if(!ds)return;plannerCalendarOpen=null;if(kind==='habits'){selectedHabitDate=ds;selectedPlannerDate=ds}else selectedPlannerDate=ds;renderPlanner()}
 function togglePlannerCalendar(kind,button){
@@ -841,7 +841,8 @@ function plannerCalendarOutsideClick(e){
 }
 function plannerShiftDate(kind,delta){if(kind==='habits'){selectedHabitDate=isoDate(addDays(monday(parseDate(selectedHabitDate)),delta*7));selectedPlannerDate=selectedHabitDate}else selectedPlannerDate=isoDate(addDays(monday(parseDate(selectedPlannerDate)),delta*7));renderPlanner()}
 function switchPlanner(m){plannerMode=m;renderPlanner()}
-function renderPlanner(){document.getElementById('page').innerHTML='<header class="page-head"><div class="eyebrow">Организация</div><h1 class="title">Планер</h1><div class="date">Все задачи и привычки — в одном разделе, между ними можно переключаться.</div></header><div class="section-head"><div class="tabs"><button class="'+(plannerMode==='tasks'?'active':'')+'" onclick="switchPlanner(\'tasks\')">Задачи</button><button class="'+(plannerMode==='habits'?'active':'')+'" onclick="switchPlanner(\'habits\')">Привычки</button></div></div>'+(plannerMode==='tasks'?plannerTasks():plannerHabits())}
+function bindPlannerDateSwipe(){document.querySelectorAll('.planner-weekbar[data-swipe-kind]').forEach(el=>{if(el.dataset.swipeBound)return;el.dataset.swipeBound='1';let sx=0,sy=0;el.addEventListener('touchstart',e=>{const t=e.changedTouches[0];sx=t.clientX;sy=t.clientY},{passive:true});el.addEventListener('touchend',e=>{const t=e.changedTouches[0],dx=t.clientX-sx,dy=t.clientY-sy;if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy)*1.2)plannerShiftDate(el.dataset.swipeKind,dx<0?1:-1)},{passive:true})})}
+function renderPlanner(){document.getElementById('page').innerHTML='<header class="page-head"><div class="eyebrow">Организация</div><h1 class="title">Планер</h1><div class="date">Все задачи и привычки — в одном разделе, между ними можно переключаться.</div></header><div class="section-head"><div class="tabs"><button class="'+(plannerMode==='tasks'?'active':'')+'" onclick="switchPlanner(\'tasks\')">Задачи</button><button class="'+(plannerMode==='habits'?'active':'')+'" onclick="switchPlanner(\'habits\')">Привычки</button></div></div>'+(plannerMode==='tasks'?plannerTasks():plannerHabits());bindPlannerDateSwipe()}
 function plannerTasks(){
  const selected=selectedPlannerDate;
  const tasks=state.tasks.filter(t=>t.date===selected).sort((a,b)=>{if(a.allDay&&!b.allDay)return -1;if(!a.allDay&&b.allDay)return 1;return timeToMin(a.start||'00:00')-timeToMin(b.start||'00:00')});
@@ -2124,3 +2125,17 @@ renderSidebarLists();
 @media(max-width:700px){.planner-weekbar{gap:5px}.planner-week-arrow,.planner-calendar-picker{flex-basis:46px!important;width:46px!important;height:46px!important;min-height:46px!important}.planner-calendar-picker svg{width:20px;height:20px}}
 </style>
 <style id="cabinet-settings-icon-overrides">.svg-more-icon{display:grid;place-items:center}.svg-more-icon svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.55;stroke-linecap:round;stroke-linejoin:round}</style>
+<style id="planner-mobile-controls-final">
+@media(max-width:700px){
+ .planner-date-picker{display:block!important;position:relative!important;width:100%!important;margin-bottom:14px!important}
+ .planner-week-arrow{display:none!important}
+ .planner-weekbar{display:grid!important;grid-template-columns:repeat(7,minmax(0,1fr))!important;gap:5px!important;width:100%!important;touch-action:pan-y!important}
+ .planner-weekbar .habit-day{width:100%!important;min-width:0!important;height:62px!important;padding:7px 2px!important;border-radius:15px!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important}
+ .planner-weekbar .habit-day span{font-size:10px!important;line-height:1!important;white-space:nowrap!important}
+ .planner-weekbar .habit-day b{font-size:17px!important;line-height:1!important;margin-top:6px!important}
+ .planner-calendar-picker{display:none!important}
+ .planner-mobile-date-button{display:flex!important;width:100%!important;height:42px!important;margin-top:9px!important;align-items:center!important;justify-content:center!important;border:1px solid var(--line)!important;border-radius:11px!important;background:transparent!important;color:var(--muted)!important;font-size:12px!important;padding:0!important}
+ .planner-mobile-date-button:active{background:#faf6f4!important}
+}
+@media(min-width:701px){.planner-mobile-date-button{display:none!important}}
+</style>
