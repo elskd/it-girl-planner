@@ -841,13 +841,14 @@ function plannerCalendarOutsideClick(e){
 }
 function plannerShiftDate(kind,delta){if(kind==='habits'){selectedHabitDate=isoDate(addDays(monday(parseDate(selectedHabitDate)),delta*7));selectedPlannerDate=selectedHabitDate}else selectedPlannerDate=isoDate(addDays(monday(parseDate(selectedPlannerDate)),delta*7));renderPlanner()}
 function switchPlanner(m){plannerMode=m;renderPlanner()}
-function bindPlannerDateSwipe(){document.querySelectorAll('.planner-weekbar[data-swipe-kind]').forEach(el=>{if(el.dataset.swipeBound)return;el.dataset.swipeBound='1';let sx=0,sy=0;el.addEventListener('touchstart',e=>{const t=e.changedTouches[0];sx=t.clientX;sy=t.clientY},{passive:true});el.addEventListener('touchend',e=>{const t=e.changedTouches[0],dx=t.clientX-sx,dy=t.clientY-sy;if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy)*1.2)plannerShiftDate(el.dataset.swipeKind,dx<0?1:-1)},{passive:true})})}
+function plannerSwipeDate(kind,delta,el){const picker=el.closest('.planner-date-picker');if(!picker)return;picker.classList.add(delta>0?'swipe-out-left':'swipe-out-right');setTimeout(()=>{plannerShiftDate(kind,delta);requestAnimationFrame(()=>{const next=document.querySelector('.planner-date-picker');if(!next)return;next.classList.add(delta>0?'swipe-in-right':'swipe-in-left');setTimeout(()=>next.classList.remove('swipe-in-right','swipe-in-left'),260)})},180)}
+function bindPlannerDateSwipe(){document.querySelectorAll('.planner-weekbar[data-swipe-kind]').forEach(el=>{if(el.dataset.swipeBound)return;el.dataset.swipeBound='1';let sx=0,sy=0;el.addEventListener('touchstart',e=>{const t=e.changedTouches[0];sx=t.clientX;sy=t.clientY},{passive:true});el.addEventListener('touchend',e=>{const t=e.changedTouches[0],dx=t.clientX-sx,dy=t.clientY-sy;if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy)*1.2)plannerSwipeDate(el.dataset.swipeKind,dx<0?1:-1,el)},{passive:true})})}
 function renderPlanner(){document.getElementById('page').innerHTML='<header class="page-head"><div class="eyebrow">Организация</div><h1 class="title">Планер</h1><div class="date">Все задачи и привычки — в одном разделе, между ними можно переключаться.</div></header><div class="section-head"><div class="tabs"><button class="'+(plannerMode==='tasks'?'active':'')+'" onclick="switchPlanner(\'tasks\')">Задачи</button><button class="'+(plannerMode==='habits'?'active':'')+'" onclick="switchPlanner(\'habits\')">Привычки</button></div></div>'+(plannerMode==='tasks'?plannerTasks():plannerHabits());bindPlannerDateSwipe()}
 function plannerTasks(){
  const selected=selectedPlannerDate;
  const tasks=state.tasks.filter(t=>t.date===selected).sort((a,b)=>{if(a.allDay&&!b.allDay)return -1;if(!a.allDay&&b.allDay)return 1;return timeToMin(a.start||'00:00')-timeToMin(b.start||'00:00')});
  const count=tasks.length;
- return '<section class="card planner-tasks-card"><div class="section-head"><div><h2>Задачи</h2><div class="date">'+fmtDate(selected)+' · выбранный день</div></div><button class="btn" onclick="openTaskModal(0,{date:\''+selected+'\'})">+ Добавить</button></div>'+plannerDatePicker('tasks')+'<div class="planner-task-list">'+(count?renderTasksHTML(tasks):'<div class="planner-empty">Задач на этот день пока нет.</div>')+'</div></section>';
+ return '<section class="card planner-tasks-card"><div class="section-head"><div><h2>Задачи</h2><div class="date">'+fmtDate(selected)+' · выбранный день</div></div><button class="btn planner-add-btn" onclick="openTaskModal(0,{date:\''+selected+'\'})"><span class="planner-add-label">+ Добавить</span><span class="planner-add-plus">+</span></button></div>'+plannerDatePicker('tasks')+'<div class="planner-task-list">'+(count?renderTasksHTML(tasks):'<div class="planner-empty">Задач на этот день пока нет.</div>')+'</div></section>';
 }
 function priorityRank(p){return p==='high'?0:p==='medium'?1:2}
 let selectedHabitDate=todayISO();
@@ -2155,4 +2156,19 @@ renderSidebarLists();
  .planner-add-plus{display:block!important;font-weight:300!important;line-height:1!important}
 }
 @media(min-width:701px){.planner-mobile-date-button{display:none!important}}
+</style><style id="planner-mobile-swipe-animation">
+.planner-add-plus{display:none}
+@media(max-width:700px){
+ .planner-add-btn{width:46px!important;height:46px!important;min-width:46px!important;min-height:46px!important;padding:0!important;border-radius:50%!important;display:flex!important;align-items:center!important;justify-content:center!important;font-size:25px!important;line-height:1!important}
+ .planner-add-label{display:none!important}.planner-add-plus{display:block!important;font-weight:300!important;line-height:1!important;transform:translateY(-1px)}
+ .planner-date-picker{overflow:hidden!important}
+ .planner-date-picker.swipe-out-left .planner-weekbar{animation:plannerDateOutLeft .18s ease-in forwards}
+ .planner-date-picker.swipe-out-right .planner-weekbar{animation:plannerDateOutRight .18s ease-in forwards}
+ .planner-date-picker.swipe-in-right .planner-weekbar{animation:plannerDateInRight .26s ease-out both}
+ .planner-date-picker.swipe-in-left .planner-weekbar{animation:plannerDateInLeft .26s ease-out both}
+}
+@keyframes plannerDateOutLeft{from{transform:translateX(0);opacity:1}to{transform:translateX(-35%);opacity:.15}}
+@keyframes plannerDateOutRight{from{transform:translateX(0);opacity:1}to{transform:translateX(35%);opacity:.15}}
+@keyframes plannerDateInRight{from{transform:translateX(35%);opacity:.15}to{transform:translateX(0);opacity:1}}
+@keyframes plannerDateInLeft{from{transform:translateX(-35%);opacity:.15}to{transform:translateX(0);opacity:1}}
 </style>
