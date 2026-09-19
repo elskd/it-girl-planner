@@ -2718,6 +2718,47 @@ renderToday=function(){
   }
 }
 </style>
+<style id="task-no-press-animation-final">
+@media(max-width:700px){
+  .today-page .today-task-swipe-shell .task,
+  .today-page .today-task-swipe-shell .task *,
+  .planner-tasks-card .planner-task-swipe-shell .task,
+  .planner-tasks-card .planner-task-swipe-shell .task *{
+    -webkit-tap-highlight-color:transparent!important;
+  }
+
+  .today-page .today-task-swipe-shell .task:active,
+  .today-page .today-task-swipe-shell .task:focus,
+  .today-page .today-task-swipe-shell .task:hover,
+  .planner-tasks-card .planner-task-swipe-shell .task:active,
+  .planner-tasks-card .planner-task-swipe-shell .task:focus,
+  .planner-tasks-card .planner-task-swipe-shell .task:hover{
+    box-shadow:none!important;
+    outline:none!important;
+  }
+
+  .today-page .today-task-swipe-shell .task:active > *,
+  .today-page .today-task-swipe-shell .task:focus > *,
+  .today-page .today-task-swipe-shell .task:hover > *,
+  .planner-tasks-card .planner-task-swipe-shell .task:active > *,
+  .planner-tasks-card .planner-task-swipe-shell .task:focus > *,
+  .planner-tasks-card .planner-task-swipe-shell .task:hover > *{
+    transform:none!important;
+    transition:none!important;
+    animation:none!important;
+  }
+
+  .today-page .today-task-swipe-shell .task .task-check,
+  .today-page .today-task-swipe-shell .task .mini,
+  .planner-tasks-card .planner-task-swipe-shell .task .task-check,
+  .planner-tasks-card .planner-task-swipe-shell .task .mini{
+    -webkit-appearance:none!important;
+    appearance:none!important;
+    transition:none!important;
+    animation:none!important;
+  }
+}
+</style>
 <style id="mobile-swipe-anywhere-final">
 @media(max-width:700px){
   .app{
