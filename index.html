@@ -2322,7 +2322,7 @@ function taskDetailHtml(t){
  '<div class="task-editor-top"><button type="button" class="task-editor-list-button" onclick="toggleTaskEditorListMenu()"><span>'+esc(currentArea)+'</span><svg viewBox="0 0 24 24"><path d="m7 10 5-5 5 5M7 14l5 5 5-5"/></svg></button><div class="task-editor-top-actions"><button class="task-editor-icon '+(t.priority?'active':'')+'" onclick="toggleTaskPriority('+t.id+')">'+taskEditorIcon('flag')+'</button><button class="task-editor-icon" onclick="toggleTaskDetailMenu()">'+taskEditorIcon('more')+'</button></div></div>'+
  '<div class="task-editor-list-menu '+(openTaskDetailMenu==='list'?'open':'')+'">'+[''].concat(AREAS).map(a=>'<button type="button" class="'+((t.area||'')===a?'selected':'')+'" onclick="setTaskEditorArea('+t.id+','+JSON.stringify(a)+')">'+esc(a||'Без списка')+(t.area===a?'<span>✓</span>':'')+'</button>').join('')+'</div>'+
  '<div class="task-detail-more-menu '+(openTaskDetailMenu===true?'open':'')+'"><button onclick="pinTask('+t.id+')"><span>Закрепить</span></button><button onclick="markTaskNotDoing('+t.id+')"><span>Не буду делать</span></button><button class="danger-item" onclick="taskDeleteConfirm('+t.id+')"><span>Удалить</span></button><div class="task-detail-more-divider"></div><button onclick="addTaskDetailSubtaskFocus('+t.id+')"><span>Добавить подзадачу</span></button><button onclick="startTaskFocus('+t.id+')"><span>Сфокусироваться</span></button><button onclick="focusTaskLabels('+t.id+')"><span>Добавить метки</span></button><button onclick="duplicateTask('+t.id+')"><span>Дублировать задачу</span></button></div>'+
- '<div class="task-editor-schedule-row"><button class="task-main-check '+(t.done?'done':'')+'" onclick="event.stopPropagation();toggleTask('+t.id+');renderTaskDetail()"></button><button type="button" class="task-editor-schedule-button" onclick="openTaskScheduleEditor('+t.id+',\'date\')"><div class="task-editor-schedule-main"><div class="task-editor-schedule-line"><span class="schedule-date">'+esc(formatTaskEditorDate(t.date||todayISO()))+'</span>'+(subs.length?'<span class="task-editor-progress-circle" style="--progress:'+pct+'"><span>'+pct+'%</span></span>':'')+'</div><span class="schedule-repeat">'+esc(repeatLabelForTask(t))+'</span></div><svg class="schedule-chevron" viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></svg></button></div>'+
+ '<div class="task-editor-schedule-row"><button class="task-main-check '+(t.done?'done':'')+'" onclick="event.stopPropagation();toggleTask('+t.id+');renderTaskDetail()"></button><button type="button" class="task-editor-schedule-button" onclick="openTaskScheduleEditor('+t.id+',\'date\')"><div class="task-editor-schedule-main"><div class="task-editor-schedule-line"><span class="schedule-date">'+esc(formatTaskEditorDate(t.date||todayISO()))+'</span>'+(subs.length?'<span class="task-editor-progress-circle" style="--progress:'+pct+'"></span><span class="task-editor-progress-percent">'+pct+'%</span>':'')+'</div><span class="schedule-repeat">'+esc(repeatLabelForTask(t))+'</span></div><svg class="schedule-chevron" viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></svg></button></div>'+
  '<div class="task-editor-taskline"><div class="task-editor-title-wrap"><input id="tdTitle" class="task-editor-title-input" value="'+esc(t.title)+'" placeholder="Название задачи" onblur="saveTaskDetail('+t.id+')"><textarea id="tdNotes" class="task-editor-notes" rows="1" placeholder="Описание" onblur="saveTaskDetail('+t.id+')">'+esc(t.notes||'')+'</textarea></div></div>'+
  '<div class="task-editor-subtasks">'+
  (subs.length?subs.map((s,i)=>'<div class="task-editor-subtask" draggable="true" ondragstart="taskSubtaskDragStart(event,'+i+')" ondragend="taskSubtaskDragEnd(event)" ondragover="taskSubtaskDragOver(event)" ondrop="taskSubtaskDrop(event,'+t.id+','+i+')"><button class="task-subtask-check '+(s.done?'done':'')+'" onclick="toggleTaskDetailSubtask('+t.id+','+i+')"></button><input class="task-editor-subtask-input '+(s.done?'done':'')+'" value="'+esc(s.title)+'" onchange="updateTaskSubtaskTitle('+t.id+','+i+',this.value)"><button class="task-subtask-handle" type="button">'+taskEditorIcon('list')+'</button></div>').join(''):'')+
@@ -3169,4 +3169,42 @@ renderToday=function(){
 .task-editor-icon,.task-editor-label-button,.task-editor-attach,.task-subtask-handle{display:grid!important;place-items:center!important;line-height:0!important}
 .task-editor-icon svg,.task-editor-label-button svg,.task-editor-attach svg,.task-subtask-handle svg{width:19px!important;height:19px!important;display:block!important}
 html,body{-webkit-text-size-adjust:100%!important}
+</style><style id="task-editor-visual-fixes-v5">
+/* Slightly quieter typography: hierarchy stays, nothing is oversized. */
+.task-editor-panel .task-editor-title-input{font-size:20px!important}
+.task-editor-panel .schedule-date{font-size:16px!important}
+.task-editor-panel .schedule-repeat{font-size:13px!important}
+
+/* Main date row: compact, with the progress ring + percentage together. */
+.task-editor-schedule-row{grid-template-columns:23px minmax(0,1fr)!important;gap:12px!important;margin-bottom:16px!important}
+.task-editor-schedule-line{gap:7px!important;align-items:center!important}
+.task-editor-progress-circle{width:18px!important;height:18px!important;min-width:18px!important;border:1px solid #d8d2d3!important;background:conic-gradient(#c98299 calc(var(--progress) * 1%),#eee8e9 0)!important}
+.task-editor-progress-circle:before{inset:2px!important}
+.task-editor-progress-circle span{display:none!important}
+.task-editor-progress-percent{font-size:13px!important;color:#969092!important;line-height:1!important;white-space:nowrap!important}
+
+/* The two bottom actions sit together, with the same circular outline. */
+.task-editor-bottom{
+  justify-content:flex-start!important;
+  align-items:center!important;
+  gap:8px!important;
+  margin-top:17px!important;
+  padding-top:0!important;
+  border-top:0!important;
+}
+.task-editor-label-button,
+.task-editor-attach{
+  width:38px!important;
+  height:38px!important;
+  min-width:38px!important;
+  border:1px solid #eadfe1!important;
+  border-radius:50%!important;
+  background:#fff!important;
+  color:#817a7c!important;
+  padding:0!important;
+}
+.task-editor-label-button svg,
+.task-editor-attach svg{width:19px!important;height:19px!important}
+.task-editor-label-button{order:1!important}
+.task-editor-attach{order:2!important}
 </style>
