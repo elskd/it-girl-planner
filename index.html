@@ -3179,7 +3179,7 @@ html,body{-webkit-text-size-adjust:100%!important}
 .task-editor-schedule-row{grid-template-columns:23px minmax(0,1fr)!important;gap:12px!important;margin-bottom:16px!important}
 .task-editor-schedule-line{gap:7px!important;align-items:center!important}
 .task-editor-progress-circle{width:18px!important;height:18px!important;min-width:18px!important;border:1px solid #d8d2d3!important;background:conic-gradient(#c98299 calc(var(--progress) * 1%),#eee8e9 0)!important}
-.task-editor-progress-circle:before{inset:2px!important}
+.task-editor-progress-circle:before{display:none!important}
 .task-editor-progress-circle span{display:none!important}
 .task-editor-progress-percent{font-size:13px!important;color:#969092!important;line-height:1!important;white-space:nowrap!important}
 
@@ -3205,6 +3205,10 @@ html,body{-webkit-text-size-adjust:100%!important}
 }
 .task-editor-label-button svg,
 .task-editor-attach svg{width:19px!important;height:19px!important}
+.task-editor-bottom .task-editor-label-button,
+.task-editor-bottom .task-editor-attach{display:grid!important;flex:0 0 38px!important}
+.task-editor-bottom{width:max-content!important;max-width:100%!important}
+.task-editor-bottom .task-editor-label-button + .task-editor-attach{margin-left:0!important}
 .task-editor-label-button{order:1!important}
 .task-editor-attach{order:2!important}
 </style><style id="task-editor-visual-fixes-v6">
