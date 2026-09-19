@@ -2242,8 +2242,7 @@ function taskScheduleRowIcon(kind){
  return map[kind]||'';
 }
 function taskScheduleEditorHtml(t){
- const selected=t.date||todayISO(),month=taskScheduleMonth||selected;
- const repeat=t.repeat||'none',reminder=t.reminder||'';
+ const selected=t.date||todayISO(),month=taskScheduleMonth||selected,repeat=t.repeat||'none',reminder=t.reminder||'';
  if(taskRepeatCustomOpen){
   const days=t.repeatDays||[];
   return '<div class="task-schedule-backdrop" onclick="if(event.target===this)closeTaskScheduleEditor()"></div><section class="task-schedule-sheet task-custom-repeat-sheet">'+
@@ -2252,16 +2251,15 @@ function taskScheduleEditorHtml(t){
    '<div class="task-custom-repeat-card"><div class="task-custom-label">Неделя</div><div class="task-repeat-days">'+DAYS.map((d,i)=>'<label class="'+(days.includes(i)?'active':'')+'"><input class="task-repeat-day" type="checkbox" value="'+i+'" '+(days.includes(i)?'checked':'')+'>'+d+'</label>').join('')+'</div></div>'+
   '</section>';
  }
- return '<div class="task-schedule-backdrop" onclick="if(event.target===this)closeTaskScheduleEditor()"></div>'+
- '<section class="task-schedule-sheet" role="dialog" aria-label="Дата задачи">'+
- '<header class="task-schedule-head"><button class="task-round-close" onclick="closeTaskScheduleEditor()">×</button><div class="task-schedule-tabs"><button class="'+(taskScheduleTab==='date'?'active':'')+'" onclick="taskScheduleTab=\\'date\\';renderTaskScheduleEditor('+t.id+')">Дата</button><button class="'+(taskScheduleTab==='duration'?'active':'')+'" onclick="taskScheduleTab=\\'duration\\';renderTaskScheduleEditor('+t.id+')">Длительность</button></div><button class="task-round-done" onclick="closeTaskScheduleEditor()">✓</button></header>'+
- (taskScheduleTab==='date'?
- '<div class="task-calendar-picker"><div class="task-calendar-month"><button onclick="shiftScheduleMonth(-1)">‹</button><strong>'+scheduleMonthLabel(month)+'</strong><button onclick="shiftScheduleMonth(1)">›</button></div><div class="task-calendar-week">'+['П','В','С','Ч','П','С','В'].map(x=>'<span>'+x+'</span>').join('')+'</div><div class="task-calendar-grid">'+taskCalendarDays(month,selected)+'</div></div>':
- '<div class="task-duration-panel"><div class="task-duration-grid"><label><span>Начать</span><input type="date" value="'+esc(selected)+'" onchange="setTaskScheduleValue('+t.id+',\\'date\\',this.value)"><input type="time" value="'+esc(t.start||'')+'" onchange="setTaskScheduleValue('+t.id+',\\'start\\',this.value)"></label><label><span>Закончить</span><input type="date" value="'+esc(t.endDate||selected)+'" onchange="setTaskScheduleValue('+t.id+',\\'endDate\\',this.value)"><input type="time" value="'+esc(t.end||'')+'" onchange="setTaskScheduleValue('+t.id+',\\'end\\',this.value)"></label></div><label class="task-all-day-row"><span>Весь день</span><input type="checkbox" '+(t.allDay?'checked':'')+' onchange="setTaskScheduleValue('+t.id+',\\'allDay\\',this.checked)"><i></i></label></div>')+
- '<div class="task-schedule-options">'+
- '<button class="task-schedule-row" onclick="document.getElementById(\\'tdReminderPicker\\')?.click()">'+taskScheduleRowIcon('alarm')+'<span>Время для напоминания</span><b>'+(reminder?'В '+reminder:'Нет')+'</b><input id="tdReminderPicker" class="schedule-hidden-time" type="time" value="'+esc(reminder)+'" onchange="setTaskScheduleValue('+t.id+',\\'reminder\\',this.value)"></button>'+
- '<button class="task-schedule-row" onclick="document.getElementById(\\'tdRepeatPicker\\')?.focus()">'+taskScheduleRowIcon('repeat')+'<span>Повторять</span><b>'+repeatLabelForTask(t)+'</b><select id="tdRepeatPicker" onchange="this.value===\\'custom\\'?openTaskRepeatCustom('+t.id+'):setTaskScheduleValue('+t.id+',\\'repeat\\',this.value)"><option value="none" '+(repeat==='none'?'selected':'')+'>Не повторять</option><option value="daily" '+(repeat==='daily'?'selected':'')+'>Ежедневно</option><option value="weekly" '+(repeat==='weekly'?'selected':'')+'>Еженедельно</option><option value="monthly" '+(repeat==='monthly'?'selected':'')+'>Ежемесячно</option><option value="yearly" '+(repeat==='yearly'?'selected':'')+'>Ежегодно</option><option value="weekdays" '+(repeat==='weekdays'?'selected':'')+'>Каждый будний день</option><option value="custom" '+(repeat==='custom'?'selected':'')+'>Произвольно</option></select></button>'+
- '</div><button class="task-schedule-clear" onclick="clearTaskSchedule('+t.id+')">Очистить</button>'+
+ const dateTab='<div class="task-calendar-picker"><div class="task-calendar-month"><button onclick="shiftScheduleMonth(-1)">‹</button><strong>'+scheduleMonthLabel(month)+'</strong><button onclick="shiftScheduleMonth(1)">›</button></div><div class="task-calendar-week">'+['П','В','С','Ч','П','С','В'].map(x=>'<span>'+x+'</span>').join('')+'</div><div class="task-calendar-grid">'+taskCalendarDays(month,selected)+'</div></div>'+
+ '<div class="task-date-time-card"><div><span>Начало</span><input type="time" value="'+esc(t.start||'')+'" onchange="setTaskScheduleValue('+t.id+',\'start\',this.value)"></div><div><span>Окончание</span><input type="time" value="'+esc(t.end||'')+'" onchange="setTaskScheduleValue('+t.id+',\'end\',this.value)"></div></div>'+
+ '<label class="task-all-day-row"><span>Весь день</span><input id="taskAllDay" type="checkbox" '+(t.allDay?'checked':'')+' onchange="setTaskScheduleValue('+t.id+',\'allDay\',this.checked)"><i></i></label>';
+ const durationTab='<div class="task-duration-panel"><div class="task-duration-grid"><label><span>Начать</span><input type="date" value="'+esc(selected)+'" onchange="setTaskScheduleValue('+t.id+',\'date\',this.value)"><input type="time" value="'+esc(t.start||'')+'" onchange="setTaskScheduleValue('+t.id+',\'start\',this.value)"></label><label><span>Закончить</span><input type="date" value="'+esc(t.endDate||selected)+'" onchange="setTaskScheduleValue('+t.id+',\'endDate\',this.value)"><input type="time" value="'+esc(t.end||'')+'" onchange="setTaskScheduleValue('+t.id+',\'end\',this.value)"></label></div><label class="task-all-day-row"><span>Весь день</span><input type="checkbox" '+(t.allDay?'checked':'')+' onchange="setTaskScheduleValue('+t.id+',\'allDay\',this.checked)"><i></i></label></div>';
+ return '<div class="task-schedule-backdrop" onclick="if(event.target===this)closeTaskScheduleEditor()"></div><section class="task-schedule-sheet" role="dialog" aria-label="Дата задачи">'+
+ '<header class="task-schedule-head"><button class="task-round-close" onclick="closeTaskScheduleEditor()">×</button><div class="task-schedule-tabs"><button class="'+(taskScheduleTab==='date'?'active':'')+'" onclick="taskScheduleTab=\'date\';renderTaskScheduleEditor('+t.id+')">Дата</button><button class="'+(taskScheduleTab==='duration'?'active':'')+'" onclick="taskScheduleTab=\'duration\';renderTaskScheduleEditor('+t.id+')">Длительность</button></div><button class="task-round-done" onclick="closeTaskScheduleEditor()">✓</button></header>'+
+ (taskScheduleTab==='date'?dateTab:durationTab)+
+ '<div class="task-schedule-options"><button class="task-schedule-row" type="button" onclick="openTaskReminderMenu('+t.id+')">'+taskScheduleRowIcon('alarm')+'<span>Время для напоминания</span><b>'+(reminder?'За '+reminder:'Нет')+'</b></button><button class="task-schedule-row" type="button" onclick="openTaskRepeatMenu('+t.id+')">'+taskScheduleRowIcon('repeat')+'<span>Повторять</span><b>'+repeatLabelForTask(t)+'</b></button></div>'+
+ '<button class="task-schedule-clear" onclick="clearTaskSchedule('+t.id+')">Очистить</button>'+
  '</section>';
 }
 function renderTaskScheduleEditor(id){
@@ -2270,22 +2268,22 @@ function renderTaskScheduleEditor(id){
  const layer=document.createElement('div');layer.id='taskScheduleLayer';layer.innerHTML=taskScheduleEditorHtml(t);document.body.appendChild(layer);
 }
 function taskDetailHtml(t){
- const subs=taskSubtasks(t),done=subs.filter(s=>s.done).length,pct=subs.length?Math.round(done/subs.length*100):0,labels=Array.isArray(t.labels)?t.labels:[],status=taskStatus(t);
- const currentArea=t.area||'Без списка';
+ const subs=taskSubtasks(t),done=subs.filter(s=>s.done).length,pct=subs.length?Math.round(done/subs.length*100):0,labels=Array.isArray(t.labels)?t.labels:[],status=taskStatus(t),currentArea=t.area||'Без списка';
  return '<div class="task-detail-backdrop" onclick="if(event.target===this)closeTaskDetail()"></div>'+
  '<aside class="task-detail-panel task-editor-panel" role="dialog" aria-label="Редактирование задачи">'+
  '<div class="task-editor-top"><button type="button" class="task-editor-list-button" onclick="toggleTaskEditorListMenu()"><span>'+esc(currentArea)+'</span><svg viewBox="0 0 24 24"><path d="m7 10 5-5 5 5M7 14l5 5 5-5"/></svg></button><div class="task-editor-top-actions"><button class="task-editor-icon '+(t.priority?'active':'')+'" onclick="toggleTaskPriority('+t.id+')">'+taskEditorIcon('flag')+'</button><button class="task-editor-icon" onclick="toggleTaskDetailMenu()">'+taskEditorIcon('more')+'</button></div></div>'+
- (openTaskDetailMenu==='list'?'<div class="task-editor-list-menu">'+[''].concat(AREAS).map(a=>'<button type="button" class="'+((t.area||'')===a?'selected':'')+'" onclick="setTaskEditorArea('+t.id+','+JSON.stringify(a)+')">'+esc(a||'Без списка')+(t.area===a?'<span>✓</span>':'')+'</button>').join('')+'</div>':'')+
- (openTaskDetailMenu===true?'<div class="task-detail-more-menu"><button onclick="pinTask('+t.id+')"><span>⌖</span><span>'+(t.pinned?'Открепить':'Закрепить')+'</span></button><button onclick="markTaskNotDoing('+t.id+')"><span>×</span><span>Не буду делать</span></button><button class="danger-item" onclick="taskDeleteConfirm('+t.id+')"><span>⌫</span><span>Удалить</span></button><div class="task-detail-more-divider"></div><button onclick="addTaskDetailSubtaskFocus('+t.id+')"><span>＋</span><span>Добавить подзадачу</span></button><button onclick="startTaskFocus('+t.id+')"><span>◉</span><span>Сфокусироваться</span></button><button onclick="focusTaskLabels('+t.id+')"><span>◇</span><span>Добавить метки</span></button><button onclick="duplicateTask('+t.id+')"><span>□</span><span>Дублировать задачу</span></button></div>':'')+
- '<div class="task-editor-taskline"><button class="task-main-check '+(t.done?'done':'')+'" onclick="toggleTask('+t.id+');renderTaskDetail()"></button><div class="task-editor-title-wrap"><input id="tdTitle" class="task-editor-title-input" value="'+esc(t.title)+'" placeholder="Название задачи" onblur="saveTaskDetail('+t.id+')"><textarea id="tdNotes" class="task-editor-notes" rows="1" placeholder="Описание" onblur="saveTaskDetail('+t.id+')">'+esc(t.notes||'')+'</textarea></div></div>'+
- '<button type="button" class="task-editor-schedule-button" onclick="openTaskScheduleEditor('+t.id+',\\'date\\')"><div class="task-editor-schedule-main"><span class="schedule-date">'+esc(formatTaskEditorDate(t.date||todayISO()))+'</span><span class="schedule-repeat">'+esc(repeatLabelForTask(t))+'</span></div><svg class="schedule-chevron" viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></svg></button>'+
- '<div class="task-editor-subtasks">'+(subs.length?'<div class="task-subtasks-head"><span>Подзадачи</span><span class="task-editor-progress">'+pct+'%</span></div>':'')+
- subs.map((s,i)=>'<div class="task-editor-subtask" draggable="true" ondragstart="taskSubtaskDragStart(event,'+i+')" ondragend="taskSubtaskDragEnd(event)" ondragover="taskSubtaskDragOver(event)" ondragleave="taskSubtaskDragLeave(event)" ondrop="taskSubtaskDrop(event,'+t.id+','+i+')"><button class="task-subtask-check '+(s.done?'done':'')+'" onclick="toggleTaskDetailSubtask('+t.id+','+i+')"></button><input class="task-editor-subtask-input '+(s.done?'done':'')+'" value="'+esc(s.title)+'" onchange="updateTaskSubtaskTitle('+t.id+','+i+',this.value)"><button class="task-subtask-handle" type="button">'+taskEditorIcon('list')+'</button><button class="task-subtask-delete" onclick="deleteTaskDetailSubtask('+t.id+','+i+')">×</button></div>').join('')+
- '<div class="task-editor-add-subtask"><input id="tdSubtaskInput" placeholder="Добавить подзадачу" onkeydown="if(event.key===\\'Enter\\'){event.preventDefault();addTaskDetailSubtask('+t.id+')}"><button onclick="addTaskDetailSubtask('+t.id+')">+</button></div></div>'+
- '<div class="task-editor-labels"><button class="task-editor-label-button" onclick="focusTaskLabels('+t.id+')">'+taskEditorIcon('tag')+'</button>'+
+ '<div class="task-editor-list-menu '+(openTaskDetailMenu==='list'?'open':'')+'">'+[''].concat(AREAS).map(a=>'<button type="button" class="'+((t.area||'')===a?'selected':'')+'" onclick="setTaskEditorArea('+t.id+','+JSON.stringify(a)+')">'+esc(a||'Без списка')+(t.area===a?'<span>✓</span>':'')+'</button>').join('')+'</div>'+
+ '<div class="task-detail-more-menu '+(openTaskDetailMenu===true?'open':'')+'"><button onclick="pinTask('+t.id+')"><span>Закрепить</span></button><button onclick="markTaskNotDoing('+t.id+')"><span>Не буду делать</span></button><button class="danger-item" onclick="taskDeleteConfirm('+t.id+')"><span>Удалить</span></button><div class="task-detail-more-divider"></div><button onclick="addTaskDetailSubtaskFocus('+t.id+')"><span>Добавить подзадачу</span></button><button onclick="startTaskFocus('+t.id+')"><span>Сфокусироваться</span></button><button onclick="focusTaskLabels('+t.id+')"><span>Добавить метки</span></button><button onclick="duplicateTask('+t.id+')"><span>Дублировать задачу</span></button></div>'+
+ '<div class="task-editor-schedule-row"><button class="task-main-check '+(t.done?'done':'')+'" onclick="event.stopPropagation();toggleTask('+t.id+');renderTaskDetail()"></button><button type="button" class="task-editor-schedule-button" onclick="openTaskScheduleEditor('+t.id+',\'date\')"><div class="task-editor-schedule-main"><span class="schedule-date">'+esc(formatTaskEditorDate(t.date||todayISO()))+'</span><span class="schedule-repeat">'+esc(repeatLabelForTask(t))+'</span></div><svg class="schedule-chevron" viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></svg></button></div>'+
+ '<div class="task-editor-taskline"><div class="task-editor-title-wrap"><input id="tdTitle" class="task-editor-title-input" value="'+esc(t.title)+'" placeholder="Название задачи" onblur="saveTaskDetail('+t.id+')"><textarea id="tdNotes" class="task-editor-notes" rows="1" placeholder="Описание" onblur="saveTaskDetail('+t.id+')">'+esc(t.notes||'')+'</textarea></div></div>'+
+ '<div class="task-editor-subtasks">'+
+ (subs.length?subs.map((s,i)=>'<div class="task-editor-subtask" draggable="true" ondragstart="taskSubtaskDragStart(event,'+i+')" ondragend="taskSubtaskDragEnd(event)" ondragover="taskSubtaskDragOver(event)" ondrop="taskSubtaskDrop(event,'+t.id+','+i+')"><button class="task-subtask-check '+(s.done?'done':'')+'" onclick="toggleTaskDetailSubtask('+t.id+','+i+')"></button><input class="task-editor-subtask-input '+(s.done?'done':'')+'" value="'+esc(s.title)+'" onchange="updateTaskSubtaskTitle('+t.id+','+i+',this.value)"><button class="task-subtask-handle" type="button">'+taskEditorIcon('list')+'</button></div>').join(''):'')+
+ '<div class="task-editor-add-subtask"><input id="tdSubtaskInput" placeholder="Добавить подзадачу" onkeydown="if(event.key===\'Enter\'){event.preventDefault();addTaskDetailSubtask('+t.id+')}"><button onclick="addTaskDetailSubtask('+t.id+')">+</button>'+(subs.length?'<span class="task-subtask-progress">'+pct+'%</span>':'')+'</div></div>'+
+ '<div class="task-editor-bottom">'+
+ '<button class="task-editor-label-button" onclick="focusTaskLabels('+t.id+')" aria-label="Метки">'+taskEditorIcon('tag')+'</button>'+
+ (openTaskDetailMenu==='labels'?'<div class="task-label-menu">'+(Array.isArray(state.settings.labels)?state.settings.labels:[]).map(l=>'<button type="button" onclick="addExistingTaskLabel('+t.id+','+JSON.stringify(l)+')">'+esc(l)+'</button>').join('')+(Array.isArray(state.settings.labels)&&state.settings.labels.length?'':'<span>Нет созданных меток</span>')+'</div>':'')+
  (labels.length?'<div class="task-label-list">'+labels.map((l,i)=>'<button class="task-label-chip" onclick="removeTaskLabel('+t.id+','+i+')">'+esc(l)+' ×</button>').join('')+'</div>':'')+
- '<div class="task-label-add"><input id="tdLabelInput" placeholder="Добавить метку" onkeydown="if(event.key===\\'Enter\\'){event.preventDefault();addTaskLabel('+t.id+')}"></div></div>'+
- '<div class="task-editor-bottom"><button class="task-editor-attach" onclick="document.getElementById(\\'tdAttachmentInput\\')?.click()">'+taskEditorIcon('clip')+'</button><input id="tdAttachmentInput" type="file" multiple hidden onchange="handleTaskAttachments('+t.id+',this.files)"></div>'+
+ '<button class="task-editor-attach" onclick="document.getElementById(\'tdAttachmentInput\')?.click()">'+taskEditorIcon('clip')+'</button><input id="tdAttachmentInput" type="file" multiple hidden onchange="handleTaskAttachments('+t.id+',this.files)"></div>'+
  (status!=='active'||t.done?'<div class="task-editor-status"><span>'+(status==='trash'?'В корзине':status==='not-done'?'Не будет выполнено':'Выполнено')+'</span><button onclick="restoreTask('+t.id+')">Восстановить</button></div>':'')+
  '</aside>';
 }
@@ -3051,4 +3049,46 @@ renderToday=function(){
   .task-editor-list-menu{left:24px!important;width:calc(100% - 48px)!important}
   .task-detail-more-menu{right:24px!important;width:calc(100% - 48px)!important}
 }
+</style><style id="task-editor-reference-final">
+.task-editor-list-menu,.task-detail-more-menu{display:none!important}
+.task-editor-list-menu.open,.task-detail-more-menu.open{display:block!important}
+.task-editor-panel{max-height:92vh!important;padding:18px 34px calc(16px + env(safe-area-inset-bottom))!important}
+.task-editor-top{border-bottom:0!important;margin-bottom:20px!important;padding-bottom:0!important}
+.task-editor-list-button{font-size:16px!important;font-weight:500!important}
+.task-editor-icon{width:42px!important;height:42px!important}
+.task-editor-schedule-row{display:grid!important;grid-template-columns:25px minmax(0,1fr)!important;gap:10px!important;align-items:start!important;margin:0 0 17px!important}
+.task-main-check{width:21px!important;height:21px!important;border-radius:50%!important;margin-top:2px!important}
+.task-editor-schedule-button{padding:0!important}
+.schedule-date{font-size:17px!important;line-height:1.25!important;font-weight:500!important}
+.schedule-repeat{font-size:13px!important;line-height:1.25!important}
+.schedule-chevron{display:none!important}
+.task-editor-taskline{display:block!important;margin:0 0 18px!important}
+.task-editor-title-input{font-size:22px!important;font-weight:500!important;line-height:1.25!important}
+.task-editor-notes{font-size:15px!important;padding-top:7px!important}
+.task-editor-subtasks{margin-top:22px!important}
+.task-editor-subtask{min-height:44px!important;border-bottom:1px solid #f2eeee!important;grid-template-columns:22px minmax(0,1fr) 20px!important;gap:10px!important}
+.task-subtask-check{width:20px!important;height:20px!important}
+.task-editor-subtask-input{font-size:15px!important}
+.task-editor-add-subtask{padding-top:8px!important}
+.task-editor-add-subtask button{width:32px!important;height:32px!important;border-radius:9px!important;font-size:20px!important}
+.task-subtask-progress{font-size:11px!important;color:#aaa4a5!important;margin-left:3px}
+.task-editor-bottom{position:relative!important;display:flex!important;align-items:center!important;gap:12px!important;justify-content:flex-start!important;margin-top:22px!important;padding-top:12px!important;border-top:1px solid #eee8e6!important}
+.task-editor-label-button{width:30px!important;height:30px!important}
+.task-editor-label-button svg{width:20px!important;height:20px!important}
+.task-editor-attach{margin-left:auto!important;width:36px!important;height:36px!important}
+.task-label-list{display:flex!important;gap:5px!important;flex-wrap:wrap!important}
+.task-label-chip{font-size:10px!important;padding:4px 7px!important}
+.task-label-menu{position:absolute!important;left:0!important;bottom:45px!important;width:220px!important;max-height:220px!important;overflow:auto!important;background:#fff!important;border:1px solid #e9dfdf!important;border-radius:15px!important;box-shadow:0 12px 30px rgba(40,25,28,.14)!important;padding:5px!important;z-index:25!important}
+.task-label-menu button,.task-label-menu span{display:block!important;width:100%!important;padding:10px 11px!important;border:0!important;background:transparent!important;text-align:left!important;font-size:13px!important;color:#302b2c!important}
+.task-label-menu button:hover{background:#f8e9ed!important;border-radius:9px!important}
+.task-schedule-sheet{max-height:94vh!important;padding:17px 34px calc(24px + env(safe-area-inset-bottom))!important}
+.task-calendar-month{margin:3px 0 16px!important}.task-calendar-month strong{font-size:23px!important}.task-calendar-grid{row-gap:7px!important}.task-cal-day{height:40px!important}
+.task-date-time-card{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px}
+.task-date-time-card>div{background:#fff;border-radius:16px;padding:12px 13px;border:1px solid #f0e9e8}
+.task-date-time-card span{display:block;font-size:12px;color:#aaa4a5;margin-bottom:5px}.task-date-time-card input{width:100%;border:0;outline:0;background:transparent;font-size:16px;color:#292526}
+.task-all-day-row{margin-top:9px!important;border-radius:16px!important;padding:14px 14px!important}
+.task-schedule-options{margin-top:13px!important;border-radius:19px!important;padding:4px 15px!important}
+.task-schedule-row{min-height:56px!important;font-size:15px!important}
+.task-schedule-clear{font-size:16px!important;margin:23px auto 0!important}
+@media(max-width:700px){.task-editor-panel{padding-left:34px!important;padding-right:34px!important}.task-schedule-sheet{padding-left:34px!important;padding-right:34px!important}}
 </style>
