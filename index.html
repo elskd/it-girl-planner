@@ -766,7 +766,7 @@ function renderToday(){
  <header class="page-head"><div class="eyebrow">It Girl Planner</div><h1 class="title">Today</h1><div class="date">${fmtDate(todayISO())}</div><div class="quote"><div class="quote-editable" contenteditable="true" spellcheck="false" data-placeholder="Напиши свою цитату…">${esc(state.quote||'')}</div></div></header>
  <div class="score-row">
   <section class="card score-card"><div class="label">Today Score</div><div class="score-number">${s}%</div><div class="score-copy"><p class="score-completed"><span>Выполнено:</span> <b>${h[0]} / ${h[1]}</b> привычек · <b>${t[0]} / ${t[1]}</b> задач</p><div class="bar"><i style="width:${s}%"></i></div></div></section>
-  <section class="card score-card"><div class="label">Maddy</div><div class="score-number">${m}%</div><div class="score-copy"><p>Твой текущий прогресс по сферам.</p><div class="bar"><i style="width:${m}%"></i></div></div></section>
+  <section class="card score-card"><div class="label">My Character</div><div class="score-number">${m}%</div><div class="score-copy"><p>Твой текущий прогресс по сферам.</p><div class="bar"><i style="width:${m}%"></i></div></div></section>
  </div>
  <section class="card section today-habits-section"><div class="section-head"><h2>Привычки</h2><button class="btn ghost" onclick="go('planner');plannerMode='habits';setTimeout(()=>renderPlanner(),0)">Все привычки</button></div><div class="habit-grid">${state.habits.map(habitTodayHTML).join('')}</div></section>
  <section class="card section tasks-section"><div class="tasks-header"><div class="tasks-title">Задачи</div><div class="tasks-count">${todayTasks().length ? todayTasks().length + (todayTasks().length === 1 ? ' задача на сегодня' : todayTasks().length < 5 ? ' задачи на сегодня' : ' задач на сегодня') : 'На сегодня задач нет'}</div></div><div class="tasks-divider"></div>${renderTasksGrouped(todayTasks())}<div class="tasks-add-wrap"><button class="btn tasks-add-btn" onclick="openTaskModal()">+ Добавить задачу</button></div></section>`
@@ -2386,6 +2386,11 @@ renderSidebarLists();
 @keyframes mobileSidebarOverlayIn{
   from{opacity:0}
   to{opacity:1}
+}
+</style>
+<style id="today-spacing-and-character">
+@media(max-width:700px),(min-width:701px){
+  .page-head:has(.quote){margin-bottom:14px!important}
 }
 </style>
 <style id="mobile-swipe-anywhere-final">
