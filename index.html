@@ -954,11 +954,17 @@ function bindPlannerTaskSwipes(){
     let sx=0,sy=0,dx=0,dragging=false,moved=false,locked=false;
 
     function settle(){
+      const shouldAnimate=moved&&Math.abs(dx)>10;
       dragging=false;
       shell.classList.remove('is-swiping','swipe-delete','swipe-complete');
-      shell.classList.add('is-settling');
       task.style.transform='translate3d(0,0,0)';
       shell.style.setProperty('--swipe-progress','0');
+      if(!shouldAnimate){
+        shell.classList.remove('is-settling');
+        task.style.transition='none';
+        return;
+      }
+      shell.classList.add('is-settling');
       setTimeout(()=>shell.classList.remove('is-settling'),390);
     }
 
@@ -2508,11 +2514,17 @@ function bindTodayTaskSwipes(){
     let sx=0,sy=0,dx=0,dragging=false,moved=false,locked=false;
 
     function settle(){
+      const shouldAnimate=moved&&Math.abs(dx)>10;
       dragging=false;
       shell.classList.remove('is-swiping','swipe-delete','swipe-complete');
-      shell.classList.add('is-settling');
       task.style.transform='translate3d(0,0,0)';
       shell.style.setProperty('--swipe-progress','0');
+      if(!shouldAnimate){
+        shell.classList.remove('is-settling');
+        task.style.transition='none';
+        return;
+      }
+      shell.classList.add('is-settling');
       setTimeout(()=>shell.classList.remove('is-settling'),390);
     }
 
