@@ -2377,36 +2377,61 @@ renderSidebarLists();
 (function bindMobileEdgeSwipeMenu(){
   const app=document.querySelector('.app');
   if(!app)return;
+
   let startX=0,startY=0,tracking=false;
 
-  document.addEventListener('touchstart',e=>{
-    if(window.innerWidth>700 || app.classList.contains('mobile-sidebar-open'))return;
+  document.addEventListener('touchstart',function(e){
+    if(window.innerWidth>700 || app.classList.contains('mobile-sidebar-open')) return;
+    if(!e.touches || !e.touches.length) return;
+
     const t=e.touches[0];
-    if(t.clientX>28)return;
+
+    // Start only from the actual left edge.
+    if(t.clientX>45) return;
+
     startX=t.clientX;
     startY=t.clientY;
     tracking=true;
-  },{passive:true});
+  },{passive:true,capture:true});
 
-  document.addEventListener('touchmove',e=>{
-    if(!tracking)return;
+  document.addEventListener('touchmove',function(e){
+    if(!tracking || !e.touches || !e.touches.length) return;
+
     const t=e.touches[0];
     const dx=t.clientX-startX;
     const dy=t.clientY-startY;
-    if(Math.abs(dy)>Math.abs(dx)*1.15 || dx<0)tracking=false;
-  },{passive:true});
 
-  document.addEventListener('touchend',e=>{
-    if(!tracking)return;
+    // Cancel vertical gestures and leftward gestures.
+    if(dx<0 || Math.abs(dy)>Math.abs(dx)*1.35){
+      tracking=false;
+      return;
+    }
+
+    // Once it is clearly a horizontal edge gesture, prevent the page
+    // from treating it as a normal horizontal interaction.
+    if(dx>12 && Math.abs(dx)>Math.abs(dy)*1.1){
+      e.preventDefault();
+    }
+  },{passive:false,capture:true});
+
+  document.addEventListener('touchend',function(e){
+    if(!tracking) return;
     tracking=false;
+    if(!e.changedTouches || !e.changedTouches.length) return;
+
     const t=e.changedTouches[0];
     const dx=t.clientX-startX;
     const dy=t.clientY-startY;
-    if(dx>=65 && Math.abs(dx)>Math.abs(dy)*1.25){
-      if(typeof toggleMobileSidebar==='function' && !app.classList.contains('mobile-sidebar-open')){
+
+    if(dx>=50 && Math.abs(dx)>Math.abs(dy)*1.15){
+      if(typeof toggleMobileSidebar==='function'){
         toggleMobileSidebar();
       }
     }
-  },{passive:true});
+  },{passive:true,capture:true});
+
+  document.addEventListener('touchcancel',function(){
+    tracking=false;
+  },{passive:true,capture:true});
 })();
 </script>
