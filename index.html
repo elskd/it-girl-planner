@@ -2347,3 +2347,56 @@ renderSidebarLists();
   }
 }
 </style>
+
+<style id="mobile-header-gradient-and-edge-swipe">
+@media(max-width:700px){
+  .mobile-scroll-header-strip{
+    height:125px!important;
+    background:linear-gradient(
+      to bottom,
+      rgba(255,255,255,.22) 0%,
+      rgba(255,255,255,.16) 28%,
+      rgba(255,255,255,.09) 58%,
+      rgba(255,255,255,.035) 82%,
+      rgba(255,255,255,0) 100%
+    )!important;
+  }
+}
+</style>
+<script>
+(function bindMobileEdgeSwipeMenu(){
+  const app=document.querySelector('.app');
+  if(!app)return;
+  let startX=0,startY=0,tracking=false;
+
+  document.addEventListener('touchstart',e=>{
+    if(window.innerWidth>700 || app.classList.contains('mobile-sidebar-open'))return;
+    const t=e.touches[0];
+    if(t.clientX>28)return;
+    startX=t.clientX;
+    startY=t.clientY;
+    tracking=true;
+  },{passive:true});
+
+  document.addEventListener('touchmove',e=>{
+    if(!tracking)return;
+    const t=e.touches[0];
+    const dx=t.clientX-startX;
+    const dy=t.clientY-startY;
+    if(Math.abs(dy)>Math.abs(dx)*1.15 || dx<0)tracking=false;
+  },{passive:true});
+
+  document.addEventListener('touchend',e=>{
+    if(!tracking)return;
+    tracking=false;
+    const t=e.changedTouches[0];
+    const dx=t.clientX-startX;
+    const dy=t.clientY-startY;
+    if(dx>=65 && Math.abs(dx)>Math.abs(dy)*1.25){
+      if(typeof toggleMobileSidebar==='function' && !app.classList.contains('mobile-sidebar-open')){
+        toggleMobileSidebar();
+      }
+    }
+  },{passive:true});
+})();
+</script>
