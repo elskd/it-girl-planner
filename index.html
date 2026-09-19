@@ -473,30 +473,29 @@ body.menu-open{overflow:hidden}
  .mobile-sidebar-toggle{z-index:180!important}
  .main{margin-left:0!important;width:100%!important}
 }
-</style><style id="planner-mobile-date-layout">
+</style>
+<style id="planner-mobile-date-layout">
 @media(max-width:700px){
   .planner-date-picker{
-    display:grid!important;
-    grid-template-columns:42px minmax(0,1fr) 42px!important;
-    grid-template-rows:auto 38px!important;
-    gap:8px!important;
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:stretch!important;
+    gap:10px!important;
     width:100%!important;
-    align-items:center!important;
     margin-bottom:14px!important;
   }
+  .planner-week-arrow{display:none!important}
   .planner-weekbar{
-    grid-column:1 / -1!important;
-    grid-row:1!important;
     display:grid!important;
     grid-template-columns:repeat(7,minmax(0,1fr))!important;
-    gap:6px!important;
+    gap:5px!important;
     width:100%!important;
     min-width:0!important;
   }
   .planner-weekbar .habit-day{
     width:100%!important;
     min-width:0!important;
-    height:64px!important;
+    height:62px!important;
     padding:7px 2px!important;
     border-radius:15px!important;
     display:flex!important;
@@ -514,31 +513,29 @@ body.menu-open{overflow:hidden}
     line-height:1!important;
     margin-top:6px!important;
   }
-  .planner-week-arrow{
-    width:38px!important;
-    height:38px!important;
-    min-width:38px!important;
-    min-height:38px!important;
-    flex:none!important;
-    border-radius:50%!important;
-    font-size:20px!important;
-  }
-  .planner-date-picker > .planner-week-arrow:first-child{grid-column:1;grid-row:2}
-  .planner-date-picker > .planner-week-arrow:nth-of-type(2){grid-column:3;grid-row:2}
   .planner-calendar-picker{
-    position:absolute!important;
-    right:50%!important;
-    transform:translateX(50%)!important;
-    bottom:0!important;
-    width:38px!important;
-    height:38px!important;
-    min-width:38px!important;
-    min-height:38px!important;
+    position:static!important;
+    transform:none!important;
+    width:100%!important;
+    height:42px!important;
+    min-width:0!important;
+    min-height:42px!important;
     flex:none!important;
-    border-radius:50%!important;
+    border:1px solid var(--line)!important;
+    border-radius:11px!important;
+    background:transparent!important;
+    color:var(--muted)!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    gap:8px!important;
+    padding:0 14px!important;
+    box-shadow:none!important;
   }
-  .planner-calendar-picker svg{width:18px!important;height:18px!important}
+  .planner-calendar-picker svg{width:18px!important;height:18px!important;flex:0 0 auto!important}
+  .planner-calendar-label{display:inline!important;font-size:12px!important;color:inherit!important}
 }
+@media(min-width:701px){.planner-calendar-label{display:none}}
 </style>
 </head>
 <body>
@@ -810,7 +807,7 @@ let plannerCalendarMonth=new Date();
 
 function plannerDatePicker(kind='tasks'){
  const isHabit=kind==='habits', selected=isHabit?selectedHabitDate:selectedPlannerDate, ws=monday(parseDate(selected));
- return '<div class="planner-date-picker"><button class="mini planner-week-arrow" type="button" aria-label="Предыдущая неделя" onclick="plannerShiftDate(\''+kind+'\',-1)">‹</button><div class="habit-weekbar planner-weekbar">'+DAYS.map((day,i)=>{const ds=isoDate(addDays(ws,i));return '<button class="habit-day '+(ds===selected?'active ':'')+(ds===todayISO()?'today':'')+'" onclick="plannerPickDate(\''+kind+'\',\''+ds+'\')"><span>'+day+'</span><b>'+parseDate(ds).getDate()+'</b></button>'}).join('')+'</div><button class="mini planner-week-arrow" type="button" aria-label="Следующая неделя" onclick="plannerShiftDate(\''+kind+'\',1)">›</button><button class="planner-calendar-picker" data-kind="'+kind+'" type="button" aria-label="Выбрать дату" onclick="togglePlannerCalendar(\''+kind+'\',this)"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="16" rx="2.5"></rect><path d="M7 3.5v4M17 3.5v4M3.5 9.5h17"></path></svg></button></div>';
+ return '<div class="planner-date-picker"><button class="mini planner-week-arrow" type="button" aria-label="Предыдущая неделя" onclick="plannerShiftDate(\''+kind+'\',-1)">‹</button><div class="habit-weekbar planner-weekbar" data-kind="'+kind+'>'+DAYS.map((day,i)=>{const ds=isoDate(addDays(ws,i));return '<button class="habit-day '+(ds===selected?'active ':'')+(ds===todayISO()?'today':'')+'" onclick="plannerPickDate(\''+kind+'\',\''+ds+'\')"><span>'+day+'</span><b>'+parseDate(ds).getDate()+'</b></button>'}).join('')+'</div><button class="mini planner-week-arrow" type="button" aria-label="Следующая неделя" onclick="plannerShiftDate(\''+kind+'\',1)">›</button><button class="planner-calendar-picker" data-kind="'+kind+'" type="button" aria-label="Выбрать дату" onclick="togglePlannerCalendar(\''+kind+'\',this)"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="16" rx="2.5"></rect><path d="M7 3.5v4M17 3.5v4M3.5 9.5h17"></path></svg></button></div>';
 }
 function plannerPickDate(kind,ds){if(!ds)return;plannerCalendarOpen=null;if(kind==='habits'){selectedHabitDate=ds;selectedPlannerDate=ds}else selectedPlannerDate=ds;renderPlanner()}
 function togglePlannerCalendar(kind,button){
@@ -2069,6 +2066,33 @@ function bindEditableTodayQuote(){
 const __originalRenderTodayForQuote=renderToday;
 renderToday=function(){const r=__originalRenderTodayForQuote();bindEditableTodayQuote();return r};
 
+
+// Mobile planner week swipe
+let plannerSwipeStartX=0, plannerSwipeStartY=0, plannerSwipeHandled=false;
+document.addEventListener('touchstart',e=>{
+  const bar=e.target.closest('.planner-weekbar');
+  if(!bar)return;
+  const t=e.touches[0];
+  plannerSwipeStartX=t.clientX; plannerSwipeStartY=t.clientY; plannerSwipeHandled=false;
+},{passive:true});
+document.addEventListener('touchend',e=>{
+  const bar=e.target.closest('.planner-weekbar');
+  if(!bar)return;
+  const t=e.changedTouches[0];
+  const dx=t.clientX-plannerSwipeStartX, dy=t.clientY-plannerSwipeStartY;
+  if(Math.abs(dx)>45 && Math.abs(dx)>Math.abs(dy)*1.25){
+    const kind=bar.dataset.kind||'tasks';
+    plannerSwipeHandled=true;
+    plannerShiftDate(kind,dx<0?1:-1);
+  }
+},{passive:true});
+document.addEventListener('click',e=>{
+  if(!plannerSwipeHandled)return;
+  if(e.target.closest('.planner-weekbar .habit-day')){
+    e.preventDefault(); e.stopPropagation();
+  }
+  plannerSwipeHandled=false;
+},true);
 applyAppTheme();
 renderSidebarLists();
 </script>
