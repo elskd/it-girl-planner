@@ -842,7 +842,7 @@ function renderToday(){
  <section class="card section today-habits-section"><div class="section-head"><h2>Привычки</h2><button class="btn ghost" onclick="go('planner');plannerMode='habits';setTimeout(()=>renderPlanner(),0)">Все привычки</button></div><div class="habit-grid">${state.habits.map(habitTodayHTML).join('')}</div></section>
  <section class="card section tasks-section"><div class="tasks-header"><div class="tasks-title">Задачи</div><div class="tasks-count">${todayTasks().length ? todayTasks().length + (todayTasks().length === 1 ? ' задача на сегодня' : todayTasks().length < 5 ? ' задачи на сегодня' : ' задач на сегодня') : 'На сегодня задач нет'}</div></div><div class="tasks-divider"></div>${renderTasksGrouped(todayTasks())}<div class="tasks-add-wrap"><button class="btn tasks-add-btn" onclick="openTaskModal()">+ Добавить задачу</button></div></section>`
 }
-function renderTasksGrouped(tasks){if(!tasks.length)return '<div class="empty">На этот день задач нет.</div>';const pinned=tasks.filter(t=>t.pinned),rest=tasks.filter(t=>!t.pinned);let out='';if(pinned.length)out+='<div class="task-group task-pinned-group"><div class="label" style="padding:9px 0 2px">Закреплено</div>'+renderTasksHTML(pinned)+'</div>';const groups=[['high','Высокий приоритет'],['medium','Средний приоритет'],['low','Низкий приоритет']];return out+groups.map(([p,label])=>{const arr=rest.filter(t=>(t.priority||'medium')===p);if(!arr.length)return '';return '<div class="task-group"><div class="label" style="padding:9px 0 2px">'+label+'</div>'+renderTasksHTML(arr)+'</div>'}).join('')}
+function renderTasksGrouped(tasks){if(!tasks.length)return '<div class="empty">На этот день задач нет.</div>';const pinned=tasks.filter(t=>t.pinned),rest=tasks.filter(t=>!t.pinned);let out='';if(pinned.length)out+='<div class="task-group task-pinned-group"><div class="label" style="padding:9px 0 2px">Закреплено</div>'+renderTasksHTML(pinned)+'</div>';const groups=[['high','Высокий приоритет'],['medium','Средний приоритет'],['low','Низкий приоритет'],['none','Без приоритета']];return out+groups.map(([p,label])=>{const arr=rest.filter(t=>(t.priority||'none')===p);if(!arr.length)return '';return '<div class="task-group"><div class="label" style="padding:9px 0 2px">'+label+'</div>'+renderTasksHTML(arr)+'</div>'}).join('')}
 
 function habitTodayHTML(h){const pct=habitPct(h),done=pct>=100;return `<div class="habit-tile"><button class="habit-check ${done?'done':pct>0?'partial':''}" style="--pct:${pct}%" onclick="habitToggle(${h.id})" aria-label="${esc(h.name)}"></button><div><div class="habit-area">${esc(AREA_LABEL[h.area]||h.area)}</div><div class="habit-name" title="${esc(h.name)}">${esc(h.name)}</div><div class="habit-meta">${h.target>1?`${habitValue(h)} / ${h.target} ${esc(h.unit)}`:`🔥 ${habitStreak(h)} дн.`}</div></div></div>`}
 function renderTasksHTML(tasks){
@@ -859,7 +859,7 @@ function renderTasksHTML(tasks){
    '</div>';
  }).join('')+'</div>';
 }
-function priorityLabel(p){return p==='high'?'Высокий':p==='low'?'Низкий':'Средний'}
+function priorityLabel(p){return p==='high'?'Высокий':p==='medium'?'Средний':p==='low'?'Низкий':'Без приоритета'}
 function changeQuote(){}
 function toggleTask(id){const t=state.tasks.find(x=>x.id==id);if(!t)return;t.done=!t.done;if(t.done)t.status='active';if(!t.done&&t.status==='active')rpgRemoveTransactionsByPrefix('auto:task:'+t.id);else if(t.done)syncRPGFromPlanner();persist();refresh();toast(t.done?'Задача выполнена':'Отметка снята')}
 function deleteTask(id){taskDeleteConfirm(id)}
