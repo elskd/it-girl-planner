@@ -3395,3 +3395,80 @@ html,body{-webkit-text-size-adjust:100%!important}
   }
 }
 </style>
+
+<style id="task-modal-alignment-final">
+@media(max-width:700px){
+  /* The modal must sit above the mobile navigation and menu button. */
+  .modal-wrap{
+    z-index:500!important;
+    padding:16px!important;
+    align-items:center!important;
+    justify-content:center!important;
+  }
+  .modal{
+    width:calc(100vw - 32px)!important;
+    max-width:650px!important;
+    max-height:calc(100dvh - 32px)!important;
+    margin:0!important;
+    padding:20px!important;
+    border-radius:22px!important;
+    overflow-x:hidden!important;
+    overflow-y:auto!important;
+  }
+  .modal-head{
+    width:100%!important;
+    margin:0 0 18px!important;
+    min-height:32px!important;
+    box-sizing:border-box!important;
+  }
+  .modal-title{min-width:0!important;line-height:1.15!important}
+  .form-grid{
+    width:100%!important;
+    min-width:0!important;
+    grid-template-columns:1fr!important;
+    gap:14px!important;
+  }
+  .field,.field.full{
+    width:100%!important;
+    min-width:0!important;
+    grid-column:1!important;
+  }
+  .field > .text-input,
+  .field > .select,
+  .field > input,
+  .field > select,
+  .field > textarea{
+    width:100%!important;
+    min-width:0!important;
+    max-width:100%!important;
+    box-sizing:border-box!important;
+  }
+  .inline{
+    width:100%!important;
+    min-width:0!important;
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr) 16px minmax(0,1fr)!important;
+    gap:9px!important;
+    align-items:center!important;
+  }
+  .inline > input,
+  .inline > .text-input{
+    width:100%!important;
+    min-width:0!important;
+    max-width:100%!important;
+  }
+  .inline > span{
+    width:16px!important;
+    min-width:16px!important;
+    text-align:center!important;
+  }
+  .modal-actions{
+    width:100%!important;
+    min-width:0!important;
+    box-sizing:border-box!important;
+    flex-wrap:wrap!important;
+    margin-top:18px!important;
+  }
+  .modal-actions .btn{min-height:38px!important}
+}
+</style>
