@@ -629,7 +629,6 @@ body.menu-open{overflow:hidden}
     if(e.type==='touchstart'){
       task.style.setProperty('transition','none','important');
       task.style.setProperty('animation','none','important');
-      task.style.setProperty('transform','none','important');
     }
   }
   document.addEventListener('touchstart',lockTaskTapMotion,{capture:true,passive:true});
@@ -855,7 +854,8 @@ function habitToggle(id,date=todayISO()){const h=state.habits.find(x=>x.id==id);
 function openHabitProgressModal(id,date=todayISO()){const h=state.habits.find(x=>x.id==id);if(!h)return;const current=habitValue(h,date);document.getElementById('modal').innerHTML=`<div class="modal-head"><div class="modal-title">${esc(h.name)}</div><button class="close" onclick="closeModal()">×</button></div><div class="field"><label>Сколько выполнено сегодня? Цель: ${h.target} ${esc(h.unit)}</label><input id="habitProgressValue" class="text-input" type="number" min="0" max="${h.target}" step="0.1" value="${current}"></div><div class="modal-actions"><button class="btn ghost" onclick="closeModal()">Отмена</button><button class="btn" onclick="saveHabitProgress(${id},'${date}')">Сохранить</button></div>`;openModal();setTimeout(()=>document.getElementById('habitProgressValue')?.select(),0)}
 function saveHabitProgress(id,date){const h=state.habits.find(x=>x.id==id);if(!h)return;const v=Math.max(0,Math.min(h.target,Number(document.getElementById('habitProgressValue').value)||0));h.days[date]=v;if(v>=h.target)syncRPGFromPlanner();else rpgRemoveTransactionsByPrefix('auto:habit:'+h.id+':'+date);persist();closeModal();go(currentPage);toast(v>=h.target?'Привычка выполнена':`Прогресс: ${v} / ${h.target} ${h.unit}`)}
 function todayTasks(){return state.tasks.filter(t=>taskIsActive(t)&&(t.date===todayISO()||t.repeat==='daily'))}
-function todayTaskDone(){const a=todayTasks();return [a.filter(t=>t.done).length,a.length]}
+function todayTasksForScore(){return state.tasks.filter(t=>taskStatus(t)==='active'&&(t.date===todayISO()||t.repeat==='daily'))}
+function todayTaskDone(){const a=todayTasksForScore();return [a.filter(t=>t.done).length,a.length]}
 function todayHabitDone(){return [state.habits.filter(h=>habitDone(h)).length,state.habits.length]}
 function todayScore(){const h=todayHabitDone(),t=todayTaskDone(),total=h[1]+t[1];return total?Math.round((h[0]+t[0])/total*100):0}
 function scorePhrase(s){if(s>=90)return 'Ты сегодня реально действуешь как Maddy.';if(s>=70)return 'Сильный день. Не останавливайся на последнем шаге.';if(s>=40)return 'Ты уже двигаешься. Добей ещё одно дело.';return 'Начни с одного маленького действия. Дальше станет легче.'}
@@ -986,7 +986,7 @@ function bindPlannerTaskSwipes(){
     let sx=0,sy=0,dx=0,dragging=false,moved=false,locked=false;
 
     function settle(){
-      const shouldAnimate=moved&&Math.abs(dx)>10;
+      const shouldAnimate=moved&&Math.abs(dx)>=16;
       dragging=false;
       shell.classList.remove('tap-static','is-swiping','swipe-delete','swipe-complete');
       task.style.transform='translate3d(0,0,0)';
@@ -1014,9 +1014,9 @@ function bindPlannerTaskSwipes(){
       const t=e.touches[0],dy=t.clientY-sy;
       dx=t.clientX-sx;
       if(Math.abs(dy)>Math.abs(dx)*1.15 && Math.abs(dy)>8){settle();return}
-      /* A tap must NEVER move the task. Do not touch transform until a real horizontal swipe exists. */
-      if(Math.abs(dx)<=10)return;
-      if(Math.abs(dy)>Math.abs(dx)*1.15)return;
+      /* A tap must NEVER move the task. Do not touch transform until a clear horizontal swipe exists. */
+      if(Math.abs(dx)<16)return;
+      if(Math.abs(dx)<=Math.abs(dy)*1.2)return;
       if(e.cancelable)e.preventDefault();
       moved=true;
       shell.classList.remove('tap-static');
@@ -2165,7 +2165,22 @@ function moveTaskToTrash(id){const t=state.tasks.find(x=>x.id==id);if(!t)return;
 function restoreTask(id){const t=state.tasks.find(x=>x.id==id);if(!t)return;t.status='active';t.done=false;persist();refresh();toast('Задача восстановлена')}
 function duplicateTask(id){const t=state.tasks.find(x=>x.id==id);if(!t)return;const copy={...t,id:Date.now(),title:t.title+' — копия',done:false,status:'active',pinned:false,subtasks:(t.subtasks||[]).map(s=>({...s,id:Date.now()+Math.random()}))};state.tasks.push(copy);persist();openTaskDetailId=copy.id;openTaskDetailMenu=false;renderTaskDetail();refresh();toast('Задача продублирована')}
 function addTaskDetailSubtask(id){const t=state.tasks.find(x=>x.id==id),input=document.getElementById('tdSubtaskInput'),title=input?.value.trim();if(!t||!title)return;taskSubtasks(t).push({id:Date.now(),title,done:false});persist();renderTaskDetail();refresh()}
-function toggleTaskDetailSubtask(id,index){const t=state.tasks.find(x=>x.id==id);if(!t||!t.subtasks?.[index])return;t.subtasks[index].done=!t.subtasks[index].done;persist();renderTaskDetail();refresh()}
+function syncTaskCompletionFromSubtasks(t){
+  if(!t||!Array.isArray(t.subtasks)||!t.subtasks.length)return;
+  const allDone=t.subtasks.every(s=>s.done);
+  t.done=allDone;
+  t.status='active';
+  if(allDone)syncRPGFromPlanner();else rpgRemoveTransactionsByPrefix('auto:task:'+t.id);
+}
+function toggleTaskDetailSubtask(id,index){
+  const t=state.tasks.find(x=>x.id==id);
+  if(!t||!t.subtasks?.[index])return;
+  t.subtasks[index].done=!t.subtasks[index].done;
+  syncTaskCompletionFromSubtasks(t);
+  persist();
+  renderTaskDetail();
+  refresh();
+}
 function deleteTaskDetailSubtask(id,index){const t=state.tasks.find(x=>x.id==id);if(!t||!Array.isArray(t.subtasks))return;t.subtasks.splice(index,1);persist();renderTaskDetail();refresh()}
 function moveTaskDetailSubtask(id,index,direction){const t=state.tasks.find(x=>x.id==id);if(!t||!Array.isArray(t.subtasks))return;const ni=index+direction;if(ni<0||ni>=t.subtasks.length)return;[t.subtasks[index],t.subtasks[ni]]=[t.subtasks[ni],t.subtasks[index]];persist();renderTaskDetail();refresh()}
 function updateTaskSubtaskTitle(id,index,value){const t=state.tasks.find(x=>x.id==id);if(!t||!t.subtasks?.[index])return;t.subtasks[index].title=String(value||'').trim()||t.subtasks[index].title;persist();refresh()}
@@ -2551,7 +2566,7 @@ function bindTodayTaskSwipes(){
     let sx=0,sy=0,dx=0,dragging=false,moved=false,locked=false;
 
     function settle(){
-      const shouldAnimate=moved&&Math.abs(dx)>10;
+      const shouldAnimate=moved&&Math.abs(dx)>=16;
       dragging=false;
       shell.classList.remove('tap-static','is-swiping','swipe-delete','swipe-complete');
       task.style.transform='translate3d(0,0,0)';
@@ -2579,9 +2594,9 @@ function bindTodayTaskSwipes(){
       const t=e.touches[0],dy=t.clientY-sy;
       dx=t.clientX-sx;
       if(Math.abs(dy)>Math.abs(dx)*1.15 && Math.abs(dy)>8){settle();return}
-      /* A tap must NEVER move the task. Do not touch transform until a real horizontal swipe exists. */
-      if(Math.abs(dx)<=10)return;
-      if(Math.abs(dy)>Math.abs(dx)*1.15)return;
+      /* A tap must NEVER move the task. Do not touch transform until a clear horizontal swipe exists. */
+      if(Math.abs(dx)<16)return;
+      if(Math.abs(dx)<=Math.abs(dy)*1.2)return;
       if(e.cancelable)e.preventDefault();
       moved=true;
       shell.classList.remove('tap-static');
