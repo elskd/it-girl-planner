@@ -967,8 +967,7 @@ function bindPlannerTaskSwipes(){
       const t=e.touches[0];
       sx=t.clientX;sy=t.clientY;dx=0;dragging=true;moved=false;
       task.style.transition='none';
-      shell.classList.remove('swipe-delete','swipe-complete');
-      shell.classList.add('is-swiping');
+      shell.classList.remove('is-swiping','swipe-delete','swipe-complete');
     },{passive:true});
 
     shell.addEventListener('touchmove',e=>{
@@ -979,6 +978,7 @@ function bindPlannerTaskSwipes(){
       if(Math.abs(dx)<3)return;
       if(e.cancelable)e.preventDefault();
       moved=Math.abs(dx)>10;
+      if(moved)shell.classList.add('is-swiping');
       const max=window.innerWidth*.72;
       const x=Math.max(-max,Math.min(max,dx));
       task.style.transform='translate3d('+x+'px,0,0)';
@@ -2506,8 +2506,7 @@ function bindTodayTaskSwipes(){
       const t=e.touches[0];
       sx=t.clientX;sy=t.clientY;dx=0;dragging=true;moved=false;
       task.style.transition='none';
-      shell.classList.remove('swipe-delete','swipe-complete');
-      shell.classList.add('is-swiping');
+      shell.classList.remove('is-swiping','swipe-delete','swipe-complete');
     },{passive:true});
 
     shell.addEventListener('touchmove',e=>{
@@ -2518,6 +2517,7 @@ function bindTodayTaskSwipes(){
       if(Math.abs(dx)<3)return;
       if(e.cancelable)e.preventDefault();
       moved=Math.abs(dx)>10;
+      if(moved)shell.classList.add('is-swiping');
       const max=window.innerWidth*.72;
       const x=Math.max(-max,Math.min(max,dx));
       task.style.transform='translate3d('+x+'px,0,0)';
@@ -3264,6 +3264,28 @@ html,body{-webkit-text-size-adjust:100%!important}
   .today-page .tasks-section .task .task-check{
     transition:none!important;
     animation:none!important;
+  }
+}
+</style>
+
+<style id="task-no-press-animation-absolute-final">
+@media(max-width:700px){
+  .today-page .today-task-swipe-shell .task,
+  .planner-tasks-card .planner-task-swipe-shell .task{
+    -webkit-tap-highlight-color:transparent!important;
+    transition:none!important;
+    animation:none!important;
+  }
+  .today-page .today-task-swipe-shell .task:active,
+  .today-page .today-task-swipe-shell .task:focus,
+  .today-page .today-task-swipe-shell .task:hover,
+  .planner-tasks-card .planner-task-swipe-shell .task:active,
+  .planner-tasks-card .planner-task-swipe-shell .task:focus,
+  .planner-tasks-card .planner-task-swipe-shell .task:hover{
+    transform:none!important;
+    transition:none!important;
+    animation:none!important;
+    box-shadow:none!important;
   }
 }
 </style>
