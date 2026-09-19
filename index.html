@@ -823,31 +823,42 @@ function plannerCalendarMonthShift(delta,kind){
 }
 function renderPlannerCalendarPopover(kind,button){
  if(!button)return;
- document.querySelectorAll('.planner-calendar-popover').forEach(x=>x.remove());
+ document.querySelectorAll('.planner-calendar-popover,.planner-calendar-overlay').forEach(x=>x.remove());
  const selected=kind==='habits'?selectedHabitDate:selectedPlannerDate;
  const y=plannerCalendarMonth.getFullYear(),m=plannerCalendarMonth.getMonth();
  const first=new Date(y,m,1), start=monday(first), cells=[...Array(42)].map((_,i)=>addDays(start,i));
  const monthName=first.toLocaleDateString('ru-RU',{month:'long',year:'numeric'});
  const html='<div class="planner-calendar-popover" data-kind="'+kind+'" role="dialog" aria-label="Выбор даты"><div class="planner-cal-top"><strong>'+monthName+'</strong><div class="planner-cal-nav"><button type="button" onclick="plannerCalendarMonthShift(-1,\''+kind+'\')">‹</button><button type="button" onclick="plannerCalendarMonthShift(1,\''+kind+'\')">›</button></div></div><div class="planner-cal-weekdays">'+DAYS.map(x=>'<span>'+x+'</span>').join('')+'</div><div class="planner-cal-grid">'+cells.map(d=>{const ds=isoDate(d), muted=d.getMonth()!==m, active=ds===selected, today=ds===todayISO();return '<button type="button" class="'+(muted?'muted ':'')+(active?'selected ':'')+(today?'today':'')+'" onclick="plannerPickDate(\''+kind+'\',\''+ds+'\')">'+d.getDate()+'</button>'}).join('')+'</div></div>';
+ if(window.innerWidth<=700){
+   document.body.insertAdjacentHTML('beforeend','<div class="planner-calendar-overlay" data-kind="'+kind+'" onclick="closePlannerCalendarMobile(event)"></div>'+html);
+   return;
+ }
  button.insertAdjacentHTML('afterend',html);
- const pop=button.nextElementSibling;
- const br=button.getBoundingClientRect(); pop.style.left=(button.offsetLeft+button.offsetWidth-pop.offsetWidth)+'px';
+ const pop=button.nextElementSibling; pop.style.left=(button.offsetLeft+button.offsetWidth-pop.offsetWidth)+'px';
  document.addEventListener('click',plannerCalendarOutsideClick,true);
+}
+function closePlannerCalendarMobile(e){
+ if(e.target.classList.contains('planner-calendar-overlay')){
+  plannerCalendarOpen=null;
+  document.querySelectorAll('.planner-calendar-popover,.planner-calendar-overlay').forEach(x=>x.remove());
+  renderPlanner();
+ }
 }
 function plannerCalendarOutsideClick(e){
  if(!plannerCalendarOpen)return;
- if(e.target.closest('.planner-calendar-popover')||e.target.closest('.planner-calendar-picker'))return;
+ if(e.target.closest('.planner-calendar-popover')||e.target.closest('.planner-calendar-picker')||e.target.closest('.planner-mobile-date-button'))return;
  plannerCalendarOpen=null;document.removeEventListener('click',plannerCalendarOutsideClick,true);renderPlanner();
 }
 function plannerShiftDate(kind,delta){if(kind==='habits'){selectedHabitDate=isoDate(addDays(monday(parseDate(selectedHabitDate)),delta*7));selectedPlannerDate=selectedHabitDate}else selectedPlannerDate=isoDate(addDays(monday(parseDate(selectedPlannerDate)),delta*7));renderPlanner()}
 function switchPlanner(m){plannerMode=m;renderPlanner()}
-function plannerSwipeDate(kind,delta,el){
- const bar=el.querySelector('.planner-weekbar'); if(!bar)return;
+function plannerSwipeDate(kind,delta,picker,bar,dx){
+ const distance=Math.max(70,Math.abs(dx||0)+40);
  bar.style.transition='transform .18s ease,opacity .18s ease';
- bar.style.transform='translateX('+(delta>0?'-100%':'100%')+')'; bar.style.opacity='0';
- setTimeout(()=>{plannerShiftDate(kind,delta);requestAnimationFrame(()=>{const next=document.querySelector('.planner-weekbar');if(!next)return;next.style.transition='none';next.style.transform='translateX('+(delta>0?'100%':'-100%')+')';next.style.opacity='0';requestAnimationFrame(()=>{next.style.transition='transform .28s ease-out,opacity .28s ease-out';next.style.transform='translateX(0)';next.style.opacity='1'})})},180)
+ bar.style.transform='translateX('+(delta>0?'-'+distance+'px':distance+'px')+')';
+ bar.style.opacity='.15';
+ setTimeout(()=>{plannerShiftDate(kind,delta);requestAnimationFrame(()=>{const next=document.querySelector('.planner-date-picker .planner-weekbar');if(!next)return;next.style.transition='none';next.style.transform='translateX('+(delta>0?distance+'px':'-'+distance+'px')+')';next.style.opacity='.15';requestAnimationFrame(()=>{next.style.transition='transform .25s ease-out,opacity .25s ease-out';next.style.transform='translateX(0)';next.style.opacity='1'})})},180)
 }
-function bindPlannerDateSwipe(){document.querySelectorAll('.planner-date-picker').forEach(picker=>{const el=picker.querySelector('.planner-weekbar[data-swipe-kind]');if(!el||el.dataset.swipeBound)return;el.dataset.swipeBound='1';let sx=0,sy=0,moving=false;el.addEventListener('touchstart',e=>{const t=e.changedTouches[0];sx=t.clientX;sy=t.clientY;moving=true;el.style.transition='none'},{passive:true});el.addEventListener('touchmove',e=>{if(!moving)return;const t=e.changedTouches[0],dx=t.clientX-sx,dy=t.clientY-sy;if(Math.abs(dx)>Math.abs(dy)&&Math.abs(dx)>5){el.style.transform='translateX('+Math.max(-120,Math.min(120,dx))+'px)';el.style.opacity=String(Math.max(.55,1-Math.abs(dx)/260))}},{passive:true});el.addEventListener('touchend',e=>{if(!moving)return;moving=false;const t=e.changedTouches[0],dx=t.clientX-sx,dy=t.clientY-sy;if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy)*1.2)plannerSwipeDate(el.dataset.swipeKind,dx<0?1:-1,picker);else{el.style.transition='transform .18s ease,opacity .18s ease';el.style.transform='translateX(0)';el.style.opacity='1'}},{passive:true})})}
+function bindPlannerDateSwipe(){document.querySelectorAll('.planner-date-picker').forEach(picker=>{const el=picker.querySelector('.planner-weekbar[data-swipe-kind]');if(!el||el.dataset.swipeBound)return;el.dataset.swipeBound='1';let sx=0,sy=0,moving=false;el.addEventListener('touchstart',e=>{const t=e.changedTouches[0];sx=t.clientX;sy=t.clientY;moving=true;el.style.transition='none'},{passive:true});el.addEventListener('touchmove',e=>{if(!moving)return;const t=e.changedTouches[0],dx=t.clientX-sx,dy=t.clientY-sy;if(Math.abs(dx)>Math.abs(dy)&&Math.abs(dx)>4){e.preventDefault();el.style.transform='translateX('+Math.max(-120,Math.min(120,dx))+'px)';el.style.opacity=String(Math.max(.45,1-Math.abs(dx)/220))}},{passive:false});el.addEventListener('touchend',e=>{if(!moving)return;moving=false;const t=e.changedTouches[0],dx=t.clientX-sx,dy=t.clientY-sy;if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy)*1.2)plannerSwipeDate(el.dataset.swipeKind,dx<0?1:-1,picker,el,dx);else{el.style.transition='transform .18s ease,opacity .18s ease';el.style.transform='translateX(0)';el.style.opacity='1'}},{passive:true})})}
 function renderPlanner(){document.getElementById('page').innerHTML='<header class="page-head"><div class="eyebrow">Организация</div><h1 class="title">Планер</h1><div class="date">Все задачи и привычки — в одном разделе, между ними можно переключаться.</div></header><div class="section-head"><div class="tabs"><button class="'+(plannerMode==='tasks'?'active':'')+'" onclick="switchPlanner(\'tasks\')">Задачи</button><button class="'+(plannerMode==='habits'?'active':'')+'" onclick="switchPlanner(\'habits\')">Привычки</button></div></div>'+(plannerMode==='tasks'?plannerTasks():plannerHabits());bindPlannerDateSwipe()}
 function plannerTasks(){
  const selected=selectedPlannerDate;
@@ -2176,4 +2187,13 @@ renderSidebarLists();
 @keyframes plannerDateOutRight{from{transform:translateX(0);opacity:1}to{transform:translateX(35%);opacity:.15}}
 @keyframes plannerDateInRight{from{transform:translateX(35%);opacity:.15}to{transform:translateX(0);opacity:1}}
 @keyframes plannerDateInLeft{from{transform:translateX(-35%);opacity:.15}to{transform:translateX(0);opacity:1}}
+</style><style id="planner-mobile-calendar-final">
+@media(max-width:700px){
+ .planner-calendar-overlay{position:fixed!important;inset:0!important;background:rgba(40,32,35,.22)!important;z-index:9998!important}
+ .planner-calendar-popover{position:fixed!important;left:50%!important;top:50%!important;transform:translate(-50%,-50%)!important;width:calc(100vw - 28px)!important;max-width:420px!important;padding:18px!important;box-sizing:border-box!important;border-radius:18px!important;z-index:9999!important;box-shadow:0 18px 55px rgba(40,32,35,.20)!important}
+ .planner-cal-top{margin-bottom:14px!important}.planner-cal-top strong{font-size:20px!important}
+ .planner-cal-weekdays,.planner-cal-grid{gap:5px!important}.planner-cal-weekdays span{font-size:10px!important;padding:5px 0!important}.planner-cal-grid button{height:40px!important;font-size:14px!important}
+ .planner-cal-nav{gap:6px!important}.planner-cal-nav button{width:34px!important;height:34px!important}
+ .planner-weekbar{will-change:transform,opacity}
+}
 </style>
