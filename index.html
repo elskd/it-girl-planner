@@ -3207,4 +3207,37 @@ html,body{-webkit-text-size-adjust:100%!important}
 .task-editor-attach svg{width:19px!important;height:19px!important}
 .task-editor-label-button{order:1!important}
 .task-editor-attach{order:2!important}
+</style><style id="task-editor-visual-fixes-v6">
+/* Progress is a filled progress disc, not a hollow ring. */
+.task-editor-progress-circle{
+  width:18px!important;
+  height:18px!important;
+  min-width:18px!important;
+  border:1.2px solid #d4ced0!important;
+  border-radius:50%!important;
+  background:conic-gradient(#c98299 calc(var(--progress) * 1%),#ebe7e8 0)!important;
+  box-sizing:border-box!important;
+}
+.task-editor-progress-circle:before{display:none!important}
+.task-editor-progress-percent{
+  font-size:13px!important;
+  line-height:1!important;
+  color:#969092!important;
+  margin-left:1px!important;
+}
+/* Label + attachment are a compact left-side pair. */
+.task-editor-bottom{
+  display:flex!important;
+  justify-content:flex-start!important;
+  align-items:center!important;
+  gap:8px!important;
+  width:auto!important;
+}
+.task-editor-label-button,
+.task-editor-attach{
+  flex:0 0 38px!important;
+  width:38px!important;
+  height:38px!important;
+  margin:0!important;
+}
 </style>
