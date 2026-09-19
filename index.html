@@ -2171,7 +2171,11 @@ function taskEditorIcon(name){
 }
 function toggleTaskEditorListMenu(){
  openTaskDetailMenu=openTaskDetailMenu==='list'?false:'list';
- renderTaskDetail();
+ const layer=document.getElementById('taskDetailLayer');
+ if(layer){
+   const menu=layer.querySelector('.task-editor-list-menu');
+   menu?.classList.toggle('open',openTaskDetailMenu==='list');
+ }
 }
 function setTaskEditorArea(id,area){
  const t=state.tasks.find(x=>x.id==id);if(!t)return;
@@ -2233,6 +2237,50 @@ function saveCustomRepeat(id){
  t.repeatDays=days;
  persist();taskRepeatCustomOpen=false;renderTaskScheduleEditor(id);renderTaskDetail();refresh();
 }
+
+function taskReminderLabel(t){
+ const mode=t.reminderMode||'none';
+ if(mode==='none')return 'Нет';
+ if(mode==='at')return t.reminder?('В '+t.reminder):'Во время';
+ if(mode==='5m')return 'За 5 минут';
+ if(mode==='30m')return 'За 30 минут';
+ if(mode==='1h')return 'За 1 час';
+ if(mode==='1d')return 'За 1 день';
+ if(mode==='custom')return t.reminderCustom||'Произвольно';
+ return t.reminder||'Нет';
+}
+function setTaskScheduleReminder(id,mode,value=''){
+ const t=state.tasks.find(x=>x.id==id);if(!t)return;
+ t.reminderMode=mode;
+ if(mode==='at')t.reminder=value;
+ else if(mode==='custom')t.reminderCustom=value||'Произвольно';
+ else t.reminder='';
+ persist();renderTaskScheduleEditor(id);
+}
+function openTaskReminderMenu(id){
+ const t=state.tasks.find(x=>x.id==id);if(!t)return;
+ document.getElementById('taskScheduleChoice')?.remove();
+ const layer=document.createElement('div');layer.id='taskScheduleChoice';
+ layer.innerHTML='<div class="task-choice-backdrop" onclick="if(event.target===this)this.remove()"></div><div class="task-choice-sheet"><div class="task-choice-title">Время для напоминания</div>'+
+ ['none','at','5m','30m','1h','1d','custom'].map(mode=>{
+   const labels={none:'Нет',at:'Во время задачи', '5m':'За 5 минут','30m':'За 30 минут','1h':'За 1 час','1d':'За 1 день',custom:'Произвольно'};
+   return '<button type="button" onclick="'+(mode==='at'?"setTaskScheduleReminder("+id+",'at',prompt('Во сколько напомнить?','"+esc(t.reminder||'')+"'))":mode==='custom'?"setTaskScheduleReminder("+id+",'custom',prompt('За сколько времени напомнить?','"+esc(t.reminderCustom||'')+"'))":"setTaskScheduleReminder("+id+",'"+mode+"')")+'">'+labels[mode]+(taskReminderLabel(t)===labels[mode]?'<span>✓</span>':'')+'</button>';
+ }).join('')+'</div>';
+ document.body.appendChild(layer);
+}
+function setTaskRepeatValue(id,value){
+ const t=state.tasks.find(x=>x.id==id);if(!t)return;
+ if(value==='custom'){document.getElementById('taskScheduleChoice')?.remove();openTaskRepeatCustom(id);return}
+ t.repeat=value;t.repeatDays=value==='weekdays'?[0,1,2,3,4]:[];persist();document.getElementById('taskScheduleChoice')?.remove();renderTaskScheduleEditor(id);renderTaskDetail();refresh();
+}
+function openTaskRepeatMenu(id){
+ const t=state.tasks.find(x=>x.id==id);if(!t)return;
+ document.getElementById('taskScheduleChoice')?.remove();
+ const layer=document.createElement('div');layer.id='taskScheduleChoice';
+ const options=[['none','Не повторять'],['daily','Ежедневно'],['weekly','Еженедельно'],['monthly','Ежемесячно'],['yearly','Ежегодно'],['weekdays','Каждый будний день'],['custom','Произвольно']];
+ layer.innerHTML='<div class="task-choice-backdrop" onclick="if(event.target===this)this.remove()"></div><div class="task-choice-sheet"><div class="task-choice-title">Повторять</div>'+options.map(o=>'<button type="button" onclick="setTaskRepeatValue('+id+',\''+o[0]+'\')">'+o[1]+(repeatLabelForTask(t)===o[1]?'<span>✓</span>':'')+'</button>').join('')+'</div>';
+ document.body.appendChild(layer);
+}
 function taskScheduleRowIcon(kind){
  const map={
   clock:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3 2"/></svg>',
@@ -2242,7 +2290,7 @@ function taskScheduleRowIcon(kind){
  return map[kind]||'';
 }
 function taskScheduleEditorHtml(t){
- const selected=t.date||todayISO(),month=taskScheduleMonth||selected,repeat=t.repeat||'none',reminder=t.reminder||'';
+ const selected=t.date||todayISO(),month=taskScheduleMonth||selected,repeat=t.repeat||'none';
  if(taskRepeatCustomOpen){
   const days=t.repeatDays||[];
   return '<div class="task-schedule-backdrop" onclick="if(event.target===this)closeTaskScheduleEditor()"></div><section class="task-schedule-sheet task-custom-repeat-sheet">'+
@@ -2258,7 +2306,7 @@ function taskScheduleEditorHtml(t){
  return '<div class="task-schedule-backdrop" onclick="if(event.target===this)closeTaskScheduleEditor()"></div><section class="task-schedule-sheet" role="dialog" aria-label="Дата задачи">'+
  '<header class="task-schedule-head"><button class="task-round-close" onclick="closeTaskScheduleEditor()">×</button><div class="task-schedule-tabs"><button class="'+(taskScheduleTab==='date'?'active':'')+'" onclick="taskScheduleTab=\'date\';renderTaskScheduleEditor('+t.id+')">Дата</button><button class="'+(taskScheduleTab==='duration'?'active':'')+'" onclick="taskScheduleTab=\'duration\';renderTaskScheduleEditor('+t.id+')">Длительность</button></div><button class="task-round-done" onclick="closeTaskScheduleEditor()">✓</button></header>'+
  (taskScheduleTab==='date'?dateTab:durationTab)+
- '<div class="task-schedule-options"><button class="task-schedule-row" type="button" onclick="openTaskReminderMenu('+t.id+')">'+taskScheduleRowIcon('alarm')+'<span>Время для напоминания</span><b>'+(reminder?'За '+reminder:'Нет')+'</b></button><button class="task-schedule-row" type="button" onclick="openTaskRepeatMenu('+t.id+')">'+taskScheduleRowIcon('repeat')+'<span>Повторять</span><b>'+repeatLabelForTask(t)+'</b></button></div>'+
+ '<div class="task-schedule-options"><button class="task-schedule-row" type="button" onclick="openTaskReminderMenu('+t.id+')">'+taskScheduleRowIcon('alarm')+'<span>Время для напоминания</span><b>'+taskReminderLabel(t)+'</b></button><button class="task-schedule-row" type="button" onclick="openTaskRepeatMenu('+t.id+')">'+taskScheduleRowIcon('repeat')+'<span>Повторять</span><b>'+repeatLabelForTask(t)+'</b></button></div>'+
  '<button class="task-schedule-clear" onclick="clearTaskSchedule('+t.id+')">Очистить</button>'+
  '</section>';
 }
@@ -3091,4 +3139,11 @@ renderToday=function(){
 .task-schedule-row{min-height:56px!important;font-size:15px!important}
 .task-schedule-clear{font-size:16px!important;margin:23px auto 0!important}
 @media(max-width:700px){.task-editor-panel{padding-left:34px!important;padding-right:34px!important}.task-schedule-sheet{padding-left:34px!important;padding-right:34px!important}}
+</style><style id="task-schedule-choice-style">
+#taskScheduleChoice{position:fixed;inset:0;z-index:360}
+.task-choice-backdrop{position:absolute;inset:0;background:rgba(30,27,28,.42)}
+.task-choice-sheet{position:absolute;left:34px;right:34px;bottom:24px;background:#fff;border-radius:22px;padding:9px;box-shadow:0 18px 45px rgba(30,25,27,.2)}
+.task-choice-title{font-size:13px;color:#9a9294;padding:11px 12px 8px}
+.task-choice-sheet button{width:100%;border:0;background:transparent;text-align:left;padding:13px 12px;border-radius:12px;font-size:16px;color:#272324;display:flex;justify-content:space-between}
+.task-choice-sheet button:active{background:#f8e9ed}
 </style>
