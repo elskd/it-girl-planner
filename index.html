@@ -859,7 +859,107 @@ function plannerSwipeDate(kind,delta,picker,bar,dx){
  setTimeout(()=>{plannerShiftDate(kind,delta);requestAnimationFrame(()=>{const next=document.querySelector('.planner-date-picker .planner-weekbar');if(!next)return;next.style.transition='none';next.style.transform='translateX('+(delta>0?distance+'px':'-'+distance+'px')+')';next.style.opacity='.15';requestAnimationFrame(()=>{next.style.transition='transform .25s ease-out,opacity .25s ease-out';next.style.transform='translateX(0)';next.style.opacity='1'})})},180)
 }
 function bindPlannerDateSwipe(){document.querySelectorAll('.planner-weekbar[data-swipe-kind]').forEach(el=>{if(el.dataset.swipeBound)return;el.dataset.swipeBound='1';let sx=0,sy=0,moving=false;el.addEventListener('touchstart',e=>{const t=e.touches[0];sx=t.clientX;sy=t.clientY;moving=true;el.style.transition='none'},{passive:true});el.addEventListener('touchmove',e=>{if(!moving)return;const t=e.touches[0],dx=t.clientX-sx,dy=t.clientY-sy;if(Math.abs(dx)>Math.abs(dy)&&Math.abs(dx)>3){e.preventDefault();const x=Math.max(-el.parentElement.clientWidth,Math.min(el.parentElement.clientWidth,dx));el.style.transform='translate3d('+x+'px,0,0)';el.style.opacity=String(Math.max(.55,1-Math.abs(x)/260))}},{passive:false});el.addEventListener('touchend',e=>{if(!moving)return;moving=false;const t=e.changedTouches[0],dx=t.clientX-sx,dy=t.clientY-sy;if(Math.abs(dx)>55&&Math.abs(dx)>Math.abs(dy)*1.2)plannerSwipeDate(el.dataset.swipeKind,dx<0?1:-1,el);else{el.style.transition='transform .2s ease,opacity .2s ease';el.style.transform='translate3d(0,0,0)';el.style.opacity='1'}},{passive:true})})}
-function renderPlanner(){document.getElementById('page').innerHTML='<header class="page-head"><div class="eyebrow">Организация</div><h1 class="title">Планер</h1><div class="date">Все задачи и привычки — в одном разделе, между ними можно переключаться.</div></header><div class="section-head"><div class="tabs"><button class="'+(plannerMode==='tasks'?'active':'')+'" onclick="switchPlanner(\'tasks\')">Задачи</button><button class="'+(plannerMode==='habits'?'active':'')+'" onclick="switchPlanner(\'habits\')">Привычки</button></div></div>'+(plannerMode==='tasks'?plannerTasks():plannerHabits());bindPlannerDateSwipe()}
+
+function bindPlannerTaskSwipes(){
+  const root=document.querySelector('.planner-tasks-card');
+  if(!root || root.dataset.swipesBound==='1')return;
+  root.dataset.swipesBound='1';
+
+  root.querySelectorAll('.task').forEach(task=>{
+    if(task.closest('.planner-task-swipe-shell'))return;
+    const match=(task.getAttribute('onclick')||'').match(/openTaskDetail\((\d+)\)/);
+    if(!match)return;
+    const id=match[1];
+
+    const shell=document.createElement('div');
+    shell.className='planner-task-swipe-shell';
+    shell.dataset.taskId=id;
+
+    const del=document.createElement('div');
+    del.className='planner-task-swipe-action delete';
+    del.innerHTML='<svg viewBox="0 0 24 24"><path d="M5 7h14M9 7V4h6v3M8 10v7M12 10v7M16 10v7M6 7l1 13h10l1-13"></path></svg><span>Delete</span>';
+
+    const complete=document.createElement('div');
+    complete.className='planner-task-swipe-action complete';
+    complete.innerHTML='<span>Complete</span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="m8 12 2.6 2.7L16.5 9"></path></svg>';
+
+    task.parentNode.insertBefore(shell,task);
+    shell.append(del,complete,task);
+
+    let sx=0,sy=0,dx=0,dragging=false,moved=false,locked=false;
+
+    function settle(){
+      dragging=false;
+      shell.classList.remove('is-swiping');
+      shell.classList.add('is-settling');
+      task.style.transform='translate3d(0,0,0)';
+      shell.style.setProperty('--swipe-progress','0');
+      setTimeout(()=>shell.classList.remove('is-settling'),390);
+    }
+
+    shell.addEventListener('touchstart',e=>{
+      if(locked || e.touches.length!==1)return;
+      const t=e.touches[0];
+      sx=t.clientX;sy=t.clientY;dx=0;dragging=true;moved=false;
+      task.style.transition='none';
+      shell.classList.add('is-swiping');
+    },{passive:true});
+
+    shell.addEventListener('touchmove',e=>{
+      if(!dragging || locked || e.touches.length!==1)return;
+      const t=e.touches[0],dy=t.clientY-sy;
+      dx=t.clientX-sx;
+      if(Math.abs(dy)>Math.abs(dx)*1.15 && Math.abs(dy)>8){settle();return}
+      if(Math.abs(dx)<3)return;
+      if(e.cancelable)e.preventDefault();
+      moved=Math.abs(dx)>10;
+      const max=window.innerWidth*.72;
+      const x=Math.max(-max,Math.min(max,dx));
+      task.style.transform='translate3d('+x+'px,0,0)';
+      shell.style.setProperty('--swipe-progress',String(Math.min(1,Math.abs(x)/105)));
+    },{passive:false});
+
+    shell.addEventListener('touchend',()=>{
+      if(!dragging)return;
+      const direction=dx>0?'delete':'complete';
+      const threshold=Math.min(110,Math.max(78,window.innerWidth*.22));
+      dragging=false;
+
+      if(Math.abs(dx)>=threshold){
+        locked=true;
+        shell.classList.remove('is-swiping');
+        shell.classList.add(direction==='delete'?'is-removing':'is-completing');
+        shell.style.setProperty('--swipe-progress','1');
+        setTimeout(()=>{
+          const current=state.tasks.find(x=>x.id==id);
+          if(!current)return;
+          if(direction==='delete'){
+            state.tasks=state.tasks.filter(x=>x.id!=id);
+            persist();refresh();toast('Задача удалена');
+          }else{
+            if(!current.done){current.done=true;syncRPGFromPlanner();persist();}
+            refresh();toast('Задача выполнена');
+          }
+        },340);
+      }else{
+        settle();
+      }
+    },{passive:true});
+
+    shell.addEventListener('touchcancel',()=>{
+      if(dragging)settle();
+    },{passive:true});
+
+    shell.addEventListener('click',e=>{
+      if(moved){
+        e.preventDefault();
+        e.stopPropagation();
+        moved=false;
+      }
+    },true);
+  });
+}
+function renderPlanner(){document.getElementById('page').innerHTML='<header class="page-head"><div class="eyebrow">Организация</div><h1 class="title">Планер</h1><div class="date">Все задачи и привычки — в одном разделе, между ними можно переключаться.</div></header><div class="section-head"><div class="tabs"><button class="'+(plannerMode==='tasks'?'active':'')+'" onclick="switchPlanner(\'tasks\')">Задачи</button><button class="'+(plannerMode==='habits'?'active':'')+'" onclick="switchPlanner(\'habits\')">Привычки</button></div></div>'+(plannerMode==='tasks'?plannerTasks():plannerHabits());bindPlannerDateSwipe();bindPlannerTaskSwipes()}
 function plannerTasks(){
  const selected=selectedPlannerDate;
  const tasks=state.tasks.filter(t=>t.date===selected).sort((a,b)=>{if(a.allDay&&!b.allDay)return -1;if(!a.allDay&&b.allDay)return 1;return timeToMin(a.start||'00:00')-timeToMin(b.start||'00:00')});
@@ -2234,6 +2334,16 @@ renderToday=function(){
  .cal-nav>.mini{width:46px!important;height:46px!important}
 }
 </style>
+<style id="planner-task-swipe-no-tap">
+@media(max-width:700px){
+  .planner-tasks-card .planner-task-swipe-shell .task,
+  .planner-tasks-card .planner-task-swipe-shell .task:active,
+  .planner-tasks-card .planner-task-swipe-shell .task:focus{
+    -webkit-tap-highlight-color:transparent!important;
+    box-shadow:none!important;
+  }
+}
+</style>
 <style id="planner-final-overrides">
 .planner-tasks-card .task{background:#fff!important;color:var(--ink)!important;border-radius:0!important;margin:0!important;border-bottom:1px solid var(--line)!important}
 .planner-tasks-card .task-title,.planner-tasks-card .task-title>div:first-child,.planner-tasks-card .task-sub{color:var(--ink)!important}
@@ -2515,7 +2625,100 @@ renderToday=function(){
   .today-page .tasks-section .today-task-swipe-shell.is-removing .task{transform:translate3d(110%,0,0)!important;opacity:0}
   .today-page .tasks-section .today-task-swipe-shell.is-completing .task{transform:translate3d(-110%,0,0)!important;opacity:0}
 }
-</style><style id="mobile-swipe-anywhere-final">
+</style>
+<style id="planner-task-swipe-ui">
+@media(max-width:700px){
+  .planner-tasks-card .planner-task-swipe-shell{
+    position:relative;
+    width:100%;
+    overflow:hidden;
+    border-radius:10px;
+    margin:0 0 6px;
+    background:#f2d7d1;
+    isolation:isolate;
+  }
+  .planner-tasks-card .planner-task-swipe-shell .task{
+    position:relative;
+    z-index:2;
+    width:100%;
+    margin:0!important;
+    background:#fff!important;
+    border-radius:0!important;
+    transform:translate3d(0,0,0);
+    transition:none!important;
+    will-change:transform;
+    touch-action:pan-y;
+  }
+  .planner-tasks-card .planner-task-swipe-action{
+    position:absolute;
+    top:0;
+    bottom:0;
+    width:50%;
+    display:flex;
+    align-items:center;
+    gap:9px;
+    opacity:0;
+    pointer-events:none;
+    font-size:12px;
+    font-weight:500;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    transition:opacity .12s ease;
+  }
+  .planner-tasks-card .planner-task-swipe-action svg{
+    width:22px;
+    height:22px;
+    fill:none;
+    stroke:currentColor;
+    stroke-width:2;
+    stroke-linecap:round;
+    stroke-linejoin:round;
+  }
+  .planner-tasks-card .planner-task-swipe-action.delete{
+    left:0;
+    justify-content:flex-start;
+    padding-left:22px;
+    color:#e86d68;
+    background:#f5d2c4;
+  }
+  .planner-tasks-card .planner-task-swipe-action.complete{
+    right:0;
+    justify-content:flex-end;
+    padding-right:22px;
+    color:#2fc56a;
+    background:#cce5b8;
+  }
+  .planner-tasks-card .planner-task-swipe-shell.is-swiping .planner-task-swipe-action{
+    opacity:calc(var(--swipe-progress,0) * .95);
+  }
+  .planner-tasks-card .planner-task-swipe-shell.is-settling .task{
+    transition:transform .38s cubic-bezier(.22,1,.36,1)!important;
+  }
+  .planner-tasks-card .planner-task-swipe-shell.is-removing .task,
+  .planner-tasks-card .planner-task-swipe-shell.is-completing .task{
+    transition:transform .34s cubic-bezier(.32,.72,0,1),opacity .26s ease!important;
+  }
+  .planner-tasks-card .planner-task-swipe-shell.is-removing .task{
+    transform:translate3d(110%,0,0)!important;
+    opacity:0;
+  }
+  .planner-tasks-card .planner-task-swipe-shell.is-completing .task{
+    transform:translate3d(-110%,0,0)!important;
+    opacity:0;
+  }
+}
+</style>
+<style id="today-task-swipe-no-tap">
+@media(max-width:700px){
+  .today-page .today-task-swipe-shell .task,
+  .today-page .today-task-swipe-shell .task:active,
+  .today-page .today-task-swipe-shell .task:focus{
+    -webkit-tap-highlight-color:transparent!important;
+    box-shadow:none!important;
+  }
+}
+</style>
+<style id="mobile-swipe-anywhere-final">
 @media(max-width:700px){
   .app{
     touch-action:pan-y!important;
@@ -2529,8 +2732,9 @@ renderToday=function(){
 
   let sx=0,sy=0,tracking=false;
 
-  function start(x,y){
+  function start(x,y,target){
     if(window.innerWidth>700 || app.classList.contains('mobile-sidebar-open'))return;
+    if(target && target.closest && target.closest('.today-task-swipe-shell,.planner-task-swipe-shell'))return;
     sx=x;
     sy=y;
     tracking=true;
@@ -2562,7 +2766,7 @@ renderToday=function(){
   }
 
   window.addEventListener('touchstart',e=>{
-    if(e.touches&&e.touches.length)start(e.touches[0].clientX,e.touches[0].clientY);
+    if(e.touches&&e.touches.length)start(e.touches[0].clientX,e.touches[0].clientY,e.target);
   },{passive:true,capture:true});
 
   window.addEventListener('touchmove',e=>{
