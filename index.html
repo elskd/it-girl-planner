@@ -719,7 +719,7 @@ function normalizeData(raw){
  setAreaList(d.settings.areas); d.settings.areas=[...AREAS];
  d.settings.listColors=Object.assign(Object.fromEntries(AREAS.map((a,i)=>[a,BASE_COLORS[i%BASE_COLORS.length]])),d.settings.listColors||{});
  d.habits=(Array.isArray(d.habits)?d.habits:[]).map(h=>({...h,area:migrateArea(h.area)||AREAS[0],days:h.days||{},target:Number(h.target)||1,unit:h.unit||'раз',color:h.color||d.settings.habitColor}));
- d.tasks=(Array.isArray(d.tasks)?d.tasks:[]).map(t=>({...t,area:migrateArea(t.area)||AREAS[0],priority:t.priority||'medium',date:t.date||todayISO(),repeat:t.repeat||'none',repeatDays:Array.isArray(t.repeatDays)?t.repeatDays.map(Number).filter(n=>n>=0&&n<=6):[],overrides:t.overrides||{},start:t.start||'12:30',end:t.end||'13:30',allDay:!!t.allDay,noTime:!!t.noTime,color:t.color||d.settings.taskColor,done:!!t.done,notes:t.notes||'',subtasks:Array.isArray(t.subtasks)?t.subtasks.map(s=>({id:s.id||Date.now()+Math.random(),title:String(s.title||'').trim(),done:!!s.done})).filter(s=>s.title):[],status:t.status||'active',pinned:!!t.pinned,labels:Array.isArray(t.labels)?t.labels.filter(Boolean):[],reminder:t.reminder||'',attachments:Array.isArray(t.attachments)?t.attachments:[]}));
+ d.tasks=(Array.isArray(d.tasks)?d.tasks:[]).map(t=>({...t,area:migrateArea(t.area)||AREAS[0],priority:t.priority||'',date:t.date||todayISO(),repeat:t.repeat||'none',repeatDays:Array.isArray(t.repeatDays)?t.repeatDays.map(Number).filter(n=>n>=0&&n<=6):[],overrides:t.overrides||{},start:t.start||'12:30',end:t.end||'13:30',allDay:!!t.allDay,noTime:!!t.noTime,color:t.color||d.settings.taskColor,done:!!t.done,notes:t.notes||'',subtasks:Array.isArray(t.subtasks)?t.subtasks.map(s=>({id:s.id||Date.now()+Math.random(),title:String(s.title||'').trim(),done:!!s.done})).filter(s=>s.title):[],status:t.status||'active',pinned:!!t.pinned,labels:Array.isArray(t.labels)?t.labels.filter(Boolean):[],reminder:t.reminder||'',attachments:Array.isArray(t.attachments)?t.attachments:[]}));
  d.goals=(Array.isArray(d.goals)?d.goals:[]).map(g=>({...g,subgoals:g.subgoals||[],actions:g.actions||[],progress:Number(g.progress)||0}));
  const oldPreparedQuotes=['Я выбираю свою жизнь, а не жду, пока жизнь выберет меня.','Один плохой день ничего обо мне не говорит.','Мне не нужно быть идеальной, чтобы быть охуенной.','Маленькое действие лучше идеального плана.'];d.quote=typeof d.quote==='string'&& !oldPreparedQuotes.includes(d.quote.trim())?d.quote:'';d.quotes=[];d.quoteIndex=0;d.moodboard=d.moodboard||[];d.notes=Array.isArray(d.notes)?d.notes:[];d.settings.labels=Array.isArray(d.settings.labels)?d.settings.labels:[];d.settings.focusTaskId=d.settings.focusTaskId||0;d.settings.focusStartedAt=d.settings.focusStartedAt||'';d.cabinetMaterials=Array.isArray(d.cabinetMaterials)?d.cabinetMaterials:[];return d;
 }
@@ -851,9 +851,11 @@ function renderTasksHTML(tasks){
    const lc=taskListColor(t.area),subs=taskSubtasks(t),sdone=subs.filter(s=>s.done).length;
    const time=t.noTime?'Без времени':(t.allDay?'Весь день':((t.start||'')+(t.end?' – '+t.end:'')));
    const progress=subs.length?' · '+sdone+'/'+subs.length+' · '+Math.round(sdone/subs.length*100)+'%':'';
-   return '<div class="task" style="--task-list-color:'+lc+'" onclick="openTaskDetail('+t.id+')">'+
+   const priority=t.priority||'none';
+   return '<div class="task task-priority-'+priority+'" style="--task-list-color:'+lc+'" onclick="openTaskDetail('+t.id+')">'+
      '<button class="task-check '+(t.done?'done':'')+'" onclick="event.stopPropagation();toggleTask('+t.id+')"></button>'+
      '<div class="task-title '+(t.done?'done':'')+'"><div>'+esc(t.title)+'</div><div class="task-sub">'+esc(time)+progress+'</div></div>'+
+     '<span class="task-list-dot" style="background:'+lc+'" aria-hidden="true"></span>'+
    '</div>';
  }).join('')+'</div>';
 }
@@ -3238,6 +3240,30 @@ html,body{-webkit-text-size-adjust:100%!important}
 }
 </style><style id="task-editor-final-polish">
 .task-detail-priority-menu{position:absolute;z-index:12;top:76px;right:88px;width:188px;padding:7px;background:#fff;border:1px solid #eadfe2;border-radius:16px;box-shadow:0 12px 30px rgba(45,28,32,.14);display:none}.task-detail-priority-menu.open{display:block}.task-detail-priority-menu button{width:100%;display:flex;align-items:center;justify-content:space-between;border:0;background:transparent;border-radius:10px;padding:10px 11px;color:#332d2f;font-size:14px;text-align:left}.task-detail-priority-menu button.selected{background:#f7ecef;color:#c98299}.task-detail-priority-menu b{font-size:13px;font-weight:500;opacity:0}.task-detail-priority-menu button.selected b{opacity:1}
-.task-editor-progress-circle{position:relative!important;border:1.5px solid #aaa6a7!important;background:#fff!important;overflow:hidden!important}.task-editor-progress-circle:after{content:'';position:absolute;inset:3px;border-radius:50%;background:conic-gradient(#c98299 calc(var(--progress) * 1%),#fff 0)!important}.task-editor-progress-circle:before{display:none!important}
-.tasks-section .task{grid-template-columns:22px minmax(0,1fr)!important}.tasks-section .task-check{border-color:var(--task-list-color,#aaa)!important}.tasks-section .task-check.done{background:var(--task-list-color,#8d2439)!important;border-color:var(--task-list-color,#8d2439)!important}.tasks-section .task-title{min-width:0!important;overflow:hidden!important}.tasks-section .task-title>div:first-child{white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}.tasks-section .task-sub{white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}.task-pinned-group .label{color:var(--accent)!important}
+.task-editor-progress-circle{position:relative!important;border:1.5px solid #aaa6a7!important;background:#fff!important;overflow:hidden!important}.task-editor-progress-circle:after{content:'';position:absolute;inset:1px;border-radius:50%;background:conic-gradient(#c98299 calc(var(--progress) * 1%),#fff 0)!important}.task-editor-progress-circle:before{display:none!important}
+.tasks-section .task{grid-template-columns:22px minmax(0,1fr) 8px!important}.tasks-section .task-check{border-color:#aaa!important}.tasks-section .task-priority-high .task-check{border-color:var(--accent)!important}.tasks-section .task-priority-medium .task-check{border-color:color-mix(in srgb,var(--accent) 68%,white)!important}.tasks-section .task-priority-low .task-check{border-color:color-mix(in srgb,var(--accent) 34%,white)!important}.tasks-section .task-priority-none .task-check{border-color:#aaa!important}.tasks-section .task-check.done{background:#aaa!important;border-color:#aaa!important}.tasks-section .task-priority-high .task-check.done{background:var(--accent)!important;border-color:var(--accent)!important}.tasks-section .task-priority-medium .task-check.done{background:color-mix(in srgb,var(--accent) 68%,white)!important;border-color:color-mix(in srgb,var(--accent) 68%,white)!important}.tasks-section .task-priority-low .task-check.done{background:color-mix(in srgb,var(--accent) 34%,white)!important;border-color:color-mix(in srgb,var(--accent) 34%,white)!important}.tasks-section .task-title{min-width:0!important;overflow:hidden!important}.tasks-section .task-title>div:first-child{white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}.tasks-section .task-sub{white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}.tasks-section .task-list-dot{width:7px!important;height:7px!important;min-width:7px!important;border-radius:50%!important;display:block!important;justify-self:end!important}.task-pinned-group .label{color:var(--accent)!important}
+</style>
+<style id="task-priority-and-no-press-final">
+@media(max-width:700px){
+  .today-page .tasks-section .task:not(.is-swiping):not(.is-settling):not(.is-removing):not(.is-completing),
+  .today-page .tasks-section .task:not(.is-swiping):not(.is-settling):not(.is-removing):not(.is-completing):active,
+  .today-page .tasks-section .task:not(.is-swiping):not(.is-settling):not(.is-removing):not(.is-completing):focus,
+  .today-page .tasks-section .task:not(.is-swiping):not(.is-settling):not(.is-removing):not(.is-completing):hover{
+    transform:none!important;
+    transition:none!important;
+    animation:none!important;
+    box-shadow:none!important;
+    background:var(--card)!important;
+    border-radius:0!important;
+  }
+  .today-page .tasks-section .task:not(.is-swiping):not(.is-settling):not(.is-removing):not(.is-completing) > *{
+    transform:none!important;
+    transition:none!important;
+    animation:none!important;
+  }
+  .today-page .tasks-section .task .task-check{
+    transition:none!important;
+    animation:none!important;
+  }
+}
 </style>
