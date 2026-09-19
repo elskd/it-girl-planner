@@ -890,7 +890,7 @@ function bindPlannerTaskSwipes(){
 
     function settle(){
       dragging=false;
-      shell.classList.remove('is-swiping');
+      shell.classList.remove('is-swiping','swipe-delete','swipe-complete');
       shell.classList.add('is-settling');
       task.style.transform='translate3d(0,0,0)';
       shell.style.setProperty('--swipe-progress','0');
@@ -902,6 +902,7 @@ function bindPlannerTaskSwipes(){
       const t=e.touches[0];
       sx=t.clientX;sy=t.clientY;dx=0;dragging=true;moved=false;
       task.style.transition='none';
+      shell.classList.remove('swipe-delete','swipe-complete');
       shell.classList.add('is-swiping');
     },{passive:true});
 
@@ -916,6 +917,8 @@ function bindPlannerTaskSwipes(){
       const max=window.innerWidth*.72;
       const x=Math.max(-max,Math.min(max,dx));
       task.style.transform='translate3d('+x+'px,0,0)';
+      shell.classList.toggle('swipe-delete',x>0);
+      shell.classList.toggle('swipe-complete',x<0);
       shell.style.setProperty('--swipe-progress',String(Math.min(1,Math.abs(x)/105)));
     },{passive:false});
 
@@ -927,7 +930,7 @@ function bindPlannerTaskSwipes(){
 
       if(Math.abs(dx)>=threshold){
         locked=true;
-        shell.classList.remove('is-swiping');
+        shell.classList.remove('is-swiping','swipe-delete','swipe-complete');
         shell.classList.add(direction==='delete'?'is-removing':'is-completing');
         shell.style.setProperty('--swipe-progress','1');
         setTimeout(()=>{
@@ -2245,7 +2248,7 @@ function bindTodayTaskSwipes(){
 
     function settle(){
       dragging=false;
-      shell.classList.remove('is-swiping');
+      shell.classList.remove('is-swiping','swipe-delete','swipe-complete');
       shell.classList.add('is-settling');
       task.style.transform='translate3d(0,0,0)';
       shell.style.setProperty('--swipe-progress','0');
@@ -2257,6 +2260,7 @@ function bindTodayTaskSwipes(){
       const t=e.touches[0];
       sx=t.clientX;sy=t.clientY;dx=0;dragging=true;moved=false;
       task.style.transition='none';
+      shell.classList.remove('swipe-delete','swipe-complete');
       shell.classList.add('is-swiping');
     },{passive:true});
 
@@ -2271,6 +2275,8 @@ function bindTodayTaskSwipes(){
       const max=window.innerWidth*.72;
       const x=Math.max(-max,Math.min(max,dx));
       task.style.transform='translate3d('+x+'px,0,0)';
+      shell.classList.toggle('swipe-delete',x>0);
+      shell.classList.toggle('swipe-complete',x<0);
       shell.style.setProperty('--swipe-progress',String(Math.min(1,Math.abs(x)/105)));
     },{passive:false});
 
@@ -2282,7 +2288,7 @@ function bindTodayTaskSwipes(){
 
       if(Math.abs(dx)>=threshold){
         locked=true;
-        shell.classList.remove('is-swiping');
+        shell.classList.remove('is-swiping','swipe-delete','swipe-complete');
         shell.classList.add(direction==='delete'?'is-removing':'is-completing');
         shell.style.setProperty('--swipe-progress','1');
         setTimeout(()=>{
@@ -2619,7 +2625,8 @@ renderToday=function(){
   .today-page .tasks-section .today-task-swipe-action svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
   .today-page .tasks-section .today-task-swipe-action.delete{left:0;justify-content:flex-start;padding-left:22px;color:#e86d68;background:#f5d2c4}
   .today-page .tasks-section .today-task-swipe-action.complete{right:0;justify-content:flex-end;padding-right:22px;color:#2fc56a;background:#cce5b8}
-  .today-page .tasks-section .today-task-swipe-shell.is-swiping .today-task-swipe-action{opacity:calc(var(--swipe-progress,0) * .95)}
+  .today-page .tasks-section .today-task-swipe-shell.is-swiping.swipe-delete .today-task-swipe-action.delete{opacity:calc(var(--swipe-progress,0) * .95)}
+  .today-page .tasks-section .today-task-swipe-shell.is-swiping.swipe-complete .today-task-swipe-action.complete{opacity:calc(var(--swipe-progress,0) * .95)}
   .today-page .tasks-section .today-task-swipe-shell.is-settling .task{transition:transform .38s cubic-bezier(.22,1,.36,1)!important}
   .today-page .tasks-section .today-task-swipe-shell.is-removing .task,.today-page .tasks-section .today-task-swipe-shell.is-completing .task{transition:transform .34s cubic-bezier(.32,.72,0,1),opacity .26s ease!important}
   .today-page .tasks-section .today-task-swipe-shell.is-removing .task{transform:translate3d(110%,0,0)!important;opacity:0}
@@ -2688,7 +2695,10 @@ renderToday=function(){
     color:#2fc56a;
     background:#cce5b8;
   }
-  .planner-tasks-card .planner-task-swipe-shell.is-swiping .planner-task-swipe-action{
+  .planner-tasks-card .planner-task-swipe-shell.is-swiping.swipe-delete .planner-task-swipe-action.delete{
+    opacity:calc(var(--swipe-progress,0) * .95);
+  }
+  .planner-tasks-card .planner-task-swipe-shell.is-swiping.swipe-complete .planner-task-swipe-action.complete{
     opacity:calc(var(--swipe-progress,0) * .95);
   }
   .planner-tasks-card .planner-task-swipe-shell.is-settling .task{
