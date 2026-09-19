@@ -2103,7 +2103,7 @@ function toggleTaskPriority(id){const t=state.tasks.find(x=>x.id==id);if(!t)retu
 function setTaskPriority(id,priority){const t=state.tasks.find(x=>x.id==id);if(!t)return;t.priority=priority;openTaskDetailMenu=false;persist();renderTaskDetail();refresh()} function saveTaskDetail(id){
  const t=state.tasks.find(x=>x.id==id);if(!t)return;
  const title=document.getElementById('tdTitle')?.value.trim();if(!title){toast('Напиши название задачи');return}
- t.title=title;t.area=document.getElementById('tdArea')?.value||'';
+ t.title=title;
  t.date=document.getElementById('tdDate')?.value||todayISO();t.start=document.getElementById('tdStart')?.value||'';t.end=document.getElementById('tdEnd')?.value||'';
  t.noTime=!!document.getElementById('tdNoTime')?.checked;t.allDay=!!document.getElementById('tdAllDay')?.checked;if(t.noTime||t.allDay){t.start='';t.end=''}
  t.repeat=document.getElementById('tdRepeat')?.value||'none';t.notes=document.getElementById('tdNotes')?.value||'';t.reminder=document.getElementById('tdReminder')?.value||'';
@@ -2139,7 +2139,22 @@ function formatTaskEditorDate(v){
  return d.getDate()+' '+m[d.getMonth()]+' '+d.getFullYear()+' г.';
 }
 function toggleTaskEditorListMenu(){openTaskDetailMenu=openTaskDetailMenu==='list'?false:'list';renderTaskDetail()}
-function setTaskEditorArea(id,area){const t=state.tasks.find(x=>x.id==id);if(!t)return;t.area=area||'';openTaskDetailMenu=false;persist();renderTaskDetail();refresh()}
+function setTaskEditorArea(id,area){
+ const t=state.tasks.find(x=>x.id==id);if(!t)return;
+ t.area=area||'';
+ openTaskDetailMenu=false;
+ persist();
+ renderTaskDetail();
+ refresh();
+}
+
+// Mobile-safe list selection: handle the touch directly as well as the synthetic click.
+document.addEventListener('touchend',e=>{
+ const btn=e.target.closest?.('.task-editor-list-menu button[data-task-area]');
+ if(!btn)return;
+ e.preventDefault();
+ setTaskEditorArea(Number(btn.dataset.taskId),btn.dataset.taskArea||'');
+},{passive:false});
 function openTaskEditorDate(){document.getElementById('tdDate')?.showPicker?.()||document.getElementById('tdDate')?.click()}
 function openTaskEditorTime(id,which){document.getElementById(which==='start'?'tdStart':'tdEnd')?.showPicker?.()||document.getElementById(which==='start'?'tdStart':'tdEnd')?.click()}
 function taskSubtaskDragStart(e,index){e.dataTransfer?.setData('text/plain',String(index));e.currentTarget.closest('.task-editor-subtask')?.classList.add('dragging')}
@@ -2314,7 +2329,7 @@ function taskDetailHtml(t){
  return '<div class="task-detail-backdrop" onclick="if(event.target===this)closeTaskDetail()"></div>'+
  '<aside class="task-detail-panel task-editor-panel" role="dialog" aria-label="Редактирование задачи">'+
  '<div class="task-editor-top"><button type="button" class="task-editor-list-button" onclick="toggleTaskEditorListMenu()"><span>'+esc(currentArea)+'</span><svg viewBox="0 0 24 24"><path d="m7 10 5-5 5 5M7 14l5 5 5-5"/></svg></button><div class="task-editor-top-actions"><button class="task-editor-icon '+(t.priority?'active':'')+'" onclick="toggleTaskPriority('+t.id+')">'+taskEditorIcon('flag')+'</button><button class="task-editor-icon" onclick="toggleTaskDetailMenu()">'+taskEditorIcon('more')+'</button></div></div>'+
- '<div class="task-editor-list-menu '+(openTaskDetailMenu==='list'?'open':'')+'">'+[''].concat(AREAS).map(a=>'<button type="button" class="'+((t.area||'')===a?'selected':'')+'" onclick="setTaskEditorArea('+t.id+','+JSON.stringify(a)+')">'+esc(a||'Без списка')+(t.area===a?'<span>✓</span>':'')+'</button>').join('')+'</div>'+
+ '<div class="task-editor-list-menu '+(openTaskDetailMenu==='list'?'open':'')+'">'+[''].concat(AREAS).map(a=>'<button type="button" data-task-id="'+t.id+'" data-task-area="'+esc(a)+'" class="'+((t.area||'')===a?'selected':'')+'">'+esc(a||'Без списка')+(t.area===a?'<span>✓</span>':'')+'</button>').join('')+'</div>'+
  '<div class="task-detail-priority-menu '+(openTaskDetailMenu==='priority'?'open':'')+'"><button class="'+(t.priority==='high'?'selected':'')+'" onclick="setTaskPriority('+t.id+',\'high\')"><span>Высокий</span><b>✓</b></button><button class="'+(t.priority==='medium'?'selected':'')+'" onclick="setTaskPriority('+t.id+',\'medium\')"><span>Средний</span><b>✓</b></button><button class="'+(t.priority==='low'?'selected':'')+'" onclick="setTaskPriority('+t.id+',\'low\')"><span>Низкий</span><b>✓</b></button><button class="'+(!t.priority?'selected':'')+'" onclick="setTaskPriority('+t.id+',\'\')"><span>Без приоритета</span><b>✓</b></button></div><div class="task-detail-more-menu '+(openTaskDetailMenu===true?'open':'')+'"><button onclick="pinTask('+t.id+')"><span>'+(t.pinned?'Открепить':'Закрепить')+'</span></button><button onclick="markTaskNotDoing('+t.id+')"><span>Не буду делать</span></button><button class="danger-item" onclick="taskDeleteConfirm('+t.id+')"><span>Удалить</span></button><div class="task-detail-more-divider"></div><button onclick="addTaskDetailSubtaskFocus('+t.id+')"><span>Добавить подзадачу</span></button><button onclick="startTaskFocus('+t.id+')"><span>Сфокусироваться</span></button><button onclick="focusTaskLabels('+t.id+')"><span>Добавить метки</span></button><button onclick="duplicateTask('+t.id+')"><span>Дублировать задачу</span></button></div>'+
  '<div class="task-editor-schedule-row"><button class="task-main-check '+(t.done?'done':'')+'" onclick="event.stopPropagation();toggleTask('+t.id+');renderTaskDetail()"></button><button type="button" class="task-editor-schedule-button" onclick="openTaskScheduleEditor('+t.id+',\'date\')"><div class="task-editor-schedule-main"><div class="task-editor-schedule-line"><span class="schedule-date">'+esc(formatTaskEditorDate(t.date||todayISO()))+'</span>'+(subs.length?'<span class="task-editor-progress-circle" style="--progress:'+pct+'"></span><span class="task-editor-progress-percent">'+pct+'%</span>':'')+'</div><span class="schedule-repeat">'+esc(repeatLabelForTask(t))+'</span></div><svg class="schedule-chevron" viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></svg></button></div>'+
  '<div class="task-editor-taskline"><div class="task-editor-title-wrap"><input id="tdTitle" class="task-editor-title-input" value="'+esc(t.title)+'" placeholder="Название задачи" onblur="saveTaskDetail('+t.id+')"><textarea id="tdNotes" class="task-editor-notes" rows="1" placeholder="Описание" onblur="saveTaskDetail('+t.id+')">'+esc(t.notes||'')+'</textarea></div></div>'+
