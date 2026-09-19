@@ -852,7 +852,7 @@ function plannerTasks(){
 function priorityRank(p){return p==='high'?0:p==='medium'?1:2}
 let selectedHabitDate=todayISO();
 function renderHabitWeekbar(){return plannerDatePicker('habits')}
-function plannerHabits(){const groups={};state.habits.forEach(h=>(groups[h.area||'Personal']??=[]).push(h));return `<section class="card"><div class="section-head"><div><h2>Привычки</h2><div class="date">${fmtDate(selectedHabitDate)} · выбранный день</div></div><button class="btn" onclick="openHabitModal()">+ Добавить</button></div>${renderHabitWeekbar()}${Object.entries(groups).map(([area,items])=>`<div class="habit-group-card"><div class="group-title"><h3>${esc(AREA_LABEL[area]||area)}</h3><span class="label">${items.length}</span></div><div class="habit-list">${items.map(h=>{const pct=habitPct(h,selectedHabitDate),done=pct>=100;return `<div class="habit-row"><button class="habit-check ${done?'done':pct>0?'partial':''}" style="--pct:${pct}%" onclick="habitToggle(${h.id},'${selectedHabitDate}')"></button><div class="habit-main"><strong>${esc(h.name)}</strong><div class="habit-meta">${h.target>1?`${habitValue(h,selectedHabitDate)} / ${h.target} ${esc(h.unit)}`:'Ежедневно'}</div></div><div class="habit-action"><div class="habit-stat-stack"><div class="big">${habitTotal(h)} дней</div><div class="small">🔥 ${habitStreak(h)} дн.</div></div><div class="task-actions"><button class="mini" onclick="openHabitModal(${h.id})">✎</button><button class="mini" onclick="deleteHabit(${h.id})">×</button></div></div></div>`}).join('')}</div></div>`).join('')}</section>`}
+function plannerHabits(){const groups={};state.habits.forEach(h=>(groups[h.area||'Personal']??=[]).push(h));return `<section class="card planner-habits-card"><div class="section-head"><div><h2>Привычки</h2><div class="date">${fmtDate(selectedHabitDate)} · выбранный день</div></div><button class="btn planner-add-btn" onclick="openHabitModal()"><span class="planner-add-label">+ Добавить</span><span class="planner-add-plus">+</span></button></div>${renderHabitWeekbar()}${Object.entries(groups).map(([area,items])=>`<div class="habit-group-card"><div class="group-title"><h3>${esc(AREA_LABEL[area]||area)}</h3><span class="label">${items.length}</span></div><div class="habit-list">${items.map(h=>{const pct=habitPct(h,selectedHabitDate),done=pct>=100;return `<div class="habit-row"><button class="habit-check ${done?'done':pct>0?'partial':''}" style="--pct:${pct}%" onclick="habitToggle(${h.id},'${selectedHabitDate}')"></button><div class="habit-main"><strong>${esc(h.name)}</strong><div class="habit-meta">${h.target>1?`${habitValue(h,selectedHabitDate)} / ${h.target} ${esc(h.unit)}`:'Ежедневно'}</div></div><div class="habit-action"><div class="habit-stat-stack"><div class="big">${habitTotal(h)} дней</div><div class="small">🔥 ${habitStreak(h)} дн.</div></div><div class="task-actions"><button class="mini" onclick="openHabitModal(${h.id})">✎</button><button class="mini" onclick="deleteHabit(${h.id})">×</button></div></div></div>`}).join('')}</div></div>`).join('')}</section>`}
 
 function deleteHabit(id){if(!confirm('Удалить привычку?'))return;state.habits=state.habits.filter(h=>h.id!=id);refresh();toast('Привычка удалена')}
 let calMode='week',calDate=new Date();let dragState=null;
@@ -2136,6 +2136,23 @@ renderSidebarLists();
  .planner-calendar-picker{display:none!important}
  .planner-mobile-date-button{display:flex!important;width:100%!important;height:42px!important;margin-top:9px!important;align-items:center!important;justify-content:center!important;border:1px solid var(--line)!important;border-radius:11px!important;background:transparent!important;color:var(--muted)!important;font-size:12px!important;padding:0!important}
  .planner-mobile-date-button:active{background:#faf6f4!important}
+}
+@media(min-width:701px){.planner-mobile-date-button{display:none!important}}
+</style><style id="planner-mobile-final-v2">
+.planner-add-plus{display:none}
+@media(max-width:700px){
+ .planner-date-picker{display:block!important;position:relative!important;width:100%!important;margin-bottom:14px!important}
+ .planner-week-arrow{display:none!important}
+ .planner-weekbar{display:grid!important;grid-template-columns:repeat(7,minmax(0,1fr))!important;gap:5px!important;width:100%!important;touch-action:pan-y!important}
+ .planner-weekbar .habit-day{width:100%!important;min-width:0!important;height:62px!important;padding:7px 2px!important;border-radius:15px!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important}
+ .planner-weekbar .habit-day span{font-size:10px!important;line-height:1!important;white-space:nowrap!important}
+ .planner-weekbar .habit-day b{font-size:17px!important;line-height:1!important;margin-top:6px!important}
+ .planner-calendar-picker{display:none!important}
+ .planner-mobile-date-button{display:flex!important;width:100%!important;height:42px!important;margin-top:9px!important;align-items:center!important;justify-content:center!important;border:1px solid var(--line)!important;border-radius:11px!important;background:transparent!important;color:var(--muted)!important;font-size:12px!important;padding:0!important}
+ .planner-mobile-date-button:active{background:#faf6f4!important}
+ .planner-add-btn{width:46px!important;height:46px!important;min-width:46px!important;min-height:46px!important;padding:0!important;border-radius:50%!important;display:flex!important;align-items:center!important;justify-content:center!important;font-size:25px!important;line-height:1!important}
+ .planner-add-label{display:none!important}
+ .planner-add-plus{display:block!important;font-weight:300!important;line-height:1!important}
 }
 @media(min-width:701px){.planner-mobile-date-button{display:none!important}}
 </style>
