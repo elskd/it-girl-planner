@@ -842,28 +842,20 @@ function renderToday(){
  <section class="card section today-habits-section"><div class="section-head"><h2>Привычки</h2><button class="btn ghost" onclick="go('planner');plannerMode='habits';setTimeout(()=>renderPlanner(),0)">Все привычки</button></div><div class="habit-grid">${state.habits.map(habitTodayHTML).join('')}</div></section>
  <section class="card section tasks-section"><div class="tasks-header"><div class="tasks-title">Задачи</div><div class="tasks-count">${todayTasks().length ? todayTasks().length + (todayTasks().length === 1 ? ' задача на сегодня' : todayTasks().length < 5 ? ' задачи на сегодня' : ' задач на сегодня') : 'На сегодня задач нет'}</div></div><div class="tasks-divider"></div>${renderTasksGrouped(todayTasks())}<div class="tasks-add-wrap"><button class="btn tasks-add-btn" onclick="openTaskModal()">+ Добавить задачу</button></div></section>`
 }
-function renderTasksGrouped(tasks){if(!tasks.length)return '<div class="empty">На этот день задач нет.</div>';const groups=[['high','Высокий приоритет'],['medium','Средний приоритет'],['low','Низкий приоритет']];return groups.map(([p,label])=>{const arr=tasks.filter(t=>(t.priority||'medium')===p);if(!arr.length)return '';return `<div class="task-group"><div class="label" style="padding:9px 0 2px">${label}</div>${renderTasksHTML(arr)}</div>`}).join('')}
+function renderTasksGrouped(tasks){if(!tasks.length)return '<div class="empty">На этот день задач нет.</div>';const pinned=tasks.filter(t=>t.pinned),rest=tasks.filter(t=>!t.pinned);let out='';if(pinned.length)out+='<div class="task-group task-pinned-group"><div class="label" style="padding:9px 0 2px">Закреплено</div>'+renderTasksHTML(pinned)+'</div>';const groups=[['high','Высокий приоритет'],['medium','Средний приоритет'],['low','Низкий приоритет']];return out+groups.map(([p,label])=>{const arr=rest.filter(t=>(t.priority||'medium')===p);if(!arr.length)return '';return '<div class="task-group"><div class="label" style="padding:9px 0 2px">'+label+'</div>'+renderTasksHTML(arr)+'</div>'}).join('')}
 
 function habitTodayHTML(h){const pct=habitPct(h),done=pct>=100;return `<div class="habit-tile"><button class="habit-check ${done?'done':pct>0?'partial':''}" style="--pct:${pct}%" onclick="habitToggle(${h.id})" aria-label="${esc(h.name)}"></button><div><div class="habit-area">${esc(AREA_LABEL[h.area]||h.area)}</div><div class="habit-name" title="${esc(h.name)}">${esc(h.name)}</div><div class="habit-meta">${h.target>1?`${habitValue(h)} / ${h.target} ${esc(h.unit)}`:`🔥 ${habitStreak(h)} дн.`}</div></div></div>`}
 function renderTasksHTML(tasks){
  if(!tasks.length)return '<div class="empty">На этот день задач нет.</div>';
- return `<div class="task-list">${tasks.map(t=>{
-   const lc=taskListColor(t.area),list=t.area||'Без списка',subs=taskSubtasks(t),sdone=subs.filter(s=>s.done).length;
+ return '<div class="task-list">'+tasks.map(t=>{
+   const lc=taskListColor(t.area),subs=taskSubtasks(t),sdone=subs.filter(s=>s.done).length;
    const time=t.noTime?'Без времени':(t.allDay?'Весь день':((t.start||'')+(t.end?' – '+t.end:'')));
-   const progress=subs.length?` · ${sdone}/${subs.length} · ${Math.round(sdone/subs.length*100)}%`:'';
-   return `<div class="task" style="--task-list-color:${lc}" onclick="openTaskDetail(${t.id})">
-     <button class="task-check ${t.done?'done':''}" onclick="event.stopPropagation();toggleTask(${t.id})"></button>
-     <div class="task-title ${t.done?'done':''}"><div>${esc(t.title)}</div><div class="task-sub">${esc(time)}${progress}</div></div>
-     <div class="task-right">
-       <span class="priority ${t.priority}" title="${priorityLabel(t.priority)}"></span>
-       <span class="tag task-list-tag" style="--list-color:${lc};--list-text-color:${contrastTextColor(lc)}">${esc(list)}</span>
-       <div class="task-actions">
-         <button class="mini" onclick="event.stopPropagation();openTaskModal(${t.id})" title="Редактировать">✎</button>
-         <button class="mini" onclick="event.stopPropagation();deleteTask(${t.id})" title="Удалить">×</button>
-       </div>
-     </div>
-   </div>`;
- }).join('')}</div>`;
+   const progress=subs.length?' · '+sdone+'/'+subs.length+' · '+Math.round(sdone/subs.length*100)+'%':'';
+   return '<div class="task" style="--task-list-color:'+lc+'" onclick="openTaskDetail('+t.id+')">'+
+     '<button class="task-check '+(t.done?'done':'')+'" onclick="event.stopPropagation();toggleTask('+t.id+')"></button>'+
+     '<div class="task-title '+(t.done?'done':'')+'"><div>'+esc(t.title)+'</div><div class="task-sub">'+esc(time)+progress+'</div></div>'+
+   '</div>';
+ }).join('')+'</div>';
 }
 function priorityLabel(p){return p==='high'?'Высокий':p==='low'?'Низкий':'Средний'}
 function changeQuote(){}
@@ -2074,7 +2066,7 @@ document.addEventListener('click',e=>{if(mobileMoreMenu?.classList.contains('ope
 window.addEventListener('hashchange',()=>{go(pageFromHash(),false)});
 const initialPage=pageFromHash();
 go(initialPage,false);
-initCloudSync().then(()=>{if(currentPage)go(currentPage,false)}).catch(e=>console.warn('Cloud initialization failed',e));
+const __initialLocalSnapshot=JSON.stringify(state);initCloudSync().then(()=>{if(currentPage&&JSON.stringify(state)!==__initialLocalSnapshot)go(currentPage,false)}).catch(e=>console.warn('Cloud initialization failed',e));
 
 /* --- It Girl task/list detail layer --- */
 function taskListColor(area){
@@ -2105,8 +2097,8 @@ function taskIsNotDoing(t){return taskStatus(t)==='not-done'}
 function taskIsTrash(t){return taskStatus(t)==='trash'}
 function openTaskDetail(id,occurrenceDate=''){if(!state.tasks.some(t=>t.id==id))return;openTaskDetailId=id;taskDetailOccurrenceDate=occurrenceDate||'';openTaskDetailMenu=false;renderTaskDetail()}
 function closeTaskDetail(){openTaskDetailId=0;openTaskDetailMenu=false;taskDetailOccurrenceDate='';document.getElementById('taskDetailLayer')?.remove()}
-function toggleTaskPriority(id){const t=state.tasks.find(x=>x.id==id);if(!t)return;t.priority=t.priority==='high'?'low':t.priority==='low'?'':'high';persist();renderTaskDetail();refresh()}
-function saveTaskDetail(id){
+function toggleTaskPriority(id){const t=state.tasks.find(x=>x.id==id);if(!t)return;openTaskDetailMenu=openTaskDetailMenu==='priority'?false:'priority';renderTaskDetail()}
+function setTaskPriority(id,priority){const t=state.tasks.find(x=>x.id==id);if(!t)return;t.priority=priority;openTaskDetailMenu=false;persist();renderTaskDetail();refresh()} function saveTaskDetail(id){
  const t=state.tasks.find(x=>x.id==id);if(!t)return;
  const title=document.getElementById('tdTitle')?.value.trim();if(!title){toast('Напиши название задачи');return}
  t.title=title;t.area=document.getElementById('tdArea')?.value||'';
@@ -2321,7 +2313,7 @@ function taskDetailHtml(t){
  '<aside class="task-detail-panel task-editor-panel" role="dialog" aria-label="Редактирование задачи">'+
  '<div class="task-editor-top"><button type="button" class="task-editor-list-button" onclick="toggleTaskEditorListMenu()"><span>'+esc(currentArea)+'</span><svg viewBox="0 0 24 24"><path d="m7 10 5-5 5 5M7 14l5 5 5-5"/></svg></button><div class="task-editor-top-actions"><button class="task-editor-icon '+(t.priority?'active':'')+'" onclick="toggleTaskPriority('+t.id+')">'+taskEditorIcon('flag')+'</button><button class="task-editor-icon" onclick="toggleTaskDetailMenu()">'+taskEditorIcon('more')+'</button></div></div>'+
  '<div class="task-editor-list-menu '+(openTaskDetailMenu==='list'?'open':'')+'">'+[''].concat(AREAS).map(a=>'<button type="button" class="'+((t.area||'')===a?'selected':'')+'" onclick="setTaskEditorArea('+t.id+','+JSON.stringify(a)+')">'+esc(a||'Без списка')+(t.area===a?'<span>✓</span>':'')+'</button>').join('')+'</div>'+
- '<div class="task-detail-more-menu '+(openTaskDetailMenu===true?'open':'')+'"><button onclick="pinTask('+t.id+')"><span>Закрепить</span></button><button onclick="markTaskNotDoing('+t.id+')"><span>Не буду делать</span></button><button class="danger-item" onclick="taskDeleteConfirm('+t.id+')"><span>Удалить</span></button><div class="task-detail-more-divider"></div><button onclick="addTaskDetailSubtaskFocus('+t.id+')"><span>Добавить подзадачу</span></button><button onclick="startTaskFocus('+t.id+')"><span>Сфокусироваться</span></button><button onclick="focusTaskLabels('+t.id+')"><span>Добавить метки</span></button><button onclick="duplicateTask('+t.id+')"><span>Дублировать задачу</span></button></div>'+
+ '<div class="task-detail-priority-menu '+(openTaskDetailMenu==='priority'?'open':'')+'"><button class="'+(t.priority==='high'?'selected':'')+'" onclick="setTaskPriority('+t.id+',\'high\')"><span>Высокий</span><b>✓</b></button><button class="'+(t.priority==='medium'?'selected':'')+'" onclick="setTaskPriority('+t.id+',\'medium\')"><span>Средний</span><b>✓</b></button><button class="'+(t.priority==='low'?'selected':'')+'" onclick="setTaskPriority('+t.id+',\'low\')"><span>Низкий</span><b>✓</b></button><button class="'+(!t.priority?'selected':'')+'" onclick="setTaskPriority('+t.id+',\'\')"><span>Без приоритета</span><b>✓</b></button></div><div class="task-detail-more-menu '+(openTaskDetailMenu===true?'open':'')+'"><button onclick="pinTask('+t.id+')"><span>'+(t.pinned?'Открепить':'Закрепить')+'</span></button><button onclick="markTaskNotDoing('+t.id+')"><span>Не буду делать</span></button><button class="danger-item" onclick="taskDeleteConfirm('+t.id+')"><span>Удалить</span></button><div class="task-detail-more-divider"></div><button onclick="addTaskDetailSubtaskFocus('+t.id+')"><span>Добавить подзадачу</span></button><button onclick="startTaskFocus('+t.id+')"><span>Сфокусироваться</span></button><button onclick="focusTaskLabels('+t.id+')"><span>Добавить метки</span></button><button onclick="duplicateTask('+t.id+')"><span>Дублировать задачу</span></button></div>'+
  '<div class="task-editor-schedule-row"><button class="task-main-check '+(t.done?'done':'')+'" onclick="event.stopPropagation();toggleTask('+t.id+');renderTaskDetail()"></button><button type="button" class="task-editor-schedule-button" onclick="openTaskScheduleEditor('+t.id+',\'date\')"><div class="task-editor-schedule-main"><div class="task-editor-schedule-line"><span class="schedule-date">'+esc(formatTaskEditorDate(t.date||todayISO()))+'</span>'+(subs.length?'<span class="task-editor-progress-circle" style="--progress:'+pct+'"></span><span class="task-editor-progress-percent">'+pct+'%</span>':'')+'</div><span class="schedule-repeat">'+esc(repeatLabelForTask(t))+'</span></div><svg class="schedule-chevron" viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></svg></button></div>'+
  '<div class="task-editor-taskline"><div class="task-editor-title-wrap"><input id="tdTitle" class="task-editor-title-input" value="'+esc(t.title)+'" placeholder="Название задачи" onblur="saveTaskDetail('+t.id+')"><textarea id="tdNotes" class="task-editor-notes" rows="1" placeholder="Описание" onblur="saveTaskDetail('+t.id+')">'+esc(t.notes||'')+'</textarea></div></div>'+
  '<div class="task-editor-subtasks">'+
@@ -3244,4 +3236,8 @@ html,body{-webkit-text-size-adjust:100%!important}
   height:38px!important;
   margin:0!important;
 }
+</style><style id="task-editor-final-polish">
+.task-detail-priority-menu{position:absolute;z-index:12;top:76px;right:88px;width:188px;padding:7px;background:#fff;border:1px solid #eadfe2;border-radius:16px;box-shadow:0 12px 30px rgba(45,28,32,.14);display:none}.task-detail-priority-menu.open{display:block}.task-detail-priority-menu button{width:100%;display:flex;align-items:center;justify-content:space-between;border:0;background:transparent;border-radius:10px;padding:10px 11px;color:#332d2f;font-size:14px;text-align:left}.task-detail-priority-menu button.selected{background:#f7ecef;color:#c98299}.task-detail-priority-menu b{font-size:13px;font-weight:500;opacity:0}.task-detail-priority-menu button.selected b{opacity:1}
+.task-editor-progress-circle{position:relative!important;border:1.5px solid #aaa6a7!important;background:#fff!important;overflow:hidden!important}.task-editor-progress-circle:after{content:'';position:absolute;inset:3px;border-radius:50%;background:conic-gradient(#c98299 calc(var(--progress) * 1%),#fff 0)!important}.task-editor-progress-circle:before{display:none!important}
+.tasks-section .task{grid-template-columns:22px minmax(0,1fr)!important}.tasks-section .task-check{border-color:var(--task-list-color,#aaa)!important}.tasks-section .task-check.done{background:var(--task-list-color,#8d2439)!important;border-color:var(--task-list-color,#8d2439)!important}.tasks-section .task-title{min-width:0!important;overflow:hidden!important}.tasks-section .task-title>div:first-child{white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}.tasks-section .task-sub{white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}.task-pinned-group .label{color:var(--accent)!important}
 </style>
