@@ -1226,7 +1226,12 @@ function startQuickAddPointer(e,date){
    if(axis==='vertical'){if(ev.cancelable)ev.preventDefault();updatePreview()}
  };
  const cancel=()=>cleanup();
- const up=()=>{
+ const up=ev=>{
+   // On iPhone Safari vertical touch movement can be handed to scrolling,
+   // so pointermove is not guaranteed. Use the final pointerup position too.
+   if(ev&&typeof ev.clientY==='number'){endX=ev.clientX;endY=ev.clientY}
+   const dx=endX-startX,dy=endY-startY;
+   if(!axis && Math.abs(dy)>=30 && Math.abs(dy)>Math.abs(dx)*1.15) axis='vertical';
    if(axis==='vertical'){
      const y1=Math.min(startY,endY)-rect.top,y2=Math.max(startY,endY)-rect.top,range=calendarViewRange();
      let start=Math.round(y1/15)*15+range.start,end=Math.round(y2/15)*15+range.start;
