@@ -1292,7 +1292,38 @@ function calendarOccurrenceState(id,occurrenceDate){const t=state.tasks.find(x=>
 function saveCalendarOccurrence(id,occurrenceDate,patch){const t=state.tasks.find(x=>x.id==id);if(!t)return;if((t.repeat||'none')==='none')Object.assign(t,patch);else{t.overrides=t.overrides||{};t.overrides[occurrenceDate]={...(t.overrides[occurrenceDate]||{}),...patch}}}
 function toggleCalendarOccurrence(id,occurrenceDate){const info=calendarOccurrenceState(id,occurrenceDate);if(!info)return;saveCalendarOccurrence(id,occurrenceDate,{done:!info.o.done});persist();renderCalendar();toast(info.o.done?'Отметка снята':'Задача выполнена')}
 function startCalendarPointer(e,id,occurrenceDate){if(e.button!==undefined&&e.button!==0)return;if(e.target.closest('.resize-handle')||e.target.closest('.cal-task-check'))return;e.preventDefault();e.stopPropagation();const info=calendarOccurrenceState(id,occurrenceDate);if(!info)return;const o=info.o,eventEl=e.currentTarget,daysArea=eventEl.closest('.days-area');if(!daysArea)return;const areaRect=daysArea.getBoundingClientRect(),startY=e.clientY,startX=e.clientX,originalDate=o.date,originalStart=timeToMin(o.start||'12:30'),originalEnd=endTimeToMin(o.end||minToEndTime(originalStart+60)),range=calendarViewRange(),duration=Math.max(30,originalEnd-originalStart);let moved=false,newDate=originalDate,newStart=originalStart;const getDayDate=x=>{const count=calendarDays(),col=Math.max(0,Math.min(count-1,Math.floor((x-areaRect.left)/(areaRect.width/count)))),base=new Date(calDate),start=calMode==='week'?monday(base):base;return isoDate(addDays(start,col))};const move=ev=>{if(Math.abs(ev.clientX-startX)>3||Math.abs(ev.clientY-startY)>3)moved=true;if(!moved)return;const deltaY=Math.round((ev.clientY-startY)/15)*15;newStart=Math.max(range.start,Math.min(range.end-duration,originalStart+deltaY));newDate=getDayDate(ev.clientX);const el=document.querySelector(`.event[data-id="${id}"][data-occurrence="${occurrenceDate}"]`);if(el){const count=calendarDays(),dayIndex=[...daysArea.querySelectorAll('.day-column')].findIndex(c=>c.dataset.date===newDate);if(dayIndex>=0){el.style.left=`calc(${dayIndex} * (100% / ${count}) + 4px)`;el.style.width=`calc(100% / ${count} - 8px)`;el.style.top=Math.max(0,newStart-range.start)+'px';el.style.height=Math.max(28,duration)+'px'}}};const up=()=>{document.removeEventListener('pointermove',move);if(moved){calendarSuppressClick=true;saveCalendarOccurrence(id,occurrenceDate,{date:newDate,start:minToTime(newStart),end:minToEndTime(newStart+duration)});persist();renderCalendar();toast(newDate!==originalDate?'Задача перемещена на другой день':'Задача перемещена');setTimeout(()=>calendarSuppressClick=false,0)}};document.addEventListener('pointermove',move);document.addEventListener('pointerup',up,{once:true})}
-function startQuickAddPointer(e,date){if(e.button!==undefined&&e.button!==0)return;if(e.target.closest('.event'))return;e.preventDefault();const col=e.currentTarget,rect=col.getBoundingClientRect(),startY=e.clientY;let moved=false,endY=startY,preview=null;const ensurePreview=()=>{if(preview)return;preview=document.createElement('div');preview.className='quick-add-preview';preview.innerHTML='<span>Новая задача</span>';col.appendChild(preview);requestAnimationFrame(()=>preview.classList.add('show'))};const updatePreview=()=>{if(!preview)return;const y1=Math.min(startY,endY)-rect.top,y2=Math.max(startY,endY)-rect.top;let start=Math.round(y1/15)*15+calendarViewRange().start,end=Math.round(y2/15)*15+calendarViewRange().start;const range=calendarViewRange();start=Math.max(range.start,Math.min(range.end-30,start));end=Math.max(start+30,Math.min(range.end,end));preview.style.top=(start-range.start)+'px';preview.style.height=Math.max(30,end-start)+'px'};const move=ev=>{endY=ev.clientY;if(Math.abs(endY-startY)>5){moved=true;ensurePreview();updatePreview()}};const cleanup=()=>{document.removeEventListener('pointermove',move);document.removeEventListener('pointerup',up);if(preview){preview.classList.remove('show');setTimeout(()=>preview?.remove(),120)}};const up=()=>{if(!moved){cleanup();return}const y1=Math.min(startY,endY)-rect.top,y2=Math.max(startY,endY)-rect.top;let start=Math.round(y1/15)*15+calendarViewRange().start,end=Math.round(y2/15)*15+calendarViewRange().start;const range=calendarViewRange();start=Math.max(range.start,Math.min(range.end-30,start));end=Math.max(start+30,Math.min(range.end,end));cleanup();openTaskModal(0,{date,start:minToTime(start),end:minToEndTime(end)},true)};document.addEventListener('pointermove',move);document.addEventListener('pointerup',up)}
+function startQuickAddPointer(e,date){
+ if(e.button!==undefined&&e.button!==0)return;
+ if(e.target.closest('.event'))return;
+ const col=e.currentTarget,rect=col.getBoundingClientRect(),startY=e.clientY,startX=e.clientX;
+ let endY=startY,endX=startX,moved=false,axis='',preview=null;
+ const cleanup=()=>{document.removeEventListener('pointermove',move);document.removeEventListener('pointerup',up);document.removeEventListener('pointercancel',cancel);if(preview){preview.classList.remove('show');setTimeout(()=>preview&&preview.remove(),120)}};
+ const ensurePreview=()=>{if(preview)return;preview=document.createElement('div');preview.className='quick-add-preview';preview.innerHTML='<span>Новая задача</span>';col.appendChild(preview);requestAnimationFrame(()=>preview.classList.add('show'))};
+ const updatePreview=()=>{if(!preview)return;const y1=Math.min(startY,endY)-rect.top,y2=Math.max(startY,endY)-rect.top;const range=calendarViewRange();let start=Math.round(y1/15)*15+range.start,end=Math.round(y2/15)*15+range.start;start=Math.max(range.start,Math.min(range.end-30,start));end=Math.max(start+30,Math.min(range.end,end));preview.style.top=(start-range.start)+'px';preview.style.height=Math.max(30,end-start)+'px'};
+ const move=ev=>{
+   endX=ev.clientX;endY=ev.clientY;
+   const dx=endX-startX,dy=endY-startY;
+   if(!moved){
+     if(Math.abs(dx)<8&&Math.abs(dy)<8)return;
+     if(Math.abs(dy)>Math.abs(dx)*1.15){axis='vertical';moved=true;ensurePreview();if(ev.cancelable)ev.preventDefault();updatePreview();return}
+     if(Math.abs(dx)>Math.abs(dy)*1.15){axis='horizontal';moved=true;cleanup();return}
+     return;
+   }
+   if(axis==='vertical'){if(ev.cancelable)ev.preventDefault();updatePreview()}
+ };
+ const cancel=()=>cleanup();
+ const up=()=>{
+   if(axis==='vertical'){
+     const y1=Math.min(startY,endY)-rect.top,y2=Math.max(startY,endY)-rect.top,range=calendarViewRange();
+     let start=Math.round(y1/15)*15+range.start,end=Math.round(y2/15)*15+range.start;
+     start=Math.max(range.start,Math.min(range.end-30,start));end=Math.max(start+30,Math.min(range.end,end));
+     cleanup();openTaskModal(0,{date,start:minToTime(start),end:minToEndTime(end)},true);
+   }else cleanup();
+ };
+ document.addEventListener('pointermove',move,{passive:false});
+ document.addEventListener('pointerup',up,{once:true});
+ document.addEventListener('pointercancel',cancel,{once:true});
+}
 function dropCalendar(e,date){let raw=e.dataTransfer.getData('text/plain'),payload;try{payload=JSON.parse(raw)}catch{payload={id:Number(raw),occurrenceDate:state.tasks.find(x=>x.id==Number(raw))?.date}}if(!payload?.id)return;const info=calendarOccurrenceState(payload.id,payload.occurrenceDate);if(!info)return;const rect=e.currentTarget.getBoundingClientRect(),range=calendarViewRange(),duration=Math.max(30,endTimeToMin(info.o.end)-timeToMin(info.o.start)),mins=Math.max(range.start,Math.min(range.end-duration,Math.round((e.clientY-rect.top)/15)*15+range.start));saveCalendarOccurrence(payload.id,payload.occurrenceDate,{date,start:minToTime(mins),end:minToEndTime(mins+duration)});persist();dragState=null;renderCalendar();toast('Задача перемещена')}
 function startResizePointer(e,id,occurrenceDate){if(e.button!==undefined&&e.button!==0)return;e.preventDefault();e.stopPropagation();const info=calendarOccurrenceState(id,occurrenceDate);if(!info)return;const start=timeToMin(info.o.start),originalEnd=endTimeToMin(info.o.end),startY=e.clientY;let lastY=startY;const move=ev=>{lastY=ev.clientY;const delta=Math.round((lastY-startY)/15)*15;const newEnd=Math.max(start+30,Math.min(24*60,originalEnd+delta));const el=document.querySelector(`.event[data-id="${id}"][data-occurrence="${occurrenceDate}"]`);if(el)el.style.height=Math.max(28,newEnd-Math.max(calendarViewRange().start,start))+'px'};const up=()=>{document.removeEventListener('pointermove',move);const delta=Math.round((lastY-startY)/15)*15;const newEnd=Math.max(start+30,Math.min(24*60,originalEnd+delta));saveCalendarOccurrence(id,occurrenceDate,{end:minToEndTime(newEnd)});persist();renderCalendar();toast('Длительность изменена')};document.addEventListener('pointermove',move);document.addEventListener('pointerup',up,{once:true})}
 function setCalMode(m){calMode=m;renderCalendar()}
@@ -1842,6 +1873,18 @@ async function openMotivationFile(id,event){
 .planner-empty{padding:28px 16px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:14px}
 @media(max-width:700px){.planner-task-toolbar{display:block}.planner-search{width:100%;margin-bottom:8px}.planner-filters{width:100%;display:grid;grid-template-columns:repeat(3,1fr)}.planner-filters button{width:100%}}
 </style>
+
+<script>
+/* Final mobile task-swipe binding: runs after planner v4 is loaded. */
+(function(){
+ function bindSwipesNow(){
+   try{if(typeof bindTodayTaskSwipes==='function')bindTodayTaskSwipes();}catch(e){}
+   try{if(typeof bindPlannerTaskSwipes==='function')bindPlannerTaskSwipes();}catch(e){}
+ }
+ setTimeout(bindSwipesNow,0);
+ setTimeout(bindSwipesNow,120);
+})();
+</script>
 </body></html>`);
    win.document.close();
    try{win.focus()}catch(e){}
