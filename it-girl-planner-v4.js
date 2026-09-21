@@ -458,6 +458,7 @@
     const m=maddyData(),msgs=life().maddyChat||[];
     life().maddyChat=Array.isArray(msgs)?msgs:[];
     const history=life().maddyChat;
+    document.getElementById('page').classList.add('maddy-chat-page');
     document.getElementById('page').innerHTML=
       '<header class="page-head"><div class="eyebrow">Мэдди</div><h1 class="title">Спросить Мэдди</h1><div class="date">Опиши ситуацию. Ответ строится на твоих правилах, ценностях и образе Мэдди.</div></header>'+
       maddyTabs('ask')+
