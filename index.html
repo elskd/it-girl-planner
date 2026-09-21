@@ -1000,6 +1000,18 @@ function toggleTask(id){const t=state.tasks.find(x=>x.id==id);if(!t)return;t.don
 function deleteTask(id){taskDeleteConfirm(id)}
 let plannerMode='tasks';
 let selectedPlannerDate=todayISO();
+let plannerTaskQuery='';
+let plannerTaskFilter='all';
+function setPlannerTaskQuery(v){plannerTaskQuery=String(v||'');renderPlanner()}
+function setPlannerTaskFilter(v){plannerTaskFilter=v||'all';renderPlanner()}
+function plannerTaskVisible(t){
+ const q=plannerTaskQuery.trim().toLowerCase();
+ if(plannerTaskFilter==='open' && t.done)return false;
+ if(plannerTaskFilter==='done' && !t.done)return false;
+ if(q && !String(t.title||'').toLowerCase().includes(q) && !String(t.notes||'').toLowerCase().includes(q) && !String(t.area||'').toLowerCase().includes(q))return false;
+ return true;
+}
+
 function plannerWeekStart(){return monday(parseDate(selectedPlannerDate))}
 function shiftPlannerWeek(delta){selectedPlannerDate=isoDate(addDays(plannerWeekStart(),delta*7));renderPlanner()}
 let plannerCalendarOpen=null;
@@ -1175,9 +1187,10 @@ function bindPlannerTaskSwipes(){
 function renderPlanner(){document.getElementById('page').innerHTML='<header class="page-head"><div class="eyebrow">Организация</div><h1 class="title">Планер</h1><div class="date">Все задачи и привычки — в одном разделе, между ними можно переключаться.</div></header><div class="section-head"><div class="tabs"><button class="'+(plannerMode==='tasks'?'active':'')+'" onclick="switchPlanner(\'tasks\')">Задачи</button><button class="'+(plannerMode==='habits'?'active':'')+'" onclick="switchPlanner(\'habits\')">Привычки</button></div></div>'+(plannerMode==='tasks'?plannerTasks():plannerHabits());bindPlannerDateSwipe();bindPlannerTaskSwipes()}
 function plannerTasks(){
  const selected=selectedPlannerDate;
- const tasks=state.tasks.filter(t=>taskIsActive(t)&&t.date===selected).sort((a,b)=>{if(a.allDay&&!b.allDay)return -1;if(!a.allDay&&b.allDay)return 1;return timeToMin(a.start||'00:00')-timeToMin(b.start||'00:00')});
- const count=tasks.length;
- return '<section class="card planner-tasks-card"><div class="section-head"><div><h2>Задачи</h2><div class="date">'+fmtDate(selected)+' · выбранный день</div></div><button class="btn planner-add-btn" onclick="openTaskModal(0,{date:\''+selected+'\'})"><span class="planner-add-label">+ Добавить</span><span class="planner-add-plus">+</span></button></div>'+plannerDatePicker('tasks')+'<div class="planner-task-list">'+(count?renderTasksHTML(tasks):'<div class="planner-empty">Задач на этот день пока нет.</div>')+'</div></section>';
+ const allTasks=state.tasks.filter(t=>taskIsActive(t)&&t.date===selected).sort((a,b)=>{if(a.allDay&&!b.allDay)return -1;if(!a.allDay&&b.allDay)return 1;return timeToMin(a.start||'00:00')-timeToMin(b.start||'00:00')});
+ const tasks=allTasks.filter(plannerTaskVisible);
+ const openCount=allTasks.filter(t=>!t.done).length,doneCount=allTasks.filter(t=>t.done).length;
+ return '<section class="card planner-tasks-card"><div class="section-head"><div><h2>Задачи</h2><div class="date">'+fmtDate(selected)+' · '+openCount+' открытых · '+doneCount+' выполненных</div></div><button class="btn planner-add-btn" onclick="openTaskModal(0,{date:\''+selected+'\'})"><span class="planner-add-label">+ Добавить</span><span class="planner-add-plus">+</span></button></div>'+plannerDatePicker('tasks')+'<div class="planner-task-toolbar"><div class="planner-search"><span>⌕</span><input value="'+esc(plannerTaskQuery)+'" oninput="setPlannerTaskQuery(this.value)" placeholder="Поиск задач" aria-label="Поиск задач"></div><div class="planner-filters"><button class="'+(plannerTaskFilter==='all'?'active':'')+'" onclick="setPlannerTaskFilter(\'all\')">Все</button><button class="'+(plannerTaskFilter==='open'?'active':'')+'" onclick="setPlannerTaskFilter(\'open\')">Открытые</button><button class="'+(plannerTaskFilter==='done'?'active':'')+'" onclick="setPlannerTaskFilter(\'done\')">Готово</button></div></div><div class="planner-task-list">'+(tasks.length?renderTasksHTML(tasks):'<div class="planner-empty">'+(allTasks.length?'По этому фильтру задач нет.':'Задач на этот день пока нет.')+'</div>')+'</div></section>';
 }
 function priorityRank(p){return p==='high'?0:p==='medium'?1:2}
 let selectedHabitDate=todayISO();
@@ -1819,7 +1832,17 @@ async function openMotivationFile(id,event){
 #maddyAskForm textarea{flex:1;min-width:0}
 #maddyAskForm button{flex:0 0 auto;white-space:nowrap}
 #maddyAskForm button:disabled{opacity:.6;cursor:default}
-</style>\n</head><body><div class="head"><div class="name">${safeName}</div></div><div class="viewer">${body}</div><style id="app-theme-settings">.app-accent-custom{margin-top:14px}.theme-choices{display:grid;grid-template-columns:1fr 1fr;gap:9px}.theme-choice{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:12px;padding:10px;text-align:left;display:flex;align-items:center;gap:9px}.theme-choice.active{border-color:var(--accent);background:var(--accent-soft)}.theme-preview{width:38px;height:28px;border-radius:7px;border:1px solid var(--line);display:block;flex:0 0 auto}.theme-preview-classic{background:linear-gradient(135deg,#f7f2ef 0 50%,#8d2439 50%)}.theme-preview-pastel{background:linear-gradient(135deg,#fff 0 35%,#f2dfe5 35% 68%,#c7d9d2 68%)}.pastel-theme .nav button:hover,.pastel-theme .tasks-section .task:hover{background:color-mix(in srgb,var(--accent) 6%,white)}.pastel-theme .planner-day-head,.pastel-theme .habit-group-card .group-title{background:color-mix(in srgb,var(--accent) 4%,white)}.pastel-theme .sidebar,.pastel-theme .card,.pastel-theme .tasks-section,.pastel-theme .planner-day,.pastel-theme .habit-group-card{background:#fff}@media(max-width:700px){.theme-choices{grid-template-columns:1fr}}</style></body></html>`);
+</style>\n</head><body><div class="head"><div class="name">${safeName}</div></div><div class="viewer">${body}</div><style id="app-theme-settings">.app-accent-custom{margin-top:14px}.theme-choices{display:grid;grid-template-columns:1fr 1fr;gap:9px}.theme-choice{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:12px;padding:10px;text-align:left;display:flex;align-items:center;gap:9px}.theme-choice.active{border-color:var(--accent);background:var(--accent-soft)}.theme-preview{width:38px;height:28px;border-radius:7px;border:1px solid var(--line);display:block;flex:0 0 auto}.theme-preview-classic{background:linear-gradient(135deg,#f7f2ef 0 50%,#8d2439 50%)}.theme-preview-pastel{background:linear-gradient(135deg,#fff 0 35%,#f2dfe5 35% 68%,#c7d9d2 68%)}.pastel-theme .nav button:hover,.pastel-theme .tasks-section .task:hover{background:color-mix(in srgb,var(--accent) 6%,white)}.pastel-theme .planner-day-head,.pastel-theme .habit-group-card .group-title{background:color-mix(in srgb,var(--accent) 4%,white)}.pastel-theme .sidebar,.pastel-theme .card,.pastel-theme .tasks-section,.pastel-theme .planner-day,.pastel-theme .habit-group-card{background:#fff}@media(max-width:700px){.theme-choices{grid-template-columns:1fr}}</style>
+<style id="planner-polish-v7">
+.planner-task-toolbar{display:flex;gap:10px;align-items:center;margin:4px 0 14px;padding:0 2px;flex-wrap:wrap}
+.planner-search{height:42px;display:flex;align-items:center;gap:8px;flex:1 1 220px;min-width:180px;padding:0 12px;border:1px solid var(--line);border-radius:12px;background:var(--card)}
+.planner-search span{font-size:20px;color:var(--muted);line-height:1}.planner-search input{border:0;outline:0;background:transparent;width:100%;font:inherit;color:var(--ink);min-width:0}
+.planner-filters{display:flex;gap:4px;padding:3px;border:1px solid var(--line);border-radius:12px;background:var(--panel)}
+.planner-filters button{border:0;background:transparent;color:var(--muted);padding:8px 11px;border-radius:9px;font:inherit;font-size:13px;cursor:pointer}.planner-filters button.active{background:var(--card);color:var(--ink);box-shadow:0 1px 4px rgba(30,20,20,.08)}
+.planner-empty{padding:28px 16px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:14px}
+@media(max-width:700px){.planner-task-toolbar{display:block}.planner-search{width:100%;margin-bottom:8px}.planner-filters{width:100%;display:grid;grid-template-columns:repeat(3,1fr)}.planner-filters button{width:100%}}
+</style>
+</body></html>`);
    win.document.close();
    try{win.focus()}catch(e){}
  }catch(e){console.warn('File viewer error',e);}
