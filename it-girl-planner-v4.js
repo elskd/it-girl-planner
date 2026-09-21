@@ -548,7 +548,7 @@
 
   function renderMaddyV3(view){
     ensureLifeSystemData();
-    if(document.body) document.body.classList.toggle('maddy-chat-mode',view==='ask');
+    if(document.body){document.body.classList.toggle('maddy-chat-mode',view==='ask');document.documentElement.classList.toggle('maddy-chat-mode',view==='ask');}
     if(view==='ask') return renderMaddyAsk();
     if(view==='rules') return renderMaddyListView('rules','Правила Мэдди','Принципы, которыми она руководствуется.');
     if(view==='behavior') return renderMaddyListView('behaviors','Как ведёт себя Мэдди','Что она делает, как принимает решения и как относится к себе.');
