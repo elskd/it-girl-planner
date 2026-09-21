@@ -40,7 +40,7 @@
           todayTasks:(state.tasks||[]).filter(function(t){return t.date===(typeof todayISO==='function'?todayISO():new Date().toISOString().slice(0,10))&&!t.done}).map(function(t){return {title:t.title,priority:t.priority||'',area:t.area||'',start:t.start||'',end:t.end||''}}),
           maddy:life().maddy,
           aiStyle:life().aiStyle
-        })}),
+        }}),
         signal:controller.signal,cache:'no-store',mode:'cors'
       });
       let data={}; try{data=await r.json()}catch(e){}
