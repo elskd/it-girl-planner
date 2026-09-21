@@ -30,7 +30,7 @@
 
   async function plannerDirectAI(kind,message){
     const controller=new AbortController();
-    const timer=setTimeout(function(){controller.abort()},35000);
+    const timer=setTimeout(function(){controller.abort()},120000);
     try{
       const r=await fetch('https://ajrcehwxqgbloixgvcxc.supabase.co/functions/v1/it-girl-ai',{
         method:'POST',
@@ -49,7 +49,7 @@
       if(!answer) throw new Error('ИИ не вернул текстовый ответ');
       return answer;
     }catch(e){
-      if(e&&e.name==='AbortError') throw new Error('ИИ не ответил за 20 секунд. Попробуй ещё раз.');
+      if(e&&e.name==='AbortError') throw new Error('ИИ не ответил за 120 секунд. Попробуй ещё раз.');
       throw e;
     }finally{clearTimeout(timer)}
   }
