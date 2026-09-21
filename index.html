@@ -1869,14 +1869,28 @@ async function openMotivationFile(id,event){
 </style>
 
 <script>
-/* Final mobile task-swipe binding: runs after planner v4 is loaded. */
+/* Final mobile task-swipe binding. Keep it attached after every Today/Planner render. */
 (function(){
  function bindSwipesNow(){
    try{if(typeof bindTodayTaskSwipes==='function')bindTodayTaskSwipes();}catch(e){}
    try{if(typeof bindPlannerTaskSwipes==='function')bindPlannerTaskSwipes();}catch(e){}
  }
- setTimeout(bindSwipesNow,0);
- setTimeout(bindSwipesNow,120);
+ function wrap(name){
+   if(typeof window[name]!=='function'||window['__swipeWrapped_'+name])return;
+   const original=window[name];
+   window['__swipeWrapped_'+name]=true;
+   window[name]=function(){
+     const result=original.apply(this,arguments);
+     setTimeout(bindSwipesNow,0);
+     return result;
+   };
+ }
+ setTimeout(function(){
+   wrap('renderToday');
+   wrap('renderPlanner');
+   bindSwipesNow();
+ },0);
+ setTimeout(bindSwipesNow,150);
 })();
 </script>
 </body></html>`);
