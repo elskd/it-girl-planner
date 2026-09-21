@@ -368,7 +368,7 @@
       '<section class="card v3-mentor-hero"><div><div class="label">Моя рекомендация сейчас</div><div class="v3-mentor-recommendation">'+escV(mentorRecommendation())+'</div></div><button class="btn" onclick="addMentorRecommendation()">Добавить в Сегодня</button></section>'+
       '<section class="card section v3-chat">'+
         '<div class="section-head"><div><h2>Поговорить с ментором</h2><div class="date">Напиши ситуацию так, как написала бы человеку.</div></div></div>'+
-        '<div class="v3-chat-messages">'+(msgs.length?msgs.map(function(m){return '<div class="v3-chat-message '+(m.role==='user'?'user':'mentor')+'"><div class="v3-chat-role">'+(m.role==='user'?'Ты':'Ментор')+'</div><div class="v3-chat-text">'+escV(m.text).replace(/\n/g,'<br>')+'</div></div>'}).join(''):'<div class="v3-chat-empty">Например: «Я опять перенесла важную задачу. Что мне сейчас делать?»</div>')+'</div>'+
+        '<div class="v3-chat-messages">'+(msgs.length?msgs.map(function(m){return '<div class="v3-chat-message '+(m.role==='user'?'user':'mentor')+'"><div class="v3-chat-role">'+(m.role==='user'?'Ты':'Ментор')+'</div><div class="v3-chat-text">'+plannerMarkdownBlock(m.text)+'</div></div>'}).join(''):'<div class="v3-chat-empty">Например: «Я опять перенесла важную задачу. Что мне сейчас делать?»</div>')+'</div>'+
         '<form id="v3MentorForm" class="v3-chat-input-row" autocomplete="off"><textarea id="v3MentorInput" class="text-input" rows="2" placeholder="Что происходит?" autocomplete="off"></textarea><button id="v3MentorButton" type="submit" class="btn">Отправить</button></form>'+
       '</section>'+
       '<section class="card section"><div class="section-head"><h2>Что ментор учитывает</h2></div><div class="v3-chip-list"><span>цели</span><span>задачи</span><span>прогресс</span><span>историю недели</span><span>твои правила Мэдди</span></div></section>';
@@ -455,7 +455,7 @@
       '<header class="page-head"><div class="eyebrow">Мэдди</div><h1 class="title">Спросить Мэдди</h1><div class="date">Опиши ситуацию. Ответ строится на твоих правилах, ценностях и образе Мэдди.</div></header>'+
       maddyTabs('ask')+
       '<section class="card section v3-chat">'+
-        '<div class="v3-chat-messages">'+(history.length?history.map(function(x){return '<div class="v3-chat-message '+(x.role==='user'?'user':'mentor')+'"><div class="v3-chat-role">'+(x.role==='user'?'Ты':'Мэдди')+'</div><div class="v3-chat-text">'+escV(x.text).replace(/\n/g,'<br>')+'</div></div>'}).join(''):'<div class="v3-chat-empty">«Я в такой-то ситуации. Что Мэдди сделала бы на моём месте?»</div>')+'</div>'+
+        '<div class="v3-chat-messages">'+(history.length?history.map(function(x){return '<div class="v3-chat-message '+(x.role==='user'?'user':'mentor')+'"><div class="v3-chat-role">'+(x.role==='user'?'Ты':'Мэдди')+'</div><div class="v3-chat-text">'+plannerMarkdownBlock(x.text)+'</div></div>'}).join(''):'<div class="v3-chat-empty">«Я в такой-то ситуации. Что Мэдди сделала бы на моём месте?»</div>')+'</div>'+
         '<form id="maddyAskForm" class="v3-chat-input-row" onsubmit="return askMaddyV3(event)" autocomplete="off"><textarea id="maddyAskInput" class="text-input" rows="3" placeholder="Я в такой-то ситуации…" autocomplete="off" autocorrect="on" autocapitalize="sentences" spellcheck="true"></textarea><button type="submit" class="btn">Спросить</button></form>'+
       '</section>';
   }
