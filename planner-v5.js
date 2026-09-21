@@ -35,7 +35,7 @@ function addCss(){
 }
 
 function quickAdd(){
-  var i=document.getElementById('pv5QuickInput');
+  var i=document.getElementById('pv5AddInput');
   if(!i)return;
   var title=i.value.trim();
   if(!title)return;
@@ -111,10 +111,10 @@ function buildToolbar(root){
   wrap.id='pv5Toolbar';
   wrap.className='pv5-toolbar';
   wrap.innerHTML=
-    '<div class="pv5-search-row">'+
-      '<input id="pv5QuickInput" class="pv5-search" placeholder="Поиск или быстро добавить задачу…" autocomplete="off">'+
+    '<div class="pv5-search-row"> class="pv5-search" placeholder="Быстро добавить задачу…" autocomplete="off">'+
       '<button class="pv5-add" type="button" onclick="pv5QuickAdd()">Добавить</button>'+
     '</div>'+
+    '<div class="pv5-search-row"><input id="pv5SearchInput" class="pv5-search" placeholder="Поиск по задачам…" autocomplete="off"></div>'+
     '<div class="pv5-filters">'+
       '<button class="pv5-filter active" data-pv5-type="status" data-pv5-value="all" type="button">Все</button>'+
       '<button class="pv5-filter" data-pv5-type="status" data-pv5-value="open" type="button">Открытые</button>'+
@@ -132,20 +132,14 @@ function buildToolbar(root){
       else setFilter(type,value);
     });
   });
-  var input=wrap.querySelector('#pv5QuickInput');
+  var input=wrap.querySelector('#pv5AddInput');
   input.addEventListener('keydown',function(e){
-    if(e.key==='Enter'&&!e.shiftKey){
-      e.preventDefault();
-      if(this.value.trim())quickAdd();
-    }
+    if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();if(this.value.trim())quickAdd();}
   });
-  input.addEventListener('input',function(){
+  var search=wrap.querySelector('#pv5SearchInput');
+  search.addEventListener('input',function(){
     pv5State.query=this.value;
-    if(!this.value.trim())applyFilters();
-    else{
-      // When typing, search is applied without changing the selected status/priority filters.
-      applyFilters();
-    }
+    applyFilters();
   });
 }
 
@@ -167,7 +161,7 @@ function inject(){
 window.pv5QuickAdd=quickAdd;
 window.pv5ResetFilters=function(){
   pv5State={query:'',status:'all',priority:'all'};
-  var i=document.getElementById('pv5QuickInput');if(i)i.value='';
+  var i=document.getElementById('pv5AddInput');if(i)i.value='';
   applyFilters();renderFilterState();
 };
 
