@@ -264,6 +264,46 @@
     state.tasks.push(t);persist();go('today');toast('Рекомендация добавлена в Сегодня');
   }
 
+  let v3MentorSending=false;
+  async function v3SubmitMentor(event){
+    if(event&&event.preventDefault)event.preventDefault();
+    if(v3MentorSending)return false;
+    const input=document.getElementById('v3MentorInput');
+    const text=String(input?.value||'').trim();
+    if(!text)return false;
+    v3MentorSending=true;
+    const ls=life();
+    ls.mentorMessages=Array.isArray(ls.mentorMessages)?ls.mentorMessages:[];
+    const b=document.getElementById('v3MentorButton');
+    if(b){b.disabled=true;b.textContent='Отправить';}
+    ls.mentorMessages.push({id:uid('msg:'),role:'user',text,createdAt:new Date().toISOString()});
+    input.value='';
+    persist();
+    renderMentorV3();
+    const box=document.querySelector('.v3-chat-messages');
+    const thinking=document.createElement('div');
+    thinking.className='v3-chat-message ai-loading';
+    thinking.innerHTML='<div class="v3-chat-role">Ментор</div><div class="v3-chat-text">Думаю…</div>';
+    box?.appendChild(thinking);
+    try{
+      const answer=window.itGirlAskAI?await window.itGirlAskAI('mentor',text):'Ментор сейчас недоступен: AI-модуль не загрузился.';
+      ls.mentorMessages.push({id:uid('msg:'),role:'mentor',text:answer,createdAt:new Date().toISOString()});
+      persist();
+      thinking.remove();
+      renderMentorV3();
+    }catch(e){
+      thinking.remove();
+      ls.mentorMessages.push({id:uid('msg:'),role:'mentor',text:'Не получилось получить ответ ИИ: '+(e?.message||'ошибка соединения'),createdAt:new Date().toISOString()});
+      persist();
+      renderMentorV3();
+    }finally{
+      v3MentorSending=false;
+      const bb=document.getElementById('v3MentorButton');
+      if(bb){bb.disabled=false;bb.textContent='Отправить';}
+    }
+    return false;
+  }
+
   function renderMentorV3(){
     const ls=life(),msgs=ls.mentorMessages||[];
     document.getElementById('page').innerHTML=
@@ -363,20 +403,45 @@
       '</section>';
   }
 
-  function askMaddyV3(){
-    const input=document.getElementById('maddyAskInput'),text=String(input?.value||'').trim();
-    if(!text)return;
-    const m=maddyData();
-    let answer='Мэдди сначала спросила бы себя: какое решение больше уважает мои цели, время и границы — а не мой страх в эту секунду?';
-    if(m.rules.length) answer+='\\n\\nТвоё правило, которое здесь стоит проверить: «'+m.rules[0]+'».';
-    if(m.values.length) answer+='\\n\\nИз ценностей Мэдди я бы опиралась на: '+m.values.slice(0,3).join(', ')+'.';
-    if(m.never.length) answer+='\\n\\nИ она точно не стала бы делать то, что ты сама записала в «Мэдди никогда»: '+m.never[0]+'.';
-    if(/отнош|парен|муж|свидан|сообщ|игнор|перенос/.test(text.toLowerCase())) answer+='\\n\\nВ этой ситуации я бы не советовала тебе добиваться человека любой ценой. Сначала посмотри на взаимность и на то, как его поведение совпадает с твоими стандартами.';
-    else if(/работ|деньг|клиент|задач|цель/.test(text.toLowerCase())) answer+='\\n\\nДля работы и целей Мэдди выбрала бы конкретное действие, которое можно сделать сегодня, вместо бесконечного обдумывания.';
-    life().maddyChat=Array.isArray(life().maddyChat)?life().maddyChat:[];
-    life().maddyChat.push({id:uid('maddy:'),role:'user',text:text});
-    life().maddyChat.push({id:uid('maddy:'),role:'maddy',text:answer});
-    persist();renderMaddyV3('ask');
+  let v3MaddySending=false;
+  async function askMaddyV3(event){
+    if(event&&event.preventDefault)event.preventDefault();
+    if(v3MaddySending)return false;
+    const input=document.getElementById('maddyAskInput');
+    const text=String(input?.value||'').trim();
+    if(!text)return false;
+    v3MaddySending=true;
+    const form=document.getElementById('maddyAskForm');
+    const button=form?.querySelector('button[type="submit"]');
+    if(button){button.disabled=true;button.textContent='Спросить';}
+    const ls=life();
+    ls.maddyChat=Array.isArray(ls.maddyChat)?ls.maddyChat:[];
+    ls.maddyChat.push({id:uid('maddy:'),role:'user',text});
+    input.value='';
+    persist();
+    renderMaddyV3('ask');
+    const box=document.querySelector('.v3-chat-messages');
+    const thinking=document.createElement('div');
+    thinking.className='v3-chat-message ai-loading';
+    thinking.innerHTML='<div class="v3-chat-role">Мэдди</div><div class="v3-chat-text">Думаю…</div>';
+    box?.appendChild(thinking);
+    try{
+      const answer=window.itGirlAskAI?await window.itGirlAskAI('maddy',text):'Мэдди сейчас недоступна: AI-модуль не загрузился.';
+      ls.maddyChat.push({id:uid('maddy:'),role:'maddy',text:answer});
+      persist();
+      thinking.remove();
+      renderMaddyV3('ask');
+    }catch(e){
+      thinking.remove();
+      ls.maddyChat.push({id:uid('maddy:'),role:'maddy',text:'Не получилось получить ответ ИИ: '+(e?.message||'ошибка соединения')});
+      persist();
+      renderMaddyV3('ask');
+    }finally{
+      v3MaddySending=false;
+      const b=document.querySelector('#maddyAskForm button[type="submit"]');
+      if(b){b.disabled=false;b.textContent='Спросить';}
+    }
+    return false;
   }
 
   function renderMaddyNotes(){
@@ -525,6 +590,11 @@
       window.__itGirlOriginalRenderMaddy=window.renderMaddy;
       window.renderMaddy=function(){renderMaddyV3('main')};
     }
+
+    document.addEventListener('submit',function(e){
+      if(e.target?.id==='maddyAskForm'){e.preventDefault();askMaddyV3(e);}
+      if(e.target?.id==='v3MentorForm'){e.preventDefault();v3SubmitMentor(e);}
+    },true);
 
     document.addEventListener('keydown',function(e){
       if(e.target && (e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA') && e.key==='Enter' && (e.metaKey||e.ctrlKey)){
