@@ -447,6 +447,13 @@
       '</section>';
   }
 
+  
+  function restoreMaddyChatPosition(){
+    const box=document.querySelector('.v3-chat-messages');
+    if(!box)return;
+    requestAnimationFrame(function(){box.scrollTop=box.scrollHeight;});
+  }
+
   function renderMaddyAsk(){
     const m=maddyData(),msgs=life().maddyChat||[];
     life().maddyChat=Array.isArray(msgs)?msgs:[];
@@ -482,17 +489,20 @@
     thinking.className='v3-chat-message ai-loading';
     thinking.innerHTML='<div class="v3-chat-role">Мэдди</div><div class="v3-chat-text">Думаю…</div>';
     box?.appendChild(thinking);
+    restoreMaddyChatPosition();
     try{
       const answer=await plannerDirectAI('maddy',text);
       ls.maddyChat.push({id:uid('maddy:'),role:'maddy',text:answer});
       persist();
       thinking.remove();
       renderMaddyV3('ask');
+      restoreMaddyChatPosition();
     }catch(e){
       thinking.remove();
       ls.maddyChat.push({id:uid('maddy:'),role:'maddy',text:'Не получилось получить ответ ИИ: '+(e?.message||'ошибка соединения')});
       persist();
       renderMaddyV3('ask');
+      restoreMaddyChatPosition();
     }finally{
       v3MaddySending=false;
       const b=document.querySelector('#maddyAskForm button');
@@ -538,6 +548,7 @@
 
   function renderMaddyV3(view){
     ensureLifeSystemData();
+    if(document.body) document.body.classList.toggle('maddy-chat-mode',view==='ask');
     if(view==='ask') return renderMaddyAsk();
     if(view==='rules') return renderMaddyListView('rules','Правила Мэдди','Принципы, которыми она руководствуется.');
     if(view==='behavior') return renderMaddyListView('behaviors','Как ведёт себя Мэдди','Что она делает, как принимает решения и как относится к себе.');
