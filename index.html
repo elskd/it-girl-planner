@@ -6,7 +6,7 @@
 <title>It Girl Planner</title>
 <style>
 :root{
-  --bg:#f1ebe8;--panel:#f7f2ef;--card:#fcf8f5;--ink:#252122;--muted:#827879;--line:#e7ded9;
+  --bg:#f7f2ef;--panel:#fbf8f5;--card:#fffdfa;--ink:#252122;--muted:#827879;--line:#e7ded9;
   --accent:#8d2439;--accent-soft:#f1e3e6;--danger:#a33b4f;--radius:18px;
   font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif;
 }
@@ -669,17 +669,26 @@ body.calendar-quick-adding *{
     <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="7.5" r="3.5"/><path d="M5 20c.8-3.7 3.2-5.7 7-5.7s6.2 2 7 5.7"/></svg>
   </button>
   <button class="rail-btn" data-page="cabinet" aria-label="Мой кабинет" title="Мой кабинет"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3.5h9l3 3v14H6z"/><path d="M15 3.5v4h3M9 12h6M9 15.5h5"/></svg></button>
+  <button class="rail-btn" data-page="settings" aria-label="Настройки" title="Настройки"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12.000,4.800 13.268,3.090 14.238,3.283 14.755,5.348 17.091,6.909 19.197,6.596 19.747,7.419 18.652,9.245 19.200,12.000 20.910,13.268 20.717,14.238 18.652,14.755 17.091,17.091 17.404,19.197 16.581,19.747 14.755,18.652 12.000,19.200 10.732,20.910 9.762,20.717 9.245,18.652 6.909,17.091 4.803,17.404 4.253,16.581 5.348,14.755 4.800,12.000 3.090,10.732 3.283,9.762 5.348,9.245 6.909,6.909 6.596,4.803 7.419,4.253 9.245,5.348 Z"/><circle cx="12" cy="12" r="3"/></svg></button>
 </div>
 <aside class="sidebar">
   <div class="sidebar-panel-head"><div class="brand">It Girl <span>Planner</span></div><button class="sidebar-collapse" type="button" onclick="toggleDesktopSidebar()" title="Скрыть меню">‹</button></div>
   <div class="sidebar-section-label">ЭКРАНЫ</div>
   <nav class="nav sidebar-system">
     <button type="button" data-page="today"><span class="side-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10.8 12 3l9 7.8v9.2a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg></span><span>Сегодня</span></button>
+    <button type="button" data-page="tomorrow"><span class="side-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3 2"/></svg></span><span>Завтра</span></button>
+    <button type="button" data-page="next7"><span class="side-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M7 3v4M17 3v4M4 9h16M8 13h5M8 16h5"/></svg></span><span>Следующие 7 дней</span></button>
+    <button type="button" data-page="inbox"><span class="side-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="16" height="14" rx="2"/><path d="M7 9h10M7 13h7"/></svg></span><span>Входящие</span></button>
   </nav>
   <div class="sidebar-divider"></div>
-  <div class="sidebar-section-label sidebar-list-heading"><span>СПИСКИ</span></div>
+  <div class="sidebar-section-label sidebar-list-heading"><span>СПИСКИ</span><button type="button" onclick="go('settings')">＋</button></div>
   <nav id="sidebarLists" class="nav sidebar-lists"></nav>
   <div class="sidebar-divider"></div>
+  <nav class="nav sidebar-task-status">
+    <button type="button" onclick="go('completed')"><span class="side-icon">✓</span><span>Выполнено</span><span class="sidebar-list-count" id="sidebarCompletedCount"></span></button>
+    <button type="button" onclick="go('not-done')"><span class="side-icon">×</span><span>Не будет выполнено</span><span class="sidebar-list-count" id="sidebarNotDoneCount"></span></button>
+    <button type="button" onclick="go('trash')"><span class="side-icon">⌫</span><span>Корзина</span><span class="sidebar-list-count" id="sidebarTrashCount"></span></button>
+  </nav>
 </aside>
 <nav class="mobile-nav" aria-label="Основная навигация">
   <button type="button" data-page="today" aria-label="Главная" title="Главная">
@@ -701,6 +710,7 @@ body.calendar-quick-adding *{
 <div class="mobile-more-menu" aria-hidden="true">
   <button type="button" data-page="maddy"><span class="more-icon">M</span><span>Maddy</span></button>
   <button type="button" data-page="cabinet"><span class="more-icon svg-more-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4.5h10l4 4V20H5z"/><path d="M15 4.5V9h4M8 13h8M8 16.5h5"/></svg></span><span>Мой кабинет</span></button>
+  <button type="button" data-page="settings"><span class="more-icon svg-more-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 7h14M5 12h14M5 17h14"/><circle cx="9" cy="7" r="2"/><circle cx="15" cy="12" r="2"/><circle cx="11" cy="17" r="2"/></svg></span><span>Настройки</span></button>
 </div>
 <main class="main"><div id="page" class="page"></div></main>
 </div>
@@ -1330,7 +1340,7 @@ function saveRPGSource(type,id){
 function openRPGSourceManager(type='task'){
   const r=ensureRPG(),labels={task:'Задачи',habit:'Привычки',goal:'Цели'},arr=type==='task'?state.tasks:type==='habit'?state.habits:state.goals;
   const rows=arr.length?arr.map(x=>{const xp=Number(type==='goal'?x.rewardXP:x.rpgXP)||0;const traits=Array.isArray(x.rpgTraits)?x.rpgTraits:[];return `<div class="rpg-source-row"><div><div class="rpg-source-name">${esc(x.title||x.name)}</div><div class="rpg-source-meta">${xp} XP · ${traits.length?traits.map(esc).join(', '):'черты не выбраны'}</div></div><span class="rpg-pill">${labels[type]}</span><button class="mini" onclick="openRPGSourceModal('${type}',${x.id})">✎</button></div>`}).join(''):'<div class="empty">Пока ничего нет.</div>';
-  document.getElementById('modal').innerHTML=`<div class="modal-head"><div class="modal-title">RPG Sources</div><button class="close" onclick="closeModal()">×</button></div><div class="rpg-source-toolbar rpg-source-tabs"><button class="btn ghost ${type==='task'?'active':''}" onclick="openRPGSourceManager('task')">Задачи</button><button class="btn ghost ${type==='habit'?'active':''}" onclick="openRPGSourceManager('habit')">Привычки</button><button class="btn ghost ${type==='goal'?'active':''}" onclick="openRPGSourceManager('goal')">Цели</button></div><div class="rpg-list" style="margin-top:8px">${rows}</div>`;openModal();
+  document.getElementById('modal').innerHTML=`<div class="modal-head"><div class="modal-title">RPG Sources</div><button class="close" onclick="closeModal()">×</button></div><div class="rpg-source-toolbar rpg-source-tabs"><button class="btn ghost ${type==='task'?'active':''}" onclick="openRPGSourceManager('task')">Задачи</button><button class="btn ghost ${type==='habit'?'active':''}" onclick="openRPGSourceManager('habit')">Привычки</button></div><div class="rpg-list" style="margin-top:8px">${rows}</div>`;openModal();
 }
 function openRPGTraitModal(name){
   const r=ensureRPG(),t=rpgTrait(name);if(!t)return;
@@ -1410,12 +1420,6 @@ function renderMaddy(){
               <button class="maddy-photo-button" type="button" aria-label="Изменить фото Maddy" onclick="document.getElementById('maddyPhotoInput').click()"><svg viewBox="0 0 24 24" width=15 height=15 aria-hidden="true"><path d="M7.5 6.5 9 4.5h6l1.5 2H19a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h2.5Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><circle cx="12" cy="12.5" r="3.25" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></button>
               <input id="maddyPhotoInput" class="maddy-photo-input" type="file" accept="image/*" onchange="handleMaddyPhotoUpload(this)">
             </div>
-          </div>
-          <div class="maddy-metric">
-            <div class="maddy-metric-label">Overall Progress</div>
-            <div class="maddy-overall">${overall}%</div>
-            <div class="maddy-overall-bar"><i style="width:${overall}%"></i></div>
-            <div class="maddy-process">Your best self is a process <span>✦</span></div>
           </div>
           <div class="maddy-metric">
             <div class="maddy-metric-label">Total XP</div>
@@ -2087,7 +2091,7 @@ document.getElementById('modalWrap').addEventListener('click',e=>{if(e.target.id
 let currentPage='today';
 function pageFromHash(){
  const p=String(location.hash||'').replace(/^#/,'').trim().toLowerCase();
- return ['today','planner','calendar','weeks','maddy','cabinet'].includes(p)?p:'today';
+ return ['today','planner','calendar','weeks','maddy','cabinet','settings'].includes(p)?p:'today';
 }
 function go(p, updateUrl=true){
  const previousPage=currentPage;
@@ -2098,7 +2102,7 @@ function go(p, updateUrl=true){
  if(pageEl)pageEl.classList.toggle('today-page',p==='today');
  document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===p));
  document.querySelectorAll('.mobile-nav button[data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page===p));
- const moreActive=['maddy','cabinet'].includes(p);
+ const moreActive=['maddy','cabinet','settings'].includes(p);
  if(mobileMoreBtn)mobileMoreBtn.classList.toggle('active',moreActive);
  document.querySelectorAll('.mobile-more-menu button[data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page===p));
  let result;
@@ -2109,12 +2113,13 @@ function go(p, updateUrl=true){
    else if(p==='weeks')result=renderWeeks();
    else if(p==='maddy')result=renderMaddy();
    else if(p==='cabinet')result=renderCabinet();
+   else if(p==='settings')result=renderSettings();
  }catch(e){
    console.error('Navigation render failed:',e);
    currentPage=previousPage;
    document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===previousPage));
    document.querySelectorAll('.mobile-nav button[data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page===previousPage));
-   if(mobileMoreBtn)mobileMoreBtn.classList.toggle('active',['maddy','cabinet'].includes(previousPage));
+   if(mobileMoreBtn)mobileMoreBtn.classList.toggle('active',['maddy','cabinet','settings'].includes(previousPage));
    document.querySelectorAll('.mobile-more-menu button[data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page===previousPage));
    if(pageEl)pageEl.innerHTML=previousHTML;
    toast('Раздел не удалось открыть — изменения страницы сохранены');
@@ -3483,14 +3488,3 @@ html,body{-webkit-text-size-adjust:100%!important}
  .task-create-actions{display:flex!important;flex-wrap:wrap;gap:8px!important}
  .task-create-actions .btn:last-child{width:100%}
 }
-<style id="core-navigation-cleanup-final">
-/* Only the core app remains visible: Today, Planner, Calendar, Goals, Maddy, Cabinet. */
-.sidebar-task-status,
-[data-page="tomorrow"],
-[data-page="next7"],
-[data-page="inbox"],
-[data-page="completed"],
-[data-page="not-done"],
-[data-page="trash"],
-[data-page="settings"]{display:none!important}
-</style>
