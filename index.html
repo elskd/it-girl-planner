@@ -636,6 +636,106 @@ body.menu-open{overflow:hidden}
 .v3-chat-text.md-text p{margin:0 0 12px}.v3-chat-text.md-text p:last-child{margin-bottom:0}
 .v3-chat-text.md-text h1,.v3-chat-text.md-text h2,.v3-chat-text.md-text h3,.v3-chat-text.md-text h4,.v3-chat-text.md-text h5,.v3-chat-text.md-text h6{margin:14px 0 8px;line-height:1.22;font-weight:700;color:#2f292b}
 .v3-chat-text.md-text h1{font-size:24px}.v3-chat-text.md-text h2{font-size:21px}.v3-chat-text.md-text h3{font-size:18px}.v3-chat-text.md-text h4{font-size:16px}.v3-chat-text.md-text ul{margin:8px 0 12px;padding-left:22px}.v3-chat-text.md-text li{margin:4px 0}.v3-chat-text.md-text .md-numbered{display:flex;gap:8px;margin:7px 0}.v3-chat-text.md-text .md-numbered>span{font-weight:700;flex:0 0 auto}
+</style><style id="maddy-chat-focus">
+/* Maddy chat: mobile gets a dedicated conversation-first layout. */
+@media (max-width:700px){
+  body.maddy-chat-mode{overflow:hidden}
+  body.maddy-chat-mode .main{
+    padding:0 10px 0;
+    height:100dvh;
+    overflow:hidden;
+  }
+  body.maddy-chat-mode .page{
+    height:100%;
+    max-width:none;
+    display:flex;
+    flex-direction:column;
+  }
+  body.maddy-chat-mode .page-head{display:none}
+  body.maddy-chat-mode .maddy-tabs,
+  body.maddy-chat-mode .maddy-nav,
+  body.maddy-chat-mode [class*="maddy-tabs"]{
+    display:none!important;
+  }
+  body.maddy-chat-mode .v3-chat{
+    margin:0;
+    padding:8px 0 10px;
+    border:0;
+    border-radius:0;
+    background:transparent;
+    box-shadow:none;
+    height:100%;
+    min-height:0;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+  }
+  body.maddy-chat-mode .v3-chat-messages{
+    flex:1 1 auto;
+    min-height:0;
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
+    overscroll-behavior:contain;
+    padding:54px 8px 12px;
+    scroll-behavior:auto;
+  }
+  body.maddy-chat-mode .v3-chat-message{
+    max-width:92%;
+    font-size:15px;
+    line-height:1.48;
+    margin-bottom:10px;
+  }
+  body.maddy-chat-mode .v3-chat-text{
+    font-size:15px;
+    line-height:1.48;
+  }
+  body.maddy-chat-mode .v3-chat-text p{margin:0 0 9px}
+  body.maddy-chat-mode .v3-chat-text h1,
+  body.maddy-chat-mode .v3-chat-text h2,
+  body.maddy-chat-mode .v3-chat-text h3{
+    font-size:17px;
+    margin:10px 0 6px;
+  }
+  body.maddy-chat-mode .v3-chat-text ul,
+  body.maddy-chat-mode .v3-chat-text ol{
+    margin:5px 0 8px;
+    padding-left:20px;
+  }
+  body.maddy-chat-mode .v3-chat-input-row{
+    flex:0 0 auto;
+    display:flex;
+    gap:8px;
+    align-items:flex-end;
+    padding:8px 8px calc(8px + env(safe-area-inset-bottom));
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:18px 18px 0 0;
+    box-shadow:0 -4px 18px rgba(70,45,45,.06);
+  }
+  body.maddy-chat-mode #maddyAskInput{
+    min-height:54px;
+    max-height:120px;
+    resize:none;
+    flex:1;
+    font-size:16px;
+    line-height:1.4;
+    padding:12px 13px;
+  }
+  body.maddy-chat-mode #maddyAskForm .btn{
+    flex:0 0 108px;
+    height:54px;
+    padding:0 12px;
+  }
+  body.maddy-chat-mode .mobile-nav{display:none!important}
+}
+@media (min-width:701px){
+  body.maddy-chat-mode .v3-chat-messages{
+    min-height:420px;
+    max-height:calc(100vh - 300px);
+    overflow-y:auto;
+    overscroll-behavior:contain;
+  }
+}
 </style></head>
 <body>
 <div class="app"><button class="mobile-sidebar-toggle" type="button" aria-label="Открыть меню" aria-expanded="false" onclick="toggleMobileSidebar()"><span></span><span></span><span></span></button>
