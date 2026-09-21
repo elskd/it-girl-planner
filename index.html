@@ -1382,24 +1382,57 @@ async function getMaddyPhotoBlob(){try{const db=await openMotDB();return await n
 async function handleMaddyPhotoUpload(input){const file=input?.files?.[0];if(!file)return;if(!file.type.startsWith('image/')){toast('Выбери изображение');input.value='';return}const ok=await saveMaddyPhotoBlob(file);input.value='';if(!ok){toast('Не удалось сохранить фото');return}toast('Фото Maddy обновлено');renderMaddy()}
 async function hydrateMaddyPhoto(){const blob=await getMaddyPhotoBlob();const img=document.getElementById('maddyPhotoImage');const fallback=document.getElementById('maddyPhotoFallback');if(!img||!fallback||!blob)return;if(window.__maddyPhotoObjectURL)URL.revokeObjectURL(window.__maddyPhotoObjectURL);window.__maddyPhotoObjectURL=URL.createObjectURL(blob);img.src=window.__maddyPhotoObjectURL;img.style.display='block';fallback.style.display='none'}
 function renderMaddy(){
+  syncRPGFromPlanner();persist();
+  const r=ensureRPG();
+  const overall=rpgOverall(), totalXP=rpgTotalXP();
+  const overallLevel=Math.floor(totalXP/100);
+  const xpToNext=100-(totalXP%100)||100;
+  const groups=[['Base',['Disciplined','Rich Girl','Sexy Body','Charismatic','Fearless','Emotionally Stable']],['It Girl',['Self-Obsessed','Hot / Gorgeous','Seductive','Manifestation Queen']],['Additional',['Clean Girl']]];
+  const traitByName=Object.fromEntries(r.traits.map(t=>[t.name,t]));
+  const traitCard=t=>{
+    const xpPct=traitXPProgress(t),condPct=conditionProgressForTrait(t.name),finalPct=traitFinalProgress(t),level=rpgLevel(t);
+    let next='';
+    if(t.maxXP!==null&&Number(t.maxXP)>0){
+      const nextLevel=Math.min(10,(level||0)+1),target=t.maxXP*(nextLevel-1)/10,remaining=Math.max(0,Math.ceil(target-t.xp));
+      if(nextLevel<=10&&remaining>0)next=`<span class="rpg-next">↗ ${remaining.toLocaleString('en-US')} XP to Level ${nextLevel}</span>`;
+    }
+    const pct=finalPct===null?null:Math.floor(finalPct*100);
+    return `<article class="rpg-trait rpg-trait-card"><div class="rpg-trait-head"><div class="rpg-trait-name">${esc(t.name)}</div><button class="mini rpg-edit" onclick="openRPGTraitModal('${esc(t.name)}')">✎</button></div><div class="rpg-trait-meta"><span class="rpg-level-pill">${level!==null&&level!==undefined?'Level '+level:'TBD'}</span><span>⭐ ${t.maxXP!==null?`${t.xp.toLocaleString('en-US')} / ${Number(t.maxXP).toLocaleString('en-US')} XP`:`${t.xp.toLocaleString('en-US')} XP`}</span>${next}</div><div class="rpg-percent-row"><span>${pct===null?'—':pct+'%'}</span>${pct!==null?`<div class="rpg-progress"><i style="width:${pct}%"></i></div>`:''}</div><div class="rpg-trait-bottom"><span>🔥 Shown up ${t.shownUp} times</span>${condPct!==null?`<span class="rpg-condition-mini">Conditions ${Math.floor(condPct*100)}% · XP ${xpPct===null?'—':Math.floor(xpPct*100)+'%'}</span>`:''}</div></article>`;
+  };
+  const traitsHTML=groups.map(([title,names])=>{
+    const cards=names.map(n=>traitByName[n]).filter(Boolean).map(traitCard).join('');
+    return `<section class="rpg-trait-group"><div class="rpg-group-title"><span>${esc(title)}</span><span class="rpg-group-line"></span></div><div class="rpg-traits">${cards}</div></section>`;
+  }).join('');
   document.getElementById('page').innerHTML=`
     <header class="page-head"><div class="eyebrow">MY CHARACTER</div><h1 class="title">Maddy</h1><div class="date">The version of me I'm building.</div></header>
-    <section class="card section maddy-identity-card">
-      <div class="maddy-identity">
-        <div class="maddy-photo-wrap">
-          <div class="maddy-avatar">
-            <span id="maddyPhotoFallback">M</span>
-            <img id="maddyPhotoImage" alt="Maddy" style="display:none">
-            <button class="maddy-photo-button" type="button" aria-label="Изменить фото Maddy" onclick="document.getElementById('maddyPhotoInput').click()"><svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path d="M7.5 6.5 9 4.5h6l1.5 2H19a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h2.5Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><circle cx="12" cy="12.5" r="3.25" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></button>
-            <input id="maddyPhotoInput" class="maddy-photo-input" type="file" accept="image/*" onchange="handleMaddyPhotoUpload(this)">
+    <div class="maddy-rpg maddy-page-v2">
+      <section class="card section maddy-hero-card">
+        <div class="maddy-hero">
+          <div class="maddy-photo-wrap">
+            <div class="maddy-avatar">
+              <span id="maddyPhotoFallback">M</span>
+              <img id="maddyPhotoImage" alt="Maddy" style="display:none">
+              <button class="maddy-photo-button" type="button" aria-label="Изменить фото Maddy" onclick="document.getElementById('maddyPhotoInput').click()"><svg viewBox="0 0 24 24" width=15 height=15 aria-hidden="true"><path d="M7.5 6.5 9 4.5h6l1.5 2H19a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h2.5Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><circle cx="12" cy="12.5" r="3.25" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></button>
+              <input id="maddyPhotoInput" class="maddy-photo-input" type="file" accept="image/*" onchange="handleMaddyPhotoUpload(this)">
+            </div>
+          </div>
+          <div class="maddy-metric">
+            <div class="maddy-metric-label">Total XP</div>
+            <div class="maddy-big-xp"><span class="star">★</span>${totalXP.toLocaleString('en-US')} XP</div>
+            <div class="maddy-metric-note">Keep going <span style="color:var(--accent)">✦</span></div>
+          </div>
+          <div class="maddy-metric">
+            <div class="maddy-metric-label">XP to next level</div>
+            <div class="maddy-next-xp">${xpToNext.toLocaleString('en-US')} XP</div>
+            <div class="maddy-metric-note">Level ${overallLevel} → Level ${overallLevel+1}</div>
           </div>
         </div>
-        <div class="maddy-identity-copy">
-          <h2>Maddy</h2>
-          <p>Уверенная, свободная, ухоженная и собранная версия меня. Я сама выбираю, какой становлюсь.</p>
-        </div>
-      </div>
-    </section>`;
+      </section>
+      <section class="card section">
+        <div class="section-head"><div><h2 class="maddy-traits-title">My Traits</h2><div class="date maddy-traits-subtitle">${r.traits.length} traits · XP, progress и manifestations</div></div></div>
+        ${traitsHTML}
+      </section>
+    </div>`;
   hydrateMaddyPhoto();
 }
 function removeMood(i){state.moodboard.splice(i,1);refresh()}
