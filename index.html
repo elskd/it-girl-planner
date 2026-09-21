@@ -1700,7 +1700,21 @@ async function openMotivationFile(id,event){
     padding-bottom:104px!important;
   }
 }
-</style></head><body><div class="head"><div class="name">${safeName}</div></div><div class="viewer">${body}</div><style id="app-theme-settings">.app-accent-custom{margin-top:14px}.theme-choices{display:grid;grid-template-columns:1fr 1fr;gap:9px}.theme-choice{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:12px;padding:10px;text-align:left;display:flex;align-items:center;gap:9px}.theme-choice.active{border-color:var(--accent);background:var(--accent-soft)}.theme-preview{width:38px;height:28px;border-radius:7px;border:1px solid var(--line);display:block;flex:0 0 auto}.theme-preview-classic{background:linear-gradient(135deg,#f7f2ef 0 50%,#8d2439 50%)}.theme-preview-pastel{background:linear-gradient(135deg,#fff 0 35%,#f2dfe5 35% 68%,#c7d9d2 68%)}.pastel-theme .nav button:hover,.pastel-theme .tasks-section .task:hover{background:color-mix(in srgb,var(--accent) 6%,white)}.pastel-theme .planner-day-head,.pastel-theme .habit-group-card .group-title{background:color-mix(in srgb,var(--accent) 4%,white)}.pastel-theme .sidebar,.pastel-theme .card,.pastel-theme .tasks-section,.pastel-theme .planner-day,.pastel-theme .habit-group-card{background:#fff}@media(max-width:700px){.theme-choices{grid-template-columns:1fr}}</style></body></html>`);
+</style><style id="maddy-ai-markdown-v14">
+.v3-chat-text.md-text p{margin:0 0 12px}
+.v3-chat-text.md-text p:last-child{margin-bottom:0}
+.v3-chat-text.md-text h1,.v3-chat-text.md-text h2,.v3-chat-text.md-text h3,.v3-chat-text.md-text h4,.v3-chat-text.md-text h5,.v3-chat-text.md-text h6{margin:14px 0 8px;font-weight:700;line-height:1.2}
+.v3-chat-text.md-text h1{font-size:24px}.v3-chat-text.md-text h2{font-size:21px}.v3-chat-text.md-text h3{font-size:18px}.v3-chat-text.md-text h4{font-size:16px}.v3-chat-text.md-text h5{font-size:15px}.v3-chat-text.md-text h6{font-size:14px}
+.v3-chat-text.md-text ul,.v3-chat-text.md-text ol{margin:8px 0 12px;padding-left:22px}
+.v3-chat-text.md-text li{margin:5px 0}
+.v3-chat-text.md-text strong{font-weight:700}
+.v3-chat-text.md-text em{font-style:italic}
+.v3-chat-text.md-text del{text-decoration:line-through}
+.v3-chat-text.md-text code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.9em;background:#f2ecea;border-radius:5px;padding:2px 5px}
+.v3-chat-text.md-text blockquote{margin:10px 0;padding:8px 12px;border-left:3px solid #d7b5bd;color:#6e6466;background:#faf5f3;border-radius:0 8px 8px 0}
+.v3-chat-text.md-text hr{border:0;border-top:1px solid var(--line);margin:14px 0}
+</style>
+</head><body><div class="head"><div class="name">${safeName}</div></div><div class="viewer">${body}</div><style id="app-theme-settings">.app-accent-custom{margin-top:14px}.theme-choices{display:grid;grid-template-columns:1fr 1fr;gap:9px}.theme-choice{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:12px;padding:10px;text-align:left;display:flex;align-items:center;gap:9px}.theme-choice.active{border-color:var(--accent);background:var(--accent-soft)}.theme-preview{width:38px;height:28px;border-radius:7px;border:1px solid var(--line);display:block;flex:0 0 auto}.theme-preview-classic{background:linear-gradient(135deg,#f7f2ef 0 50%,#8d2439 50%)}.theme-preview-pastel{background:linear-gradient(135deg,#fff 0 35%,#f2dfe5 35% 68%,#c7d9d2 68%)}.pastel-theme .nav button:hover,.pastel-theme .tasks-section .task:hover{background:color-mix(in srgb,var(--accent) 6%,white)}.pastel-theme .planner-day-head,.pastel-theme .habit-group-card .group-title{background:color-mix(in srgb,var(--accent) 4%,white)}.pastel-theme .sidebar,.pastel-theme .card,.pastel-theme .tasks-section,.pastel-theme .planner-day,.pastel-theme .habit-group-card{background:#fff}@media(max-width:700px){.theme-choices{grid-template-columns:1fr}}</style></body></html>`);
    win.document.close();
    try{win.focus()}catch(e){}
  }catch(e){console.warn('File viewer error',e);}
@@ -2735,8 +2749,8 @@ renderToday=function(){
   return result;
 };
 </script>
-<script src="it-girl-planner-v3.js?v=13"></script>
-<script src="it-girl-ai.js?v=13"></script>
+<script src="it-girl-planner-v3.js?v=14"></script>
+<script src="it-girl-ai.js?v=14"></script>
 </body>
 </html>
 <style id="planner-navigation-overrides">/* Navigation controls: compact circular arrows, matching the date-card height. */
