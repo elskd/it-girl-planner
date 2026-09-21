@@ -77,29 +77,41 @@
     }
   }
 
+  function appendMaddyChatMessage(role,text){
+    const box=document.querySelector('.v3-chat-messages');
+    if(!box)return null;
+    const empty=box.querySelector('.v3-chat-empty');
+    if(empty)empty.remove();
+    const el=document.createElement('div');
+    el.className='v3-chat-message '+(role==='user'?'user':'mentor');
+    el.innerHTML='<div class="v3-chat-role">'+(role==='user'?'Ты':'Мэдди')+'</div><div class="v3-chat-text">'+escV(normalizeAIText(text)).replace(/\n/g,'<br>')+'</div>';
+    box.appendChild(el);
+    return el;
+  }
+
   async function realAskMaddy(){
     const input=document.getElementById('maddyAskInput');
     const text=String(input?.value||'').trim(); if(!text)return;
     const ls=ensureLifeSystemData();
     ls.maddyChat=Array.isArray(ls.maddyChat)?ls.maddyChat:[];
-    const savedScrollY=window.scrollY||window.pageYOffset||0;
     ls.maddyChat.push({id:'maddy:'+Date.now()+':u',role:'user',text});
-    input.value=''; persist(); renderMaddyV3('ask');
-    requestAnimationFrame(()=>window.scrollTo(0,savedScrollY));
+    input.value='';
+    persist();
+    const userEl=appendMaddyChatMessage('user',text);
+    userEl?.scrollIntoView({block:'nearest',behavior:'instant'});
     try{
       const answer=await askAI('maddy',text);
       ls.maddyChat.push({id:'maddy:'+Date.now()+':a',role:'maddy',text:answer});
       persist();
-      const responseScrollY=window.scrollY||window.pageYOffset||savedScrollY;
-      renderMaddyV3('ask');
-      requestAnimationFrame(()=>window.scrollTo(0,responseScrollY));
+      const answerEl=appendMaddyChatMessage('maddy',answer);
+      answerEl?.scrollIntoView({block:'nearest',behavior:'instant'});
     }catch(e){
       console.error(e);
-      ls.maddyChat.push({id:'maddy:'+Date.now()+':e',role:'maddy',text:'Не получилось получить ответ ИИ: '+(e?.message||'неизвестная ошибка')});
+      const errorText='Не получилось получить ответ ИИ: '+(e?.message||'неизвестная ошибка');
+      ls.maddyChat.push({id:'maddy:'+Date.now()+':e',role:'maddy',text:errorText});
       persist();
-      const errorScrollY=window.scrollY||window.pageYOffset||savedScrollY;
-      renderMaddyV3('ask');
-      requestAnimationFrame(()=>window.scrollTo(0,errorScrollY));
+      const errorEl=appendMaddyChatMessage('maddy',errorText);
+      errorEl?.scrollIntoView({block:'nearest',behavior:'instant'});
     }
   }
 
