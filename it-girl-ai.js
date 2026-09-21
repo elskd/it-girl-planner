@@ -79,20 +79,19 @@
 
   function inlineMarkdown(value){
     let s=String(value??'');
-    // AI sometimes escapes Markdown markers. Turn those back into real markers first.
-    s=s.replace(/\\\\([*_[\\]{}()#+.!~-])/g,'$1');
+    s=s.replace(/\\([*_[\]{}()#+.!~-])/g,'$1');
     s=escV(s);
-    s=s.replace(/\\`([^\\`\\n]+)\\`/g,'<code>$1</code>');
-    s=s.replace(/\\*\\*(.+?)\\*\\*/g,'<strong>$1</strong>');
-    s=s.replace(/__([^_\\n]+?)__/g,'<strong>$1</strong>');
-    s=s.replace(/~~([^~\\n]+?)~~/g,'<del>$1</del>');
-    s=s.replace(/(?<!\\*)\\*([^*\\n]+?)\\*(?!\\*)/g,'<em>$1</em>');
-    s=s.replace(/(?<!_)_([^_\\n]+?)_(?!_)/g,'<em>$1</em>');
+    s=s.replace(/\x60([^\x60\n]+)\x60/g,'<code>$1</code>');
+    s=s.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');
+    s=s.replace(/__([^_\n]+?)__/g,'<strong>$1</strong>');
+    s=s.replace(/~~([^~\n]+?)~~/g,'<del>$1</del>');
+    s=s.replace(/(?<!\*)\*([^*\n]+?)\*(?!\*)/g,'<em>$1</em>');
+    s=s.replace(/(?<!_)_([^_\n]+?)_(?!_)/g,'<em>$1</em>');
     return s;
   }
 
   function markdownToHTML(value){
-    const lines=normalizeAIText(value).split('\\n');
+    const lines=normalizeAIText(value).split('\n');
     const out=[];
     let paragraph=[];
     let listType=null;
@@ -124,16 +123,16 @@
 
       if(!trimmed){ closeBlocks(); continue; }
 
-      let m=line.match(/^\\s{0,3}(#{1,6})\\s+(.+?)\\s*#*\\s*$/);
+      let m=line.match(/^\s{0,3}(#{1,6})\s+(.+?)\s*#*\s*$/);
       if(m){ closeBlocks(); const level=m[1].length; out.push('<h'+level+'>'+inlineMarkdown(m[2])+'</h'+level+'>'); continue; }
 
-      if(/^\\s{0,3}([-*_])(?:\\s*\\1){2,}\\s*$/.test(line)){ closeBlocks(); out.push('<hr>'); continue; }
+      if(/^\s{0,3}([-*_])(?:\s*\1){2,}\s*$/.test(line)){ closeBlocks(); out.push('<hr>'); continue; }
 
-      m=line.match(/^\\s{0,3}>\\s?(.*)$/);
+      m=line.match(/^\s{0,3}>\s?(.*)$/);
       if(m){ flushParagraph(); flushList(); quote.push(m[1]); continue; }
       if(quote.length) flushQuote();
 
-      m=line.match(/^\\s*[-•*+]\\s+(.+)$/);
+      m=line.match(/^\s*[-•*+]\s+(.+)$/);
       if(m){
         flushParagraph();
         if(listType!=='ul'){ flushList(); out.push('<ul>'); listType='ul'; }
@@ -141,7 +140,7 @@
         continue;
       }
 
-      m=line.match(/^\\s*\\d+[.)]\\s+(.+)$/);
+      m=line.match(/^\s*\d+[.)]\s+(.+)$/);
       if(m){
         flushParagraph();
         if(listType!=='ol'){ flushList(); out.push('<ol>'); listType='ol'; }
