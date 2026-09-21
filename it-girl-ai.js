@@ -77,6 +77,27 @@
     }
   }
 
+  function markdownToHTML(value){
+    let s=escV(normalizeAIText(value));
+    s=s.replace(/^######\s+(.+)$/gm,'<h6>$1</h6>')
+      .replace(/^#####\s+(.+)$/gm,'<h5>$1</h5>')
+      .replace(/^####\s+(.+)$/gm,'<h4>$1</h4>')
+      .replace(/^###\s+(.+)$/gm,'<h3>$1</h3>')
+      .replace(/^##\s+(.+)$/gm,'<h2>$1</h2>')
+      .replace(/^#\s+(.+)$/gm,'<h1>$1</h1>')
+      .replace(/^\*\*(.+?)\*\*$/gm,'<strong>$1</strong>')
+      .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
+      .replace(/__([^_\n]+?)__/g,'<strong>$1</strong>')
+      .replace(/\*([^*\n]+?)\*/g,'<em>$1</em>')
+      .replace(/^\s*[-•]\s+(.+)$/gm,'<li>$1</li>')
+      .replace(/(<li>.*<\/li>)/gs,'<ul>$1</ul>')
+      .replace(/^(\d+)\.\s+(.+)$/gm,'<div class="md-numbered"><span>$1.</span><div>$2</div></div>')
+      .replace(/\n\n+/g,'</p><p>')
+      .replace(/\n/g,'<br>');
+    if(!/^</.test(s.trim()))s='<p>'+s+'</p>';
+    return s;
+  }
+
   function appendMaddyChatMessage(role,text){
     const box=document.querySelector('.v3-chat-messages');
     if(!box)return null;
@@ -84,7 +105,7 @@
     if(empty)empty.remove();
     const el=document.createElement('div');
     el.className='v3-chat-message '+(role==='user'?'user':'mentor');
-    el.innerHTML='<div class="v3-chat-role">'+(role==='user'?'Ты':'Мэдди')+'</div><div class="v3-chat-text">'+escV(normalizeAIText(text)).replace(/\n/g,'<br>')+'</div>';
+    el.innerHTML='<div class="v3-chat-role">'+(role==='user'?'Ты':'Мэдди')+'</div><div class="v3-chat-text md-text">'+markdownToHTML(text)+'</div>';
     box.appendChild(el);
     return el;
   }
@@ -98,20 +119,17 @@
     input.value='';
     persist();
     const userEl=appendMaddyChatMessage('user',text);
-    userEl?.scrollIntoView({block:'nearest',behavior:'instant'});
     try{
       const answer=await askAI('maddy',text);
       ls.maddyChat.push({id:'maddy:'+Date.now()+':a',role:'maddy',text:answer});
       persist();
       const answerEl=appendMaddyChatMessage('maddy',answer);
-      answerEl?.scrollIntoView({block:'nearest',behavior:'instant'});
     }catch(e){
       console.error(e);
       const errorText='Не получилось получить ответ ИИ: '+(e?.message||'неизвестная ошибка');
       ls.maddyChat.push({id:'maddy:'+Date.now()+':e',role:'maddy',text:errorText});
       persist();
       const errorEl=appendMaddyChatMessage('maddy',errorText);
-      errorEl?.scrollIntoView({block:'nearest',behavior:'instant'});
     }
   }
 
