@@ -82,16 +82,24 @@
     const text=String(input?.value||'').trim(); if(!text)return;
     const ls=ensureLifeSystemData();
     ls.maddyChat=Array.isArray(ls.maddyChat)?ls.maddyChat:[];
+    const savedScrollY=window.scrollY||window.pageYOffset||0;
     ls.maddyChat.push({id:'maddy:'+Date.now()+':u',role:'user',text});
     input.value=''; persist(); renderMaddyV3('ask');
+    requestAnimationFrame(()=>window.scrollTo(0,savedScrollY));
     try{
       const answer=await askAI('maddy',text);
       ls.maddyChat.push({id:'maddy:'+Date.now()+':a',role:'maddy',text:answer});
-      persist(); renderMaddyV3('ask');
+      persist();
+      const responseScrollY=window.scrollY||window.pageYOffset||savedScrollY;
+      renderMaddyV3('ask');
+      requestAnimationFrame(()=>window.scrollTo(0,responseScrollY));
     }catch(e){
       console.error(e);
       ls.maddyChat.push({id:'maddy:'+Date.now()+':e',role:'maddy',text:'Не получилось получить ответ ИИ: '+(e?.message||'неизвестная ошибка')});
-      persist(); renderMaddyV3('ask');
+      persist();
+      const errorScrollY=window.scrollY||window.pageYOffset||savedScrollY;
+      renderMaddyV3('ask');
+      requestAnimationFrame(()=>window.scrollTo(0,errorScrollY));
     }
   }
 
