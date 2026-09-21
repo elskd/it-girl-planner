@@ -330,6 +330,7 @@
     };
   }
 
+  window.itGirlAskAI=askAI;
   window.sendMentorMessage=realSendMentorMessage;
   window.askMaddyV3=realAskMaddy;
   window.runAIWeeklyAnalysis=runAIWeeklyAnalysis;
