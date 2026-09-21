@@ -111,7 +111,7 @@ function buildToolbar(root){
   wrap.id='pv5Toolbar';
   wrap.className='pv5-toolbar';
   wrap.innerHTML=
-    '<div class="pv5-search-row"> class="pv5-search" placeholder="Быстро добавить задачу…" autocomplete="off">'+
+    '<div class="pv5-search-row"><input id="pv5AddInput" class="pv5-search" placeholder="Быстро добавить задачу…" autocomplete="off">'+
       '<button class="pv5-add" type="button" onclick="pv5QuickAdd()">Добавить</button>'+
     '</div>'+
     '<div class="pv5-search-row"><input id="pv5SearchInput" class="pv5-search" placeholder="Поиск по задачам…" autocomplete="off"></div>'+
