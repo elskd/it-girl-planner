@@ -19,6 +19,7 @@
     m.moodboard=Array.isArray(m.moodboard)?m.moodboard:[];
     m.savedSituations=Array.isArray(m.savedSituations)?m.savedSituations:[];
     ls.weeklyReviews=Array.isArray(ls.weeklyReviews)?ls.weeklyReviews:[];
+    ls.aiStyle=Object.assign({language:'ru',address:'ты',tone:'близкая подруга',directness:'прямо',profanity:true,challenge:'если долго стою на месте — жёсткий пинок',automaticAgreement:false,supportWhenHard:true,concreteActions:true,lively:true,structure:'структурированно, по пунктам и разделам, без воды',length:'средне',emotion:'очень эмоционально и живо',emojis:'иногда',custom:'Разговаривай со мной как близкая подруга, которая меня хорошо знает. На ты. Будь живой и эмоциональной, но не переигрывай. Не используй шаблонные фразы типа «ты справишься». Если я не права — говори прямо. Не бойся материться, если это уместно. Когда я расстроена, сначала помоги мне разобраться, а не начинай давать советы. Когда я прошу совет — говори конкретно, что мне делать. Не повторяй очевидные вещи и не читай мне морали. Отвечай естественно, как человек в переписке.'},ls.aiStyle||{});
     return ls;
   }
 
@@ -425,6 +426,60 @@
     renderMaddyMainV3();
   }
 
+  function saveAIStyle(){
+    const ls=life();
+    ls.aiStyle={
+      language:'ru',address:document.getElementById('aiStyleAddress')?.value||'ты',
+      tone:document.getElementById('aiStyleTone')?.value||'близкая подруга',
+      directness:document.getElementById('aiStyleDirectness')?.value||'прямо',
+      profanity:!!document.getElementById('aiStyleProfanity')?.checked,
+      challenge:document.getElementById('aiStyleChallenge')?.value||'если долго стою на месте — жёсткий пинок',
+      automaticAgreement:!!document.getElementById('aiStyleAgreement')?.checked,
+      supportWhenHard:!!document.getElementById('aiStyleSupport')?.checked,
+      concreteActions:!!document.getElementById('aiStyleActions')?.checked,
+      lively:!!document.getElementById('aiStyleLively')?.checked,
+      structure:'структурированно, по пунктам и разделам, без воды',
+      length:document.getElementById('aiStyleLength')?.value||'средне',
+      emotion:document.getElementById('aiStyleEmotion')?.value||'очень эмоционально и живо',
+      emojis:document.getElementById('aiStyleEmojis')?.value||'иногда',
+      custom:document.getElementById('aiStyleCustom')?.value||''
+    };
+    persist(); toast('Стиль общения сохранён'); renderSettings();
+  }
+
+  function renderAIStyleCard(){
+    const page=document.getElementById('page');
+    if(!page || document.getElementById('v3AIStyleCard')) return;
+    const st=life().aiStyle;
+    const esc=(v)=>escV(v||'');
+    const opt=(value,current,label)=>'<option value="'+esc(value)+'"'+(current===value?' selected':'')+'>'+label+'</option>';
+    const checked=(v)=>v?' checked':'';
+    const card=document.createElement('section');
+    card.className='card section'; card.id='v3AIStyleCard';
+    card.innerHTML=[
+      '<div class="section-head"><div><div class="label">AI</div><h2>Как ИИ разговаривает со мной</h2></div><button class="btn" onclick="saveAIStyle()">Сохранить</button></div>',
+      '<p class="setting-note">Эти настройки применяются к Мэдди, Ментору и AI-анализу недели.</p>',
+      '<div class="ai-style-grid">',
+      '<div class="field"><label>Обращение</label><select id="aiStyleAddress" class="select">'+opt('ты',st.address,'На «ты»')+opt('вы',st.address,'На «вы»')+'</select></div>',
+      '<div class="field"><label>Базовый стиль</label><select id="aiStyleTone" class="select">'+opt('близкая подруга',st.tone,'Как близкая подруга')+opt('спокойный наставник',st.tone,'Как спокойный наставник')+opt('жёсткий наставник',st.tone,'Как жёсткий наставник')+'</select></div>',
+      '<div class="field"><label>Прямота</label><select id="aiStyleDirectness" class="select">'+opt('мягко',st.directness,'Мягко')+opt('прямо',st.directness,'Прямо')+opt('очень прямо',st.directness,'Очень прямо')+'</select></div>',
+      '<div class="field"><label>Если я застряла</label><select id="aiStyleChallenge" class="select">'+opt('если долго стою на месте — жёсткий пинок',st.challenge,'Жёсткий пинок')+opt('напомнить о целях и дать конкретный шаг',st.challenge,'Напомнить и вернуть к действию')+opt('оставаться мягкой',st.challenge,'Оставаться мягкой')+'</select></div>',
+      '<div class="field"><label>Объём</label><select id="aiStyleLength" class="select">'+opt('коротко',st.length,'Коротко')+opt('средне',st.length,'Средне')+opt('подробно',st.length,'Подробно')+'</select></div>',
+      '<div class="field"><label>Эмоциональность</label><select id="aiStyleEmotion" class="select">'+opt('спокойно',st.emotion,'Спокойно')+opt('живо',st.emotion,'Живо')+opt('очень эмоционально и живо',st.emotion,'Очень эмоционально и живо')+'</select></div>',
+      '<div class="field"><label>Эмодзи</label><select id="aiStyleEmojis" class="select">'+opt('никогда',st.emojis,'Никогда')+opt('иногда',st.emojis,'Иногда')+opt('часто',st.emojis,'Часто')+'</select></div>',
+      '</div>',
+      '<div class="ai-style-checks">',
+      '<label><input id="aiStyleProfanity" type="checkbox"'+checked(st.profanity)+'> Можно материться</label>',
+      '<label><input id="aiStyleAgreement" type="checkbox"'+checked(st.automaticAgreement)+'> Соглашаться со мной автоматически</label>',
+      '<label><input id="aiStyleSupport" type="checkbox"'+checked(st.supportWhenHard)+'> Поддерживать, когда мне тяжело</label>',
+      '<label><input id="aiStyleActions" type="checkbox"'+checked(st.concreteActions)+'> Давать конкретные действия</label>',
+      '<label><input id="aiStyleLively" type="checkbox"'+checked(st.lively)+'> Живой разговорный стиль</label>',
+      '</div>',
+      '<div class="field full"><label>Мои дополнительные правила общения</label><textarea id="aiStyleCustom" class="text-input" rows="6" placeholder="Напиши своими словами, как ИИ должен с тобой разговаривать...">'+esc(st.custom)+'</textarea></div>'
+    ].join('');
+    page.appendChild(card);
+  }
+
   function injectV3Styles(){
     if(document.getElementById('itgirl-v3-styles'))return;
     const s=document.createElement('style');s.id='itgirl-v3-styles';
@@ -443,6 +498,11 @@
     ensureLifeSystemData();
     injectV3Styles();
     addSideNavigation();
+
+    if(!window.__itGirlOriginalRenderSettingsV3 && window.renderSettings){
+      window.__itGirlOriginalRenderSettingsV3=window.renderSettings;
+      window.renderSettings=function(){window.__itGirlOriginalRenderSettingsV3();renderAIStyleCard();};
+    }
 
     const originalGo=window.go;
     if(!window.__itGirlOriginalGoV3){
@@ -495,6 +555,8 @@
   window.removeMaddyNote=removeMaddyNote;
   window.addMaddyMood=addMaddyMood;
   window.removeMaddyMood=removeMaddyMood;
+  window.saveAIStyle=saveAIStyle;
+  window.renderAIStyleCard=renderAIStyleCard;
 
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',install,{once:true});
   else install();
