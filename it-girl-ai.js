@@ -45,24 +45,69 @@
 
   function setButtonLoading(id,loading,label){
     const b=document.getElementById(id); if(!b)return;
-    b.disabled=loading; b.textContent=loading?'Думаю…':label;
+    b.disabled=loading; b.textContent=label;
   }
 
-  async function realSendMentorMessage(){
-    const input=document.getElementById('v3MentorInput');
-    const text=String(input?.value||'').trim(); if(!text)return;
+  function appendThinkingBubble(box, roleLabel){
+    if(!box)return null;
+    const el=document.createElement('div');
+    el.className='v3-chat-message ai-loading';
+    el.setAttribute('aria-live','polite');
+    el.innerHTML='<div class="v3-chat-role">'+escV(roleLabel||'ИИ')+'</div><div class="v3-chat-text md-text">Думаю…</div>';
+    box.appendChild(el);
+    return el;
+  }
+
+  function formatMentorHistory(){
     const ls=ensureLifeSystemData();
+    const history=Array.isArray(ls.mentorMessages)?ls.mentorMessages:[];
+    const nodes=document.querySelectorAll('.v3-chat-messages .v3-chat-message');
+    nodes.forEach((node,i)=>{
+      const msg=history[i];
+      const textNode=node.querySelector('.v3-chat-text');
+      if(msg&&textNode && !node.classList.contains('ai-loading')) textNode.innerHTML=markdownToHTML(msg.text);
+    });
+  }
+
+  let mentorSending=false;
+
+  async function realSendMentorMessage(event){
+    if(event&&typeof event.preventDefault==='function')event.preventDefault();
+    if(mentorSending)return false;
+    const input=document.getElementById('v3MentorInput');
+    const text=String(input?.value||'').trim(); if(!text)return false;
+    mentorSending=true;
+    const ls=ensureLifeSystemData();
+    const button=document.getElementById('v3MentorButton');
+    if(button){button.disabled=true;button.textContent='Отправить';}
+    ls.mentorMessages=Array.isArray(ls.mentorMessages)?ls.mentorMessages:[];
     ls.mentorMessages.push({id:'msg:'+Date.now()+':u',role:'user',text,createdAt:new Date().toISOString()});
-    input.value=''; persist(); renderMentorV3();
+    input.value='';
+    persist();
+    renderMentorV3();
+    const box=document.querySelector('.v3-chat-messages');
+    const thinking=appendThinkingBubble(box,'Ментор');
     try{
       const answer=await askAI('mentor',text);
       ls.mentorMessages.push({id:'msg:'+Date.now()+':a',role:'mentor',text:answer,createdAt:new Date().toISOString()});
-      persist(); renderMentorV3();
+      persist();
+      if(thinking&&thinking.parentNode)thinking.remove();
+      renderMentorV3();
+      formatMentorHistory();
     }catch(e){
       console.error(e);
-      ls.mentorMessages.push({id:'msg:'+Date.now()+':e',role:'mentor',text:'Не получилось получить ответ ИИ: '+(e?.message||'неизвестная ошибка'),createdAt:new Date().toISOString()});
-      persist(); renderMentorV3();
+      const errorText='Не получилось получить ответ ИИ: '+(e?.message||'неизвестная ошибка');
+      ls.mentorMessages.push({id:'msg:'+Date.now()+':e',role:'mentor',text:errorText,createdAt:new Date().toISOString()});
+      persist();
+      if(thinking&&thinking.parentNode)thinking.remove();
+      renderMentorV3();
+      formatMentorHistory();
+    }finally{
+      mentorSending=false;
+      const b=document.getElementById('v3MentorButton');
+      if(b){b.disabled=false;b.textContent='Отправить';}
     }
+    return false;
   }
 
   function inlineMarkdown(value){
@@ -235,11 +280,11 @@
     const btn=document.getElementById('v3AIWeeklyButton');
     if(!box)return;
     btn?.setAttribute('disabled','disabled');
-    if(btn)btn.textContent='Анализирую…';
-    box.innerHTML='<div class="empty">ИИ анализирует твою неделю…</div>';
+    if(btn)btn.textContent='Получить AI-анализ';
+    box.innerHTML='<div class="v3-chat-message ai-loading"><div class="v3-chat-role">ИИ</div><div class="v3-chat-text">Думаю…</div></div>';
     try{
       const answer=await askAI('mentor','Сделай глубокий, но практичный анализ моей недели. Покажи: что реально сработало, где я теряю время, какая цель сейчас требует внимания, что убрать из плана и какие 3 действия сделать на следующей неделе. Не придумывай факты, используй только данные приложения.');
-      box.innerHTML='<div class="v3-analysis-text">'+esc(answer).replace(/\n/g,'<br>')+'</div>';
+      box.innerHTML='<div class="v3-analysis-text md-text">'+markdownToHTML(answer)+'</div>';
       const ls=ensureLifeSystemData();
       ls.weeklyReviews=Array.isArray(ls.weeklyReviews)?ls.weeklyReviews:[];
       ls.weeklyReviews.unshift({id:Date.now(),type:'ai',text:answer,createdAt:new Date().toISOString()});
@@ -263,6 +308,15 @@
     page.appendChild(card);
   };
 
+  const originalMentorRender=window.renderMentorV3;
+  if(typeof originalMentorRender==='function'){
+    window.renderMentorV3=function(){
+      const result=originalMentorRender();
+      formatMentorHistory();
+      return result;
+    };
+  }
+
   const originalMaddyRender=window.renderMaddyV3;
   if(typeof originalMaddyRender==='function'){
     window.renderMaddyV3=function(view){
@@ -276,6 +330,7 @@
     };
   }
 
+  window.itGirlAskAI=askAI;
   window.sendMentorMessage=realSendMentorMessage;
   window.askMaddyV3=realAskMaddy;
   window.runAIWeeklyAnalysis=runAIWeeklyAnalysis;
@@ -284,15 +339,23 @@
   // на iOS Safari он иногда не вызывается после динамической перерисовки страницы.
   document.addEventListener('submit',function(e){
     const form=e.target;
-    if(!form || form.id!=='maddyAskForm')return;
-    e.preventDefault();
-    e.stopPropagation();
-    realAskMaddy(e);
+    if(!form)return;
+    if(form.id==='maddyAskForm'){
+      e.preventDefault();
+      e.stopPropagation();
+      realAskMaddy(e);
+      return;
+    }
+    if(form.id==='v3MentorForm'){
+      e.preventDefault();
+      e.stopPropagation();
+      realSendMentorMessage(e);
+    }
   },true);
 
   if(!document.getElementById('itgirl-ai-styles')){
     const s=document.createElement('style'); s.id='itgirl-ai-styles';
-    s.textContent='.v3-ai-weekly-box{min-height:30px}.v3-ai-weekly-box .v3-analysis-text{margin-top:8px}.v3-chat-message.ai-loading{opacity:.62}.v3-chat-message.ai-loading .v3-chat-text{font-style:italic}';
+    s.textContent='.v3-ai-weekly-box{min-height:30px}.v3-ai-weekly-box .v3-analysis-text{margin-top:8px}.v3-chat-message.ai-loading{opacity:.62}.v3-chat-message.ai-loading .v3-chat-text{font-style:italic}.md-text p{margin:0 0 9px}.md-text p:last-child{margin-bottom:0}.md-text h1,.md-text h2,.md-text h3{font-family:Georgia,serif;font-weight:400;margin:10px 0 7px}.md-text ul,.md-text ol{margin:7px 0 9px;padding-left:20px}.md-text li{margin:3px 0}.md-text blockquote{margin:8px 0;padding-left:10px;border-left:2px solid var(--accent);color:#6d6163}.md-text strong{font-weight:700}.md-text em{font-style:italic}';
     document.head.appendChild(s);
   }
 })();
