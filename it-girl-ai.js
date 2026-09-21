@@ -18,7 +18,8 @@
       goals:goals.map(g=>({title:g.title,progress:Number(g.progress)||0,current:g.currentValue||'',target:g.targetValue||g.target||'',unit:g.unit||'',deadline:g.deadline||'',actions:g.actions||[],subgoals:g.subgoals||[]})),
       todayTasks:tasks.filter(t=>t.date===today && !t.done).map(t=>({title:t.title,priority:t.priority||'',area:t.area||'',start:t.start||'',end:t.end||''})),
       weekly,
-      maddy:state.lifeSystem.maddy
+      maddy:state.lifeSystem.maddy,
+      aiStyle:state.lifeSystem.aiStyle
     };
   }
 
