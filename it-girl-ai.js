@@ -288,6 +288,16 @@
   window.askMaddyV3=realAskMaddy;
   window.runAIWeeklyAnalysis=runAIWeeklyAnalysis;
 
+  // Надёжная обработка формы через JS-событие. Не полагаемся на inline onsubmit:
+  // на iOS Safari он иногда не вызывается после динамической перерисовки страницы.
+  document.addEventListener('submit',function(e){
+    const form=e.target;
+    if(!form || form.id!=='maddyAskForm')return;
+    e.preventDefault();
+    e.stopPropagation();
+    realAskMaddy(e);
+  },true);
+
   if(!document.getElementById('itgirl-ai-styles')){
     const s=document.createElement('style'); s.id='itgirl-ai-styles';
     s.textContent='.v3-ai-weekly-box{min-height:30px}.v3-ai-weekly-box .v3-analysis-text{margin-top:8px}.v3-chat-message.ai-loading{opacity:.62}.v3-chat-message.ai-loading .v3-chat-text{font-style:italic}';
