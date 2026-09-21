@@ -193,9 +193,16 @@
     });
   }
 
-  async function realAskMaddy(){
+  let maddySending=false;
+
+  async function realAskMaddy(event){
+    if(event&&typeof event.preventDefault==='function') event.preventDefault();
+    if(maddySending)return false;
     const input=document.getElementById('maddyAskInput');
-    const text=String(input?.value||'').trim(); if(!text)return;
+    const text=String(input?.value||'').trim(); if(!text)return false;
+    maddySending=true;
+    const sendButton=document.querySelector('#maddyAskForm button[type="submit"]');
+    if(sendButton){sendButton.disabled=true;sendButton.textContent='Думаю…';}
     const scrollBefore=rememberChatScroll();
     const ls=ensureLifeSystemData();
     ls.maddyChat=Array.isArray(ls.maddyChat)?ls.maddyChat:[];
@@ -218,7 +225,12 @@
       persist();
       const errorEl=appendMaddyChatMessage('maddy',errorText);
       if(Math.abs((window.scrollY||0)-scrollBefore.y)>80) restoreChatScroll(scrollBefore);
+    }finally{
+      maddySending=false;
+      const btn=document.querySelector('#maddyAskForm button[type="submit"]');
+      if(btn){btn.disabled=false;btn.textContent='Спросить';}
     }
+    return false;
   }
 
   async function runAIWeeklyAnalysis(){
