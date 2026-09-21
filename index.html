@@ -1203,16 +1203,54 @@ function startQuickAddTouch(e,date){
  const touch=e.touches&&e.touches[0];
  if(!touch||e.touches.length!==1||e.target.closest('.event'))return;
  const col=e.currentTarget,rect=col.getBoundingClientRect(),sx=touch.clientX,sy=touch.clientY;
- let ex=sx,ey=sy,axis='',preview=null,finished=false;
- const cleanup=()=>{col.removeEventListener('touchmove',move);col.removeEventListener('touchend',up);col.removeEventListener('touchcancel',cancel);document.body.classList.remove('calendar-quick-adding');if(preview){preview.classList.remove('show');setTimeout(()=>preview&&preview.remove(),120)}};
+ let ex=sx,ey=sy,armed=false,axis='',preview=null,finished=false,holdTimer=null;
+ const cleanup=()=>{
+   if(holdTimer)clearTimeout(holdTimer);
+   col.removeEventListener('touchmove',move);
+   col.removeEventListener('touchend',up);
+   col.removeEventListener('touchcancel',cancel);
+   document.body.classList.remove('calendar-quick-adding');
+   if(preview){preview.classList.remove('show');setTimeout(()=>preview&&preview.remove(),120)}
+ };
  const ensurePreview=()=>{if(preview)return;preview=document.createElement('div');preview.className='quick-add-preview';preview.innerHTML='<span>Новая задача</span>';col.appendChild(preview);requestAnimationFrame(()=>preview.classList.add('show'))};
- const updatePreview=()=>{if(!preview)return;const y1=Math.min(sy,ey)-rect.top,y2=Math.max(sy,ey)-rect.top,range=calendarViewRange();let st=Math.round(y1/15)*15+range.start,en=Math.round(y2/15)*15+range.start;st=Math.max(range.start,Math.min(range.end-30,st));en=Math.max(st+30,Math.min(range.end,en));preview.style.top=(st-range.start)+'px';preview.style.height=Math.max(30,en-st)+'px'};
- const move=ev=>{if(finished||ev.touches.length!==1)return;const t=ev.touches[0];ex=t.clientX;ey=t.clientY;const dx=ex-sx,dy=ey-sy;if(!axis){if(Math.abs(dx)<10&&Math.abs(dy)<10)return;if(Math.abs(dx)>Math.abs(dy)*1.2){finished=true;cleanup();return}if(Math.abs(dy)>Math.abs(dx)*1.2&&Math.abs(dy)>=18){axis='vertical';document.body.classList.add('calendar-quick-adding');ensurePreview()}else return}if(axis==='vertical'){ev.preventDefault();updatePreview()}};
+ const updatePreview=()=>{
+   if(!preview)return;
+   const y1=Math.min(sy,ey)-rect.top,y2=Math.max(sy,ey)-rect.top,range=calendarViewRange();
+   let st=Math.round(y1/15)*15+range.start,en=Math.round(y2/15)*15+range.start;
+   st=Math.max(range.start,Math.min(range.end-30,st));en=Math.max(st+30,Math.min(range.end,en));
+   preview.style.top=(st-range.start)+'px';preview.style.height=Math.max(30,en-st)+'px';
+ };
+ const move=ev=>{
+   if(finished||ev.touches.length!==1)return;
+   const t=ev.touches[0];ex=t.clientX;ey=t.clientY;
+   const dx=ex-sx,dy=ey-sy;
+   if(!armed){
+     // Any movement before the hold is a normal scroll/touch. Cancel creation completely.
+     if(Math.abs(dx)>=8||Math.abs(dy)>=8){finished=true;cleanup();return}
+     return;
+   }
+   if(Math.abs(dx)>Math.abs(dy)*1.2){finished=true;cleanup();return}
+   if(Math.abs(dy)>=8){axis='vertical';ev.preventDefault();ensurePreview();updatePreview()}
+ };
  const cancel=()=>{finished=true;cleanup()};
- const up=ev=>{if(finished)return;const t=ev.changedTouches&&ev.changedTouches[0];if(t){ex=t.clientX;ey=t.clientY}const dx=ex-sx,dy=ey-sy;if(axis==='vertical'&&Math.abs(dy)>=30&&Math.abs(dy)>Math.abs(dx)*1.2){const y1=Math.min(sy,ey)-rect.top,y2=Math.max(sy,ey)-rect.top,range=calendarViewRange();let st=Math.round(y1/15)*15+range.start,en=Math.round(y2/15)*15+range.start;st=Math.max(range.start,Math.min(range.end-30,st));en=Math.max(st+30,Math.min(range.end,en));finished=true;cleanup();openTaskModal(0,{date:date,start:minToTime(st),end:minToEndTime(en)},true);return}finished=true;cleanup()};
+ const up=ev=>{
+   if(finished)return;
+   const t=ev.changedTouches&&ev.changedTouches[0];if(t){ex=t.clientX;ey=t.clientY}
+   const dx=ex-sx,dy=ey-sy;
+   if(armed&&Math.abs(dy)>=30&&Math.abs(dy)>Math.abs(dx)*1.2){
+     const y1=Math.min(sy,ey)-rect.top,y2=Math.max(sy,ey)-rect.top,range=calendarViewRange();
+     let st=Math.round(y1/15)*15+range.start,en=Math.round(y2/15)*15+range.start;
+     st=Math.max(range.start,Math.min(range.end-30,st));en=Math.max(st+30,Math.min(range.end,en));
+     finished=true;cleanup();
+     openTaskModal(0,{date:date,start:minToTime(st),end:minToEndTime(en)},true);
+     return;
+   }
+   finished=true;cleanup();
+ };
  col.addEventListener('touchmove',move,{passive:false});
  col.addEventListener('touchend',up,{passive:true});
  col.addEventListener('touchcancel',cancel,{passive:true});
+ holdTimer=setTimeout(()=>{if(!finished){armed=true;document.body.classList.add('calendar-quick-adding')}},500);
 }
 function startQuickAddPointer(e,date){
  if(e.button!==undefined&&e.button!==0)return;
