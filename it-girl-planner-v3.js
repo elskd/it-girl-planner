@@ -359,7 +359,7 @@
       maddyTabs('ask')+
       '<section class="card section v3-chat">'+
         '<div class="v3-chat-messages">'+(history.length?history.map(function(x){return '<div class="v3-chat-message '+(x.role==='user'?'user':'mentor')+'"><div class="v3-chat-role">'+(x.role==='user'?'Ты':'Мэдди')+'</div><div class="v3-chat-text">'+escV(x.text).replace(/\n/g,'<br>')+'</div></div>'}).join(''):'<div class="v3-chat-empty">«Я в такой-то ситуации. Что Мэдди сделала бы на моём месте?»</div>')+'</div>'+
-        '<div class="v3-chat-input-row"><textarea id="maddyAskInput" class="text-input" rows="3" placeholder="Я в такой-то ситуации…"></textarea><button class="btn" onclick="askMaddyV3()">Спросить</button></div>'+
+        '<form id="maddyAskForm" class="v3-chat-input-row" onsubmit="return askMaddyV3(event)" autocomplete="off"><textarea id="maddyAskInput" class="text-input" rows="3" placeholder="Я в такой-то ситуации…" autocomplete="off" autocorrect="on" autocapitalize="sentences" spellcheck="true"></textarea><button type="submit" class="btn">Спросить</button></form>'+
       '</section>';
   }
 
