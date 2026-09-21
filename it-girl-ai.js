@@ -25,28 +25,16 @@
 
   async function askAI(kind,message){
     const controller=new AbortController();
-    const timer=setTimeout(()=>controller.abort(),30000);
+    const timer=setTimeout(()=>controller.abort(),20000);
     try{
-      let r;
-      let lastError;
-      for(let attempt=0;attempt<2;attempt++){
-        try{
-          r=await fetch(AI_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=UTF-8','Accept':'application/json'},body:JSON.stringify({kind,message,context:aiContext()}),signal:controller.signal,cache:'no-store',mode:'cors'});
-          lastError=null;
-          break;
-        }catch(err){
-          lastError=err;
-          if(attempt===0) await new Promise(resolve=>setTimeout(resolve,700));
-        }
-      }
-      if(lastError) throw lastError;
+      const r=await fetch(AI_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=UTF-8','Accept':'application/json'},body:JSON.stringify({kind,message,context:aiContext()}),signal:controller.signal,cache:'no-store',mode:'cors'});
       let data={}; try{data=await r.json()}catch(e){}
       if(!r.ok) throw new Error(data.error||('AI request failed ('+r.status+')'));
       const answer=normalizeAIText(data.text);
       if(!answer) throw new Error('ИИ не вернул текстовый ответ');
       return answer;
     }catch(e){
-      if(e?.name==='AbortError') throw new Error('ИИ не ответил за 30 секунд. Попробуй ещё раз.');
+      if(e?.name==='AbortError') throw new Error('ИИ не ответил за 20 секунд. Попробуй ещё раз.');
       throw e;
     }finally{clearTimeout(timer)}
   }
