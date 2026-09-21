@@ -28,6 +28,61 @@
   function escV(s){return typeof esc==='function'?esc(s):String(s??'').replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]})}
   function uid(prefix){return prefix+Date.now()+Math.random().toString(36).slice(2,7)}
 
+  async function plannerDirectAI(kind,message){
+    const controller=new AbortController();
+    const timer=setTimeout(function(){controller.abort()},20000);
+    try{
+      const r=await fetch('https://ajrcehwxqgbloixgvcxc.supabase.co/functions/v1/it-girl-ai',{
+        method:'POST',
+        headers:{'Content-Type':'text/plain;charset=UTF-8','Accept':'application/json'},
+        body:JSON.stringify({kind:kind,message:message,context:{
+          goals:(state.goals||[]).map(function(g){return {title:g.title,progress:Number(g.progress)||0,current:g.currentValue||'',target:g.targetValue||g.target||'',unit:g.unit||'',deadline:g.deadline||'',actions:g.actions||[],subgoals:g.subgoals||[]}}),
+          todayTasks:(state.tasks||[]).filter(function(t){return t.date===(typeof todayISO==='function'?todayISO():new Date().toISOString().slice(0,10))&&!t.done}).map(function(t){return {title:t.title,priority:t.priority||'',area:t.area||'',start:t.start||'',end:t.end||''}}),
+          maddy:life().maddy,
+          aiStyle:life().aiStyle
+        })}),
+        signal:controller.signal,cache:'no-store',mode:'cors'
+      });
+      let data={}; try{data=await r.json()}catch(e){}
+      if(!r.ok) throw new Error(data.error||('AI request failed ('+r.status+')'));
+      const answer=String(data.text||'').replace(/\\n/g,'\n').trim();
+      if(!answer) throw new Error('ИИ не вернул текстовый ответ');
+      return answer;
+    }catch(e){
+      if(e&&e.name==='AbortError') throw new Error('ИИ не ответил за 20 секунд. Попробуй ещё раз.');
+      throw e;
+    }finally{clearTimeout(timer)}
+  }
+
+  function plannerMarkdown(value){
+    let s=String(value??'').replace(/\\([*_[\\]{}()#+.!~-])/g,'$1');
+    s=escV(s);
+    s=s.replace(/\x60([^\x60\n]+)\x60/g,'<code>$1</code>');
+    s=s.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');
+    s=s.replace(/__([^_\n]+?)__/g,'<strong>$1</strong>');
+    s=s.replace(/~~([^~\n]+?)~~/g,'<del>$1</del>');
+    s=s.replace(/(?<!\*)\*([^*\n]+?)\*(?!\*)/g,'<em>$1</em>');
+    s=s.replace(/(?<!_)_([^_\n]+?)_(?!_)/g,'<em>$1</em>');
+    return s;
+  }
+  function plannerMarkdownBlock(value){
+    const lines=String(value??'').replace(/\\n/g,'\n').split('\n'),out=[]; let p=[],list='';
+    const flushP=()=>{if(p.length){out.push('<p>'+p.map(plannerMarkdown).join('<br>')+'</p>');p=[]}};
+    const flushL=()=>{if(list){out.push('</'+list+'>');list=''}};
+    lines.forEach(function(line){
+      const t=line.trim();
+      if(!t){flushP();flushL();return}
+      let m=line.match(/^\s{0,3}(#{1,6})\s+(.+?)\s*#*\s*$/);
+      if(m){flushP();flushL();out.push('<h'+m[1].length+'>'+plannerMarkdown(m[2])+'</h'+m[1].length+'>');return}
+      m=line.match(/^\s*[-•*+]\s+(.+)$/);
+      if(m){flushP();if(list!=='ul'){flushL();out.push('<ul>');list='ul'}out.push('<li>'+plannerMarkdown(m[1])+'</li>');return}
+      m=line.match(/^\s*\d+[.)]\s+(.+)$/);
+      if(m){flushP();if(list!=='ol'){flushL();out.push('<ol>');list='ol'}out.push('<li>'+plannerMarkdown(m[1])+'</li>');return}
+      if(list)flushL();p.push(line);
+    });
+    flushP();flushL();return out.join('');
+  }
+
   function addSideNavigation(){
     if(document.querySelector('.itgirl-v3-system-nav')) return;
 
@@ -286,7 +341,7 @@
     thinking.innerHTML='<div class="v3-chat-role">Ментор</div><div class="v3-chat-text">Думаю…</div>';
     box?.appendChild(thinking);
     try{
-      const answer=window.itGirlAskAI?await window.itGirlAskAI('mentor',text):'Ментор сейчас недоступен: AI-модуль не загрузился.';
+      const answer=await plannerDirectAI('mentor',text);
       ls.mentorMessages.push({id:uid('msg:'),role:'mentor',text:answer,createdAt:new Date().toISOString()});
       persist();
       thinking.remove();
@@ -426,7 +481,7 @@
     thinking.innerHTML='<div class="v3-chat-role">Мэдди</div><div class="v3-chat-text">Думаю…</div>';
     box?.appendChild(thinking);
     try{
-      const answer=window.itGirlAskAI?await window.itGirlAskAI('maddy',text):'Мэдди сейчас недоступна: AI-модуль не загрузился.';
+      const answer=await plannerDirectAI('maddy',text);
       ls.maddyChat.push({id:uid('maddy:'),role:'maddy',text:answer});
       persist();
       thinking.remove();
