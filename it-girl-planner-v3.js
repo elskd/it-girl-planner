@@ -54,33 +54,35 @@
     }finally{clearTimeout(timer)}
   }
 
-  function plannerMarkdown(value){
-    let s=String(value??'').replace(/\\([*_[\\]{}()#+.!~-])/g,'$1');
-    s=escV(s);
-    s=s.replace(/\x60([^\x60\n]+)\x60/g,'<code>$1</code>');
-    s=s.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');
-    s=s.replace(/__([^_\n]+?)__/g,'<strong>$1</strong>');
-    s=s.replace(/~~([^~\n]+?)~~/g,'<del>$1</del>');
-    s=s.replace(/(?<!\*)\*([^*\n]+?)\*(?!\*)/g,'<em>$1</em>');
-    s=s.replace(/(?<!_)_([^_\n]+?)_(?!_)/g,'<em>$1</em>');
+  function plannerInlineMarkdown(value){
+    let s=escV(String(value??''));
+    s=s.replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>');
+    s=s.replace(/__([^_]+)__/g,'<strong>$1</strong>');
+    s=s.replace(/~~([^~]+)~~/g,'<del>$1</del>');
+    s=s.replace(/\*([^*\n]+)\*/g,'<em>$1</em>');
+    s=s.replace(/_([^_\n]+)_/g,'<em>$1</em>');
     return s;
   }
+
   function plannerMarkdownBlock(value){
-    const lines=String(value??'').replace(/\\n/g,'\n').split('\n'),out=[]; let p=[],list='';
-    const flushP=()=>{if(p.length){out.push('<p>'+p.map(plannerMarkdown).join('<br>')+'</p>');p=[]}};
-    const flushL=()=>{if(list){out.push('</'+list+'>');list=''}};
+    const lines=String(value??'').replace(/\\n/g,'\n').split('\n');
+    const out=[]; let paragraph=[]; let list='';
+    function flushParagraph(){if(paragraph.length){out.push('<p>'+paragraph.map(plannerInlineMarkdown).join('<br>')+'</p>');paragraph=[];}}
+    function flushList(){if(list){out.push('</'+list+'>');list='';}}
     lines.forEach(function(line){
       const t=line.trim();
-      if(!t){flushP();flushL();return}
+      if(!t){flushParagraph();flushList();return;}
       let m=line.match(/^\s{0,3}(#{1,6})\s+(.+?)\s*#*\s*$/);
-      if(m){flushP();flushL();out.push('<h'+m[1].length+'>'+plannerMarkdown(m[2])+'</h'+m[1].length+'>');return}
+      if(m){flushParagraph();flushList();out.push('<h'+m[1].length+'>'+plannerInlineMarkdown(m[2])+'</h'+m[1].length+'>');return;}
       m=line.match(/^\s*[-•*+]\s+(.+)$/);
-      if(m){flushP();if(list!=='ul'){flushL();out.push('<ul>');list='ul'}out.push('<li>'+plannerMarkdown(m[1])+'</li>');return}
+      if(m){flushParagraph();if(list!=='ul'){flushList();out.push('<ul>');list='ul';}out.push('<li>'+plannerInlineMarkdown(m[1])+'</li>');return;}
       m=line.match(/^\s*\d+[.)]\s+(.+)$/);
-      if(m){flushP();if(list!=='ol'){flushL();out.push('<ol>');list='ol'}out.push('<li>'+plannerMarkdown(m[1])+'</li>');return}
-      if(list)flushL();p.push(line);
+      if(m){flushParagraph();if(list!=='ol'){flushList();out.push('<ol>');list='ol';}out.push('<li>'+plannerInlineMarkdown(m[1])+'</li>');return;}
+      if(list)flushList();
+      paragraph.push(line);
     });
-    flushP();flushL();return out.join('');
+    flushParagraph();flushList();
+    return out.join('');
   }
 
   function addSideNavigation(){
