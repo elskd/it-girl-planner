@@ -536,7 +536,7 @@
       window.__itGirlOriginalGoV3=originalGo;
       window.go=function(page){
         ensureLifeSystemData();
-        if(page==='mentor'||page==='progress'||page==='weekly'||page==='goals'||page==='weeks'){page='today';}
+        if(page==='mentor'||page==='progress'||page==='weekly'||page==='goals'){page='today';}
         const result=window.__itGirlOriginalGoV3(page);
         setActivePage(page);
         return result;
