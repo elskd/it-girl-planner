@@ -272,7 +272,7 @@
       '<section class="card section v3-chat">'+
         '<div class="section-head"><div><h2>Поговорить с ментором</h2><div class="date">Напиши ситуацию так, как написала бы человеку.</div></div></div>'+
         '<div class="v3-chat-messages">'+(msgs.length?msgs.map(function(m){return '<div class="v3-chat-message '+(m.role==='user'?'user':'mentor')+'"><div class="v3-chat-role">'+(m.role==='user'?'Ты':'Ментор')+'</div><div class="v3-chat-text">'+escV(m.text).replace(/\n/g,'<br>')+'</div></div>'}).join(''):'<div class="v3-chat-empty">Например: «Я опять перенесла важную задачу. Что мне сейчас делать?»</div>')+'</div>'+
-        '<div class="v3-chat-input-row"><textarea id="v3MentorInput" class="text-input" rows="2" placeholder="Что происходит?"></textarea><button class="btn" onclick="sendMentorMessage()">Отправить</button></div>'+
+        '<form id="v3MentorForm" class="v3-chat-input-row" autocomplete="off"><textarea id="v3MentorInput" class="text-input" rows="2" placeholder="Что происходит?" autocomplete="off"></textarea><button id="v3MentorButton" type="submit" class="btn">Отправить</button></form>'+
       '</section>'+
       '<section class="card section"><div class="section-head"><h2>Что ментор учитывает</h2></div><div class="v3-chip-list"><span>цели</span><span>задачи</span><span>прогресс</span><span>историю недели</span><span>твои правила Мэдди</span></div></section>';
   }
