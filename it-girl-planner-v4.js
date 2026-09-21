@@ -648,11 +648,6 @@
       window.renderMaddy=function(){renderMaddyV3('main')};
     }
 
-    document.addEventListener('submit',function(e){
-      if(e.target?.id==='maddyAskForm'){e.preventDefault();askMaddyV3(e);}
-      if(e.target?.id==='v3MentorForm'){e.preventDefault();v3SubmitMentor(e);}
-    },true);
-
     document.addEventListener('keydown',function(e){
       if(e.target && (e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA') && e.key==='Enter' && (e.metaKey||e.ctrlKey)){
         if(document.getElementById('v3MentorInput')===e.target)sendMentorMessage();
