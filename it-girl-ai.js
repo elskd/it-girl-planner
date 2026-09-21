@@ -27,7 +27,7 @@
     const controller=new AbortController();
     const timer=setTimeout(()=>controller.abort(),30000);
     try{
-      const r=await fetch(AI_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({kind,message,context:aiContext()}),signal:controller.signal});
+      const r=await fetch(AI_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=UTF-8','Accept':'application/json'},body:JSON.stringify({kind,message,context:aiContext()}),signal:controller.signal,cache:'no-store',mode:'cors'});
       let data={}; try{data=await r.json()}catch(e){}
       if(!r.ok) throw new Error(data.error||('AI request failed ('+r.status+')'));
       const answer=String(data.text||'').trim();
