@@ -743,6 +743,13 @@ body.calendar-quick-adding *{
   user-select:none!important;
   -webkit-touch-callout:none!important;
 }
+</style><style id="desktop-swipe-actions-off">
+@media(min-width:701px){
+  .today-task-swipe-action,
+  .planner-task-swipe-action{display:none!important}
+  .today-task-swipe-shell,
+  .planner-task-swipe-shell{overflow:visible!important;background:transparent!important}
+}
 </style></head>
 <body>
 <div class="app"><button class="mobile-sidebar-toggle" type="button" aria-label="Открыть меню" aria-expanded="false" onclick="toggleMobileSidebar()"><span></span><span></span><span></span></button>
@@ -759,7 +766,7 @@ body.calendar-quick-adding *{
   <button class="rail-btn" data-page="calendar" aria-label="Календарь" title="Календарь">
     <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 9h18M7 13h.01M12 13h.01M17 13h.01M7 17h.01M12 17h.01"/></svg>
   </button>
-  <button class="rail-btn" data-page="weeks" aria-label="12 Weeks" title="12 Weeks">
+  <button class="rail-btn" data-page="weeks" aria-label="Цели" title="Цели">
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h4v4H5zM15 5h4v4h-4zM5 15h4v4H5zM15 15h4v4h-4z"/><path d="M11 7h2M11 17h2M7 11v2M17 11v2"/></svg>
   </button>
   <button class="rail-btn" data-page="maddy" aria-label="Maddy" title="Maddy">
@@ -797,7 +804,7 @@ body.calendar-quick-adding *{
   <button type="button" data-page="planner" aria-label="Планер" title="Планер">
     <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 8h8M8 12h5M8 16h8"/></svg>
   </button>
-  <button type="button" data-page="weeks" aria-label="12 Weeks" title="12 Weeks">
+  <button type="button" data-page="weeks" aria-label="Цели" title="Цели">
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h4v4H5zM15 5h4v4h-4zM5 15h4v4H5zM15 15h4v4h-4z"/><path d="M11 7h2M11 17h2M7 11v2M17 11v2"/></svg>
   </button>
   <button type="button" class="mobile-more-btn" aria-label="Мэдди и ещё" title="Мэдди и ещё" aria-expanded="false">
@@ -981,8 +988,8 @@ function renderToday(){
   <section class="card score-card"><div class="label">Today Score</div><div class="score-number">${s}%</div><div class="score-copy"><p class="score-completed"><span>Выполнено:</span> <b>${h[0]} / ${h[1]}</b> привычек · <b>${t[0]} / ${t[1]}</b> задач</p><div class="bar"><i style="width:${s}%"></i></div></div></section>
   <section class="card score-card"><div class="label">My Character</div><div class="score-number">${m}%</div><div class="score-copy"><p>Твой текущий прогресс по сферам.</p><div class="bar"><i style="width:${m}%"></i></div></div></section>
  </div>
- <section class="card section today-habits-section"><div class="section-head"><h2>Привычки</h2><button class="btn ghost" onclick="go('planner');plannerMode='habits';setTimeout(()=>renderPlanner(),0)">Все привычки</button></div><div class="habit-grid">${state.habits.map(habitTodayHTML).join('')}</div></section>
- <section class="card section tasks-section"><div class="tasks-header"><div class="tasks-title">Задачи</div><div class="tasks-count">${todayTasks().length ? todayTasks().length + (todayTasks().length === 1 ? ' задача на сегодня' : todayTasks().length < 5 ? ' задачи на сегодня' : ' задач на сегодня') : 'На сегодня задач нет'}</div></div><div class="tasks-divider"></div>${renderTasksGrouped(todayTasks())}<div class="tasks-add-wrap"><button class="btn tasks-add-btn" onclick="openTaskModal()">+ Добавить задачу</button></div></section>`
+ <section class="card section tasks-section"><div class="tasks-header"><div class="tasks-title">Задачи</div><div class="tasks-count">${todayTasks().length ? todayTasks().length + (todayTasks().length === 1 ? ' задача на сегодня' : todayTasks().length < 5 ? ' задачи на сегодня' : ' задач на сегодня') : 'На сегодня задач нет'}</div></div><div class="tasks-divider"></div>${renderTasksGrouped(todayTasks())}<div class="tasks-add-wrap"><button class="btn tasks-add-btn" onclick="openTaskModal()">+ Добавить задачу</button></div></section>
+ <section class="card section today-habits-section"><div class="section-head"><h2>Привычки</h2><button class="btn ghost" onclick="go('planner');plannerMode='habits';setTimeout(()=>renderPlanner(),0)">Все привычки</button></div><div class="habit-grid">${state.habits.map(habitTodayHTML).join('')}</div></section>`
 }
 function renderTasksGrouped(tasks){if(!tasks.length)return '<div class="empty">На этот день задач нет.</div>';const pinned=tasks.filter(t=>t.pinned),rest=tasks.filter(t=>!t.pinned);let out='';if(pinned.length)out+='<div class="task-group task-pinned-group"><div class="label" style="padding:9px 0 2px">Закреплено</div>'+renderTasksHTML(pinned)+'</div>';const groups=[['high','Высокий приоритет'],['medium','Средний приоритет'],['low','Низкий приоритет'],['none','Без приоритета']];return out+groups.map(([p,label])=>{const arr=rest.filter(t=>(t.priority||'none')===p);if(!arr.length)return '';return '<div class="task-group"><div class="label" style="padding:9px 0 2px">'+label+'</div>'+renderTasksHTML(arr)+'</div>'}).join('')}
 
@@ -1290,34 +1297,15 @@ function renderMonthCalendar(){const first=new Date(calDate.getFullYear(),calDat
 let selectedWeekIndex=null;let weeksView='overview';let statsWeekIndex=null;
 function weekProgress(w){const start=isoDate(w.start),end=isoDate(w.end);const ts=state.tasks.filter(t=>t.date>=start&&t.date<=end);const td=ts.length?ts.filter(t=>t.done).length/ts.length:0;let done=0,max=0;state.habits.forEach(h=>{for(let i=0;i<7;i++){max++;if(habitDone(h,isoDate(addDays(w.start,i))))done++}});const hd=max?done/max:0;return Math.round((td+hd)/2*100)}
 function renderWeeks(){
- const weeks=cycleWeeks(),c=currentCycle();
- if(!weeks.length){document.getElementById('page').innerHTML='<div class="empty">Нет полных недель до конца года.</div>';return}
- if(selectedWeekIndex===null||selectedWeekIndex<0||selectedWeekIndex>=weeks.length)selectedWeekIndex=Math.max(0,weeks.findIndex(w=>isoDate(w.start)===isoDate(c.start)));
- const w=weeks[selectedWeekIndex];
- let html='<header class="page-head"><div class="eyebrow">Система</div><h1 class="title">12 Weeks</h1><div class="date">Полные недели с понедельника по воскресенье · '+weeks.length+' недель до конца года.</div></header>';
- html+='<div class="tabs weeks-tabs">'+
-   '<button class="'+(weeksView==='overview'?'active':'')+'" onclick="weeksView=\'overview\';renderWeeks()">12 Weeks</button>'+
-   '<button class="'+(weeksView==='week'?'active':'')+'" onclick="weeksView=\'week\';renderWeeks()">Неделя</button>'+
-   '<button class="'+(weeksView==='stats'?'active':'')+'" onclick="weeksView=\'stats\';statsWeekIndex=selectedWeekIndex;renderWeeks()">Статистика</button></div>';
- if(weeksView==='overview'){
-   html+='<section class="card"><div class="section-head"><div><h2>Цели периода</h2><div class="date">Весь текущий период до конца года.</div></div><button class="btn" onclick="openGoalModal()">+ Добавить</button></div>';
-   html+=state.goals.length?state.goals.map(g=>goalHTML(g)).join(''):'<div class="empty">Добавь 3–5 главных целей и разбей их на подцели и действия.</div>';
-   html+='</section><section class="card section"><div class="section-head"><div><h2>Период</h2><span class="date">'+fmtShort(weeks[0].start)+' — '+fmtShort(weeks[weeks.length-1].end)+'</span></div><span class="label">'+weeks.length+' недель</span></div><div class="week-metrics">';
-   html+='<div class="metric"><div class="n">'+state.goals.length+'</div><div class="l">целей</div></div><div class="metric"><div class="n">'+state.tasks.filter(t=>t.done).length+'</div><div class="l">выполнено задач</div></div><div class="metric"><div class="n">'+state.habits.reduce((a,h)=>a+habitTotal(h),0)+'</div><div class="l">выполнений привычек</div></div><div class="metric"><div class="n">'+Math.round(weeks.reduce((a,x)=>a+weekProgress(x),0)/weeks.length)+'%</div><div class="l">средний прогресс недель</div></div></div></section>';
- } else if(weeksView==='week'){
-   const wt=state.tasks.filter(t=>t.date>=isoDate(w.start)&&t.date<=isoDate(w.end)),wd=wt.filter(t=>t.done).length;let hd=0,hm=0;state.habits.forEach(h=>{for(let i=0;i<7;i++){hm++;if(habitDone(h,isoDate(addDays(w.start,i))))hd++}});
-   html+='<section class="card"><div class="section-head"><div><h2>Выбрать неделю</h2><div class="date">'+fmtDate(isoDate(w.start))+' — '+fmtDate(isoDate(w.end))+'</div></div><select class="select" style="max-width:330px" onchange="selectedWeekIndex=Number(this.value);renderWeeks()">';
-   html+=weeks.map((x,i)=>'<option value="'+i+'" '+(i===selectedWeekIndex?'selected':'')+'>Неделя '+(i+1)+' · '+fmtShort(x.start)+' — '+fmtShort(x.end)+'</option>').join('');
-   html+='</select></div><div class="bar"><i style="width:'+weekProgress(w)+'%"></i></div><div class="week-metrics" style="margin-top:12px"><div class="metric"><div class="n">'+weekProgress(w)+'%</div><div class="l">прогресс недели</div></div><div class="metric"><div class="n">'+wd+'</div><div class="l">задач выполнено</div></div><div class="metric"><div class="n">'+hd+'</div><div class="l">привычек выполнено</div></div><div class="metric"><div class="n">'+(hm-hd)+'</div><div class="l">выполнений осталось</div></div></div><div style="margin-top:16px"><div class="label">Weekly Focus</div><div style="font-family:Georgia,serif;font-size:16px;margin-top:5px">Small actions. Different person.</div></div></section>';
- } else {
-   html+='<section class="card"><div class="section-head"><div><h2>Прогресс по неделям</h2><div class="date">Выбери неделю, чтобы открыть подробную статистику.</div></div></div><div class="week-stat-list">';
-   html+=weeks.map((x,i)=>'<button class="week-stat-choice '+(i===statsWeekIndex?'active':'')+'" onclick="statsWeekIndex='+i+';selectedWeekIndex='+i+';renderWeeks()"><div class="n">Неделя '+(i+1)+'</div><div class="d">'+fmtShort(x.start)+' — '+fmtShort(x.end)+'</div><div class="p">'+weekProgress(x)+'%</div></button>').join('');
-   html+='</div></section>';
-   if(statsWeekIndex!==null&&weeks[statsWeekIndex]){const sw=weeks[statsWeekIndex],st=state.tasks.filter(t=>t.date>=isoDate(sw.start)&&t.date<=isoDate(sw.end));let sd=0,sm=0;state.habits.forEach(h=>{for(let i=0;i<7;i++){sm++;if(habitDone(h,isoDate(addDays(sw.start,i))))sd++}});html+='<section class="card section"><div class="section-head"><div><h2>Неделя '+(statsWeekIndex+1)+'</h2><div class="date">'+fmtDate(isoDate(sw.start))+' — '+fmtDate(isoDate(sw.end))+'</div></div><span class="label">'+weekProgress(sw)+'%</span></div><div class="week-metrics"><div class="metric"><div class="n">'+st.filter(t=>t.done).length+' / '+st.length+'</div><div class="l">задачи</div></div><div class="metric"><div class="n">'+sd+' / '+sm+'</div><div class="l">выполнения привычек</div></div><div class="metric"><div class="n">'+state.goals.length+'</div><div class="l">цели периода</div></div></div></section>'}
- }
- document.getElementById('page').innerHTML=html;
+ const weeks=cycleWeeks();
+ document.getElementById('page').innerHTML=
+  '<header class="page-head"><div class="eyebrow">MY GOALS</div><h1 class="title">Цели</h1><div class="date">Главные цели и конкретные шаги к ним.</div></header>'+
+  '<section class="card section goals-page-card"><div class="section-head"><div><h2>Мои цели</h2><div class="date">Разбивай большие цели на подцели и действия.</div></div><button class="btn" onclick="openGoalModal()">+ Добавить цель</button></div>'+
+  (state.goals.length?state.goals.map(g=>goalHTML(g)).join(''):'<div class="empty">Пока нет целей. Добавь первую цель.</div>')+
+  '</section>'+
+  '<section class="card section goals-period-card"><div class="section-head"><div><h2>Текущий период</h2><div class="date">Отслеживание недель и статистику мы пока не показываем — сначала сделаем сами цели удобными.</div></div></div>'+
+  '<div class="goal-period-simple">'+(weeks.length?fmtShort(weeks[0].start)+' — '+fmtShort(weeks[weeks.length-1].end):'')+'</div></section>';
 }
-
 function goalHTML(g){return `<div class="goal"><div class="goal-head"><div><div class="goal-title">${esc(g.title)}</div><div class="goal-target">${esc(g.target)}</div></div><div class="task-actions"><button class="mini" onclick="openGoalModal(${g.id})">✎</button><button class="mini" onclick="deleteGoal(${g.id})">×</button></div></div><div class="progress-line"><i style="width:${g.progress}%"></i></div><div class="goal-meta">${g.progress}%</div>${g.subgoals.length?`<ul class="subgoals">${g.subgoals.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`:''}${g.actions.length?`<div class="actions-list">${g.actions.map(x=>`<div class="action-item">${esc(x)}</div>`).join('')}</div>`:''}</div>`}
 function deleteGoal(id){if(!confirm('Удалить цель?'))return;state.goals=state.goals.filter(g=>g.id!=id);refresh()}
 function ensureRPG(){
@@ -2774,7 +2762,7 @@ renderToday=function(){
 };
 </script>
 <script src="it-girl-planner-v4.js?v=33"></script>
-<script src="ai-v5.js?v=2"></script>
+
 </body>
 </html>
 <style id="planner-navigation-overrides">/* Navigation controls: compact circular arrows, matching the date-card height. */
