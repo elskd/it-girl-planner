@@ -77,25 +77,98 @@
     }
   }
 
-  function markdownToHTML(value){
-    let s=escV(normalizeAIText(value));
-    s=s.replace(/^######\s+(.+)$/gm,'<h6>$1</h6>')
-      .replace(/^#####\s+(.+)$/gm,'<h5>$1</h5>')
-      .replace(/^####\s+(.+)$/gm,'<h4>$1</h4>')
-      .replace(/^###\s+(.+)$/gm,'<h3>$1</h3>')
-      .replace(/^##\s+(.+)$/gm,'<h2>$1</h2>')
-      .replace(/^#\s+(.+)$/gm,'<h1>$1</h1>')
-      .replace(/^\*\*(.+?)\*\*$/gm,'<strong>$1</strong>')
-      .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
-      .replace(/__([^_\n]+?)__/g,'<strong>$1</strong>')
-      .replace(/\*([^*\n]+?)\*/g,'<em>$1</em>')
-      .replace(/^\s*[-•]\s+(.+)$/gm,'<li>$1</li>')
-      .replace(/(<li>.*<\/li>)/gs,'<ul>$1</ul>')
-      .replace(/^(\d+)\.\s+(.+)$/gm,'<div class="md-numbered"><span>$1.</span><div>$2</div></div>')
-      .replace(/\n\n+/g,'</p><p>')
-      .replace(/\n/g,'<br>');
-    if(!/^</.test(s.trim()))s='<p>'+s+'</p>';
+  function inlineMarkdown(value){
+    let s=String(value??'');
+    // AI sometimes escapes Markdown markers. Turn those back into real markers first.
+    s=s.replace(/\\\\([*_[\\]{}()#+.!~-])/g,'$1');
+    s=escV(s);
+    s=s.replace(/\\`([^\\`\\n]+)\\`/g,'<code>$1</code>');
+    s=s.replace(/\\*\\*(.+?)\\*\\*/g,'<strong>$1</strong>');
+    s=s.replace(/__([^_\\n]+?)__/g,'<strong>$1</strong>');
+    s=s.replace(/~~([^~\\n]+?)~~/g,'<del>$1</del>');
+    s=s.replace(/(?<!\\*)\\*([^*\\n]+?)\\*(?!\\*)/g,'<em>$1</em>');
+    s=s.replace(/(?<!_)_([^_\\n]+?)_(?!_)/g,'<em>$1</em>');
     return s;
+  }
+
+  function markdownToHTML(value){
+    const lines=normalizeAIText(value).split('\\n');
+    const out=[];
+    let paragraph=[];
+    let listType=null;
+    let quote=[];
+    function flushParagraph(){
+      if(!paragraph.length)return;
+      out.push('<p>'+paragraph.map(inlineMarkdown).join('<br>')+'</p>');
+      paragraph=[];
+    }
+    function flushList(){
+      if(!listType)return;
+      out.push('</'+listType+'>');
+      listType=null;
+    }
+    function flushQuote(){
+      if(!quote.length)return;
+      out.push('<blockquote>'+quote.map(inlineMarkdown).join('<br>')+'</blockquote>');
+      quote=[];
+    }
+    function closeBlocks(){
+      flushParagraph();
+      flushList();
+      flushQuote();
+    }
+
+    for(let i=0;i<lines.length;i++){
+      const line=String(lines[i]??'');
+      const trimmed=line.trim();
+
+      if(!trimmed){ closeBlocks(); continue; }
+
+      let m=line.match(/^\\s{0,3}(#{1,6})\\s+(.+?)\\s*#*\\s*$/);
+      if(m){ closeBlocks(); const level=m[1].length; out.push('<h'+level+'>'+inlineMarkdown(m[2])+'</h'+level+'>'); continue; }
+
+      if(/^\\s{0,3}([-*_])(?:\\s*\\1){2,}\\s*$/.test(line)){ closeBlocks(); out.push('<hr>'); continue; }
+
+      m=line.match(/^\\s{0,3}>\\s?(.*)$/);
+      if(m){ flushParagraph(); flushList(); quote.push(m[1]); continue; }
+      if(quote.length) flushQuote();
+
+      m=line.match(/^\\s*[-•*+]\\s+(.+)$/);
+      if(m){
+        flushParagraph();
+        if(listType!=='ul'){ flushList(); out.push('<ul>'); listType='ul'; }
+        out.push('<li>'+inlineMarkdown(m[1])+'</li>');
+        continue;
+      }
+
+      m=line.match(/^\\s*\\d+[.)]\\s+(.+)$/);
+      if(m){
+        flushParagraph();
+        if(listType!=='ol'){ flushList(); out.push('<ol>'); listType='ol'; }
+        out.push('<li>'+inlineMarkdown(m[1])+'</li>');
+        continue;
+      }
+
+      if(listType) flushList();
+      paragraph.push(line);
+    }
+
+    closeBlocks();
+    return out.join('');
+  }
+
+  function rememberChatScroll(){
+    return {x:window.scrollX||window.pageXOffset||0,y:window.scrollY||window.pageYOffset||0};
+  }
+
+  function restoreChatScroll(pos){
+    if(!pos)return;
+    const restore=()=>{
+      try{window.scrollTo(pos.x,pos.y)}catch(e){}
+      try{document.documentElement.scrollTop=pos.y;document.body.scrollTop=pos.y}catch(e){}
+    };
+    restore();
+    [16,50,120,250,500].forEach(ms=>setTimeout(restore,ms));
   }
 
   function appendMaddyChatMessage(role,text){
@@ -110,26 +183,42 @@
     return el;
   }
 
+  function formatRenderedMaddyHistory(){
+    const ls=ensureLifeSystemData();
+    const history=Array.isArray(ls.maddyChat)?ls.maddyChat:[];
+    const nodes=document.querySelectorAll('.v3-chat-messages .v3-chat-message');
+    nodes.forEach((node,i)=>{
+      const msg=history[i];
+      const textNode=node.querySelector('.v3-chat-text');
+      if(msg&&textNode) textNode.innerHTML=markdownToHTML(msg.text);
+    });
+  }
+
   async function realAskMaddy(){
     const input=document.getElementById('maddyAskInput');
     const text=String(input?.value||'').trim(); if(!text)return;
+    const scrollBefore=rememberChatScroll();
     const ls=ensureLifeSystemData();
     ls.maddyChat=Array.isArray(ls.maddyChat)?ls.maddyChat:[];
     ls.maddyChat.push({id:'maddy:'+Date.now()+':u',role:'user',text});
     input.value='';
     persist();
     const userEl=appendMaddyChatMessage('user',text);
+    restoreChatScroll(scrollBefore);
     try{
       const answer=await askAI('maddy',text);
       ls.maddyChat.push({id:'maddy:'+Date.now()+':a',role:'maddy',text:answer});
       persist();
       const answerEl=appendMaddyChatMessage('maddy',answer);
+      // iOS Safari can reposition the document when the keyboard closes after a DOM update.
+      if(Math.abs((window.scrollY||0)-scrollBefore.y)>80) restoreChatScroll(scrollBefore);
     }catch(e){
       console.error(e);
       const errorText='Не получилось получить ответ ИИ: '+(e?.message||'неизвестная ошибка');
       ls.maddyChat.push({id:'maddy:'+Date.now()+':e',role:'maddy',text:errorText});
       persist();
       const errorEl=appendMaddyChatMessage('maddy',errorText);
+      if(Math.abs((window.scrollY||0)-scrollBefore.y)>80) restoreChatScroll(scrollBefore);
     }
   }
 
@@ -165,6 +254,19 @@
     card.innerHTML='<div class="section-head"><div><div class="label">AI</div><h2>Разбор недели от ИИ</h2></div><button class="btn" id="v3AIWeeklyButton" onclick="runAIWeeklyAnalysis()">Получить AI-анализ</button></div><div id="v3AIWeeklyAnalysis" class="v3-ai-weekly-box"><div class="empty">Нажми кнопку — ИИ разберёт реальные данные твоей недели.</div></div>';
     page.appendChild(card);
   };
+
+  const originalMaddyRender=window.renderMaddyV3;
+  if(typeof originalMaddyRender==='function'){
+    window.renderMaddyV3=function(view){
+      const pos=rememberChatScroll();
+      const result=originalMaddyRender(view);
+      if(view==='ask'){
+        formatRenderedMaddyHistory();
+        restoreChatScroll(pos);
+      }
+      return result;
+    };
+  }
 
   window.sendMentorMessage=realSendMentorMessage;
   window.askMaddyV3=realAskMaddy;
