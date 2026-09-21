@@ -463,7 +463,7 @@
       maddyTabs('ask')+
       '<section class="card section v3-chat">'+
         '<div class="v3-chat-messages">'+(history.length?history.map(function(x){return '<div class="v3-chat-message '+(x.role==='user'?'user':'mentor')+'"><div class="v3-chat-role">'+(x.role==='user'?'Ты':'Мэдди')+'</div><div class="v3-chat-text">'+plannerMarkdownBlock(x.text)+'</div></div>'}).join(''):'<div class="v3-chat-empty">«Я в такой-то ситуации. Что Мэдди сделала бы на моём месте?»</div>')+'</div>'+
-        '<form id="maddyAskForm" class="v3-chat-input-row" onsubmit="return askMaddyV3(event)" autocomplete="off"><textarea id="maddyAskInput" class="text-input" rows="3" placeholder="Я в такой-то ситуации…" autocomplete="off" autocorrect="on" autocapitalize="sentences" spellcheck="true"></textarea><button type="button" class="btn" onclick="return window.askMaddyV3 ? window.askMaddyV3(event) : false">Спросить</button></form>'+
+        '<form id="maddyAskForm" class="v3-chat-input-row" onsubmit="return askMaddyV3(event)" autocomplete="off"><textarea id="maddyAskInput" class="text-input" rows="3" placeholder="Я в такой-то ситуации…" autocomplete="off" autocorrect="on" autocapitalize="sentences" spellcheck="true"></textarea><button type="button" class="btn maddy-send-btn" aria-label="Отправить сообщение" title="Отправить" onclick="return window.askMaddyV3 ? window.askMaddyV3(event) : false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4.8 20 12 4 19.2 6.2 13 14 12 6.2 11z"/></svg></button></form>'+
       '</section>';
   }
 
