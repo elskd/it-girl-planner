@@ -1004,13 +1004,7 @@ let plannerTaskQuery='';
 let plannerTaskFilter='all';
 function setPlannerTaskQuery(v){plannerTaskQuery=String(v||'');renderPlanner()}
 function setPlannerTaskFilter(v){plannerTaskFilter=v||'all';renderPlanner()}
-function plannerTaskVisible(t){
- const q=plannerTaskQuery.trim().toLowerCase();
- if(plannerTaskFilter==='open' && t.done)return false;
- if(plannerTaskFilter==='done' && !t.done)return false;
- if(q && !String(t.title||'').toLowerCase().includes(q) && !String(t.notes||'').toLowerCase().includes(q) && !String(t.area||'').toLowerCase().includes(q))return false;
- return true;
-}
+function plannerTaskVisible(t){ return true; }
 
 function plannerWeekStart(){return monday(parseDate(selectedPlannerDate))}
 function shiftPlannerWeek(delta){selectedPlannerDate=isoDate(addDays(plannerWeekStart(),delta*7));renderPlanner()}
@@ -1190,7 +1184,7 @@ function plannerTasks(){
  const allTasks=state.tasks.filter(t=>taskIsActive(t)&&t.date===selected).sort((a,b)=>{if(a.allDay&&!b.allDay)return -1;if(!a.allDay&&b.allDay)return 1;return timeToMin(a.start||'00:00')-timeToMin(b.start||'00:00')});
  const tasks=allTasks.filter(plannerTaskVisible);
  const openCount=allTasks.filter(t=>!t.done).length,doneCount=allTasks.filter(t=>t.done).length;
- return '<section class="card planner-tasks-card"><div class="section-head"><div><h2>Задачи</h2><div class="date">'+fmtDate(selected)+' · '+openCount+' открытых · '+doneCount+' выполненных</div></div><button class="btn planner-add-btn" onclick="openTaskModal(0,{date:\''+selected+'\'})"><span class="planner-add-label">+ Добавить</span><span class="planner-add-plus">+</span></button></div>'+plannerDatePicker('tasks')+'<div class="planner-task-toolbar"><div class="planner-search"><span>⌕</span><input value="'+esc(plannerTaskQuery)+'" oninput="setPlannerTaskQuery(this.value)" placeholder="Поиск задач" aria-label="Поиск задач"></div><div class="planner-filters"><button class="'+(plannerTaskFilter==='all'?'active':'')+'" onclick="setPlannerTaskFilter(\'all\')">Все</button><button class="'+(plannerTaskFilter==='open'?'active':'')+'" onclick="setPlannerTaskFilter(\'open\')">Открытые</button><button class="'+(plannerTaskFilter==='done'?'active':'')+'" onclick="setPlannerTaskFilter(\'done\')">Готово</button></div></div><div class="planner-task-list">'+(tasks.length?renderTasksHTML(tasks):'<div class="planner-empty">'+(allTasks.length?'По этому фильтру задач нет.':'Задач на этот день пока нет.')+'</div>')+'</div></section>';
+ return '<section class="card planner-tasks-card"><div class="section-head"><div><h2>Задачи</h2><div class="date">'+fmtDate(selected)+' · '+openCount+' открытых · '+doneCount+' выполненных</div></div><button class="btn planner-add-btn" onclick="openTaskModal(0,{date:\''+selected+'\'})"><span class="planner-add-label">+ Добавить</span><span class="planner-add-plus">+</span></button></div>'+plannerDatePicker('tasks')+'<div class="planner-task-list">'+(tasks.length?renderTasksHTML(tasks):'<div class="planner-empty">'+(allTasks.length?'По этому фильтру задач нет.':'Задач на этот день пока нет.')+'</div>')+'</div></section>';
 }
 function priorityRank(p){return p==='high'?0:p==='medium'?1:2}
 let selectedHabitDate=todayISO();
