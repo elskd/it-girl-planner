@@ -202,7 +202,7 @@
     const text=String(input?.value||'').trim(); if(!text)return false;
     maddySending=true;
     const sendButton=document.querySelector('#maddyAskForm button[type="submit"]');
-    if(sendButton){sendButton.disabled=true;sendButton.textContent='Думаю…';}
+    if(sendButton){sendButton.disabled=true;sendButton.textContent='Спросить';}
     const scrollBefore=rememberChatScroll();
     const ls=ensureLifeSystemData();
     ls.maddyChat=Array.isArray(ls.maddyChat)?ls.maddyChat:[];
@@ -212,7 +212,11 @@
     const userEl=appendMaddyChatMessage('user',text);
     // Показываем в самом чате, что Мэдди уже получила сообщение и думает над ответом.
     const loadingEl=appendMaddyChatMessage('maddy','Думаю…');
-    if(loadingEl) loadingEl.classList.add('ai-loading');
+    if(loadingEl){
+      loadingEl.classList.add('ai-loading');
+      // «Думаю…» находится в области ответов Мэдди, а не на кнопке.
+      loadingEl.setAttribute('aria-live','polite');
+    }
     restoreChatScroll(scrollBefore);
     try{
       const answer=await askAI('maddy',text);
