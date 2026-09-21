@@ -210,11 +210,15 @@
     input.value='';
     persist();
     const userEl=appendMaddyChatMessage('user',text);
+    // Показываем в самом чате, что Мэдди уже получила сообщение и думает над ответом.
+    const loadingEl=appendMaddyChatMessage('maddy','Думаю…');
+    if(loadingEl) loadingEl.classList.add('ai-loading');
     restoreChatScroll(scrollBefore);
     try{
       const answer=await askAI('maddy',text);
       ls.maddyChat.push({id:'maddy:'+Date.now()+':a',role:'maddy',text:answer});
       persist();
+      if(loadingEl&&loadingEl.parentNode) loadingEl.remove();
       const answerEl=appendMaddyChatMessage('maddy',answer);
       // iOS Safari can reposition the document when the keyboard closes after a DOM update.
       if(Math.abs((window.scrollY||0)-scrollBefore.y)>80) restoreChatScroll(scrollBefore);
@@ -223,6 +227,7 @@
       const errorText='Не получилось получить ответ ИИ: '+(e?.message||'неизвестная ошибка');
       ls.maddyChat.push({id:'maddy:'+Date.now()+':e',role:'maddy',text:errorText});
       persist();
+      if(loadingEl&&loadingEl.parentNode) loadingEl.remove();
       const errorEl=appendMaddyChatMessage('maddy',errorText);
       if(Math.abs((window.scrollY||0)-scrollBefore.y)>80) restoreChatScroll(scrollBefore);
     }finally{
@@ -285,7 +290,7 @@
 
   if(!document.getElementById('itgirl-ai-styles')){
     const s=document.createElement('style'); s.id='itgirl-ai-styles';
-    s.textContent='.v3-ai-weekly-box{min-height:30px}.v3-ai-weekly-box .v3-analysis-text{margin-top:8px}.v3-chat-message.ai-loading{opacity:.65}';
+    s.textContent='.v3-ai-weekly-box{min-height:30px}.v3-ai-weekly-box .v3-analysis-text{margin-top:8px}.v3-chat-message.ai-loading{opacity:.62}.v3-chat-message.ai-loading .v3-chat-text{font-style:italic}';
     document.head.appendChild(s);
   }
 })();
