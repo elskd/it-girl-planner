@@ -23,10 +23,19 @@
   }
 
   async function askAI(kind,message){
-    const r=await fetch(AI_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({kind,message,context:aiContext()})});
-    let data={}; try{data=await r.json()}catch(e){}
-    if(!r.ok) throw new Error(data.error||'AI request failed');
-    return String(data.text||'').trim();
+    const controller=new AbortController();
+    const timer=setTimeout(()=>controller.abort(),30000);
+    try{
+      const r=await fetch(AI_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({kind,message,context:aiContext()}),signal:controller.signal});
+      let data={}; try{data=await r.json()}catch(e){}
+      if(!r.ok) throw new Error(data.error||('AI request failed ('+r.status+')'));
+      const answer=String(data.text||'').trim();
+      if(!answer) throw new Error('ИИ не вернул текстовый ответ');
+      return answer;
+    }catch(e){
+      if(e?.name==='AbortError') throw new Error('ИИ не ответил за 30 секунд. Попробуй ещё раз.');
+      throw e;
+    }finally{clearTimeout(timer)}
   }
 
   function setButtonLoading(id,loading,label){
@@ -46,7 +55,7 @@
       persist(); renderMentorV3();
     }catch(e){
       console.error(e);
-      ls.mentorMessages.push({id:'msg:'+Date.now()+':e',role:'mentor',text:'Не получилось связаться с ИИ. Проверь подключение AI в настройках проекта.',createdAt:new Date().toISOString()});
+      ls.mentorMessages.push({id:'msg:'+Date.now()+':e',role:'mentor',text:'Не получилось получить ответ ИИ: '+(e?.message||'неизвестная ошибка'),createdAt:new Date().toISOString()});
       persist(); renderMentorV3();
     }
   }
@@ -64,7 +73,7 @@
       persist(); renderMaddyV3('ask');
     }catch(e){
       console.error(e);
-      ls.maddyChat.push({id:'maddy:'+Date.now()+':e',role:'maddy',text:'Не получилось связаться с ИИ. Проверь подключение AI в настройках проекта.'});
+      ls.maddyChat.push({id:'maddy:'+Date.now()+':e',role:'maddy',text:'Не получилось получить ответ ИИ: '+(e?.message||'неизвестная ошибка')});
       persist(); renderMaddyV3('ask');
     }
   }
