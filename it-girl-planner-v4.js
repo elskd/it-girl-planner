@@ -30,7 +30,7 @@
 
   async function plannerDirectAI(kind,message){
     const controller=new AbortController();
-    const timer=setTimeout(function(){controller.abort()},20000);
+    const timer=setTimeout(function(){controller.abort()},35000);
     try{
       const r=await fetch('https://ajrcehwxqgbloixgvcxc.supabase.co/functions/v1/it-girl-ai',{
         method:'POST',
@@ -469,7 +469,7 @@
     if(!text)return false;
     v3MaddySending=true;
     const form=document.getElementById('maddyAskForm');
-    const button=form?.querySelector('button[type="submit"]');
+    const button=form?.querySelector('button');
     if(button){button.disabled=true;button.textContent='Спросить';}
     const ls=life();
     ls.maddyChat=Array.isArray(ls.maddyChat)?ls.maddyChat:[];
@@ -495,7 +495,7 @@
       renderMaddyV3('ask');
     }finally{
       v3MaddySending=false;
-      const b=document.querySelector('#maddyAskForm button[type="submit"]');
+      const b=document.querySelector('#maddyAskForm button');
       if(b){b.disabled=false;b.textContent='Спросить';}
     }
     return false;
