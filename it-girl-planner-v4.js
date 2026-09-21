@@ -85,48 +85,7 @@
     return out.join('');
   }
 
-  function addSideNavigation(){
-    if(document.querySelector('.itgirl-v3-system-nav')) return;
-
-    const sidebar=document.querySelector('.sidebar');
-    if(sidebar){
-      const block=document.createElement('div');
-      block.className='itgirl-v3-system-nav';
-      block.innerHTML=
-        '<div class="sidebar-divider"></div>'+
-        '<div class="sidebar-section-label">СИСТЕМА</div>'+
-        '<nav class="nav">'+
-          '<button type="button" data-page="goals"><span class="side-icon">◎</span><span>Цели</span></button>'+
-          '<button type="button" data-page="mentor"><span class="side-icon">✦</span><span>Ментор</span></button>'+
-          '<button type="button" data-page="progress"><span class="side-icon">↗</span><span>Прогресс</span></button>'+
-          '<button type="button" data-page="weekly"><span class="side-icon">◷</span><span>Анализ недели</span></button>'+
-        '</nav>';
-      const status=sidebar.querySelector('.sidebar-task-status');
-      if(status) status.after(block); else sidebar.appendChild(block);
-    }
-
-    const more=document.querySelector('.mobile-more-menu');
-    if(more){
-      ['goals','mentor','progress','weekly'].forEach(function(page){
-        const labels={goals:'Цели',mentor:'Ментор',progress:'Прогресс',weekly:'Анализ недели'};
-        const icons={goals:'◎',mentor:'✦',progress:'↗',weekly:'◷'};
-        const b=document.createElement('button');
-        b.type='button'; b.dataset.page=page;
-        b.innerHTML='<span class="more-icon">'+icons[page]+'</span><span>'+labels[page]+'</span>';
-        more.insertBefore(b,more.firstChild);
-      });
-    }
-
-    document.querySelectorAll('[data-page="weeks"]').forEach(function(b){
-      b.dataset.page='goals';
-      b.setAttribute('aria-label','Цели');
-      b.title='Цели';
-    });
-
-    document.querySelectorAll('.rail-btn[data-page="weeks"]').forEach(function(b){
-      b.dataset.page='goals'; b.setAttribute('aria-label','Цели'); b.title='Цели';
-    });
-  }
+  function addSideNavigation(){ return; }
 
   function setActivePage(page){
     document.querySelectorAll('[data-page]').forEach(function(b){
@@ -403,12 +362,7 @@
       '<section class="card section"><div class="modal-actions" style="margin-top:0"><button class="btn ghost" onclick="go(\'mentor\')">Обсудить с ментором</button><button class="btn" onclick="addMentorRecommendation()">Добавить главный шаг в Сегодня</button></div></section>';
   }
 
-  function maddyTabs(active){
-    const tabs=[
-      ['main','Мэдди'],['ask','Спросить Мэдди'],['rules','Правила'],['behavior','Поведение'],['values','Ценности'],['moodboard','Moodboard'],['notes','Заметки']
-    ];
-    return '<div class="v3-maddy-tabs">'+tabs.map(function(x){return '<button class="'+(active===x[0]?'active':'')+'" onclick="renderMaddyV3(\''+x[0]+'\')">'+x[1]+'</button>'}).join('')+'</div>';
-  }
+  function maddyTabs(active){ return ''; }
 
   function renderMaddyMainV3(){
     const original=window.__itGirlOriginalRenderMaddy;
@@ -548,69 +502,8 @@
 
   function renderMaddyV3(view){
     ensureLifeSystemData();
-    if(document.body) document.body.classList.toggle('maddy-chat-mode',view==='ask');
-    if(view==='ask') return renderMaddyAsk();
-    if(view==='rules') return renderMaddyListView('rules','Правила Мэдди','Принципы, которыми она руководствуется.');
-    if(view==='behavior') return renderMaddyListView('behaviors','Как ведёт себя Мэдди','Что она делает, как принимает решения и как относится к себе.');
-    if(view==='values') return renderMaddyListView('values','Ценности Мэдди','Что для неё действительно важно.');
-    if(view==='notes') return renderMaddyNotes();
-    if(view==='moodboard') return renderMaddyMoodboard();
     maddyData().identity=maddyData().identity||'';
     renderMaddyMainV3();
-  }
-
-  function saveAIStyle(){
-    const ls=life();
-    ls.aiStyle={
-      language:'ru',address:document.getElementById('aiStyleAddress')?.value||'ты',
-      tone:document.getElementById('aiStyleTone')?.value||'близкая подруга',
-      directness:document.getElementById('aiStyleDirectness')?.value||'прямо',
-      profanity:!!document.getElementById('aiStyleProfanity')?.checked,
-      challenge:document.getElementById('aiStyleChallenge')?.value||'если долго стою на месте — жёсткий пинок',
-      automaticAgreement:!!document.getElementById('aiStyleAgreement')?.checked,
-      supportWhenHard:!!document.getElementById('aiStyleSupport')?.checked,
-      concreteActions:!!document.getElementById('aiStyleActions')?.checked,
-      lively:!!document.getElementById('aiStyleLively')?.checked,
-      structure:'структурированно, по пунктам и разделам, без воды',
-      length:document.getElementById('aiStyleLength')?.value||'средне',
-      emotion:document.getElementById('aiStyleEmotion')?.value||'очень эмоционально и живо',
-      emojis:document.getElementById('aiStyleEmojis')?.value||'иногда',
-      custom:document.getElementById('aiStyleCustom')?.value||''
-    };
-    persist(); toast('Стиль общения сохранён'); renderSettings();
-  }
-
-  function renderAIStyleCard(){
-    const page=document.getElementById('page');
-    if(!page || document.getElementById('v3AIStyleCard')) return;
-    const st=life().aiStyle;
-    const esc=(v)=>escV(v||'');
-    const opt=(value,current,label)=>'<option value="'+esc(value)+'"'+(current===value?' selected':'')+'>'+label+'</option>';
-    const checked=(v)=>v?' checked':'';
-    const card=document.createElement('section');
-    card.className='card section'; card.id='v3AIStyleCard';
-    card.innerHTML=[
-      '<div class="section-head"><div><div class="label">AI</div><h2>Как ИИ разговаривает со мной</h2></div><button class="btn" onclick="saveAIStyle()">Сохранить</button></div>',
-      '<p class="setting-note">Эти настройки применяются к Мэдди, Ментору и AI-анализу недели.</p>',
-      '<div class="ai-style-grid">',
-      '<div class="field"><label>Обращение</label><select id="aiStyleAddress" class="select">'+opt('ты',st.address,'На «ты»')+opt('вы',st.address,'На «вы»')+'</select></div>',
-      '<div class="field"><label>Базовый стиль</label><select id="aiStyleTone" class="select">'+opt('близкая подруга',st.tone,'Как близкая подруга')+opt('спокойный наставник',st.tone,'Как спокойный наставник')+opt('жёсткий наставник',st.tone,'Как жёсткий наставник')+'</select></div>',
-      '<div class="field"><label>Прямота</label><select id="aiStyleDirectness" class="select">'+opt('мягко',st.directness,'Мягко')+opt('прямо',st.directness,'Прямо')+opt('очень прямо',st.directness,'Очень прямо')+'</select></div>',
-      '<div class="field"><label>Если я застряла</label><select id="aiStyleChallenge" class="select">'+opt('если долго стою на месте — жёсткий пинок',st.challenge,'Жёсткий пинок')+opt('напомнить о целях и дать конкретный шаг',st.challenge,'Напомнить и вернуть к действию')+opt('оставаться мягкой',st.challenge,'Оставаться мягкой')+'</select></div>',
-      '<div class="field"><label>Объём</label><select id="aiStyleLength" class="select">'+opt('коротко',st.length,'Коротко')+opt('средне',st.length,'Средне')+opt('подробно',st.length,'Подробно')+'</select></div>',
-      '<div class="field"><label>Эмоциональность</label><select id="aiStyleEmotion" class="select">'+opt('спокойно',st.emotion,'Спокойно')+opt('живо',st.emotion,'Живо')+opt('очень эмоционально и живо',st.emotion,'Очень эмоционально и живо')+'</select></div>',
-      '<div class="field"><label>Эмодзи</label><select id="aiStyleEmojis" class="select">'+opt('никогда',st.emojis,'Никогда')+opt('иногда',st.emojis,'Иногда')+opt('часто',st.emojis,'Часто')+'</select></div>',
-      '</div>',
-      '<div class="ai-style-checks">',
-      '<label><input id="aiStyleProfanity" type="checkbox"'+checked(st.profanity)+'> Можно материться</label>',
-      '<label><input id="aiStyleAgreement" type="checkbox"'+checked(st.automaticAgreement)+'> Соглашаться со мной автоматически</label>',
-      '<label><input id="aiStyleSupport" type="checkbox"'+checked(st.supportWhenHard)+'> Поддерживать, когда мне тяжело</label>',
-      '<label><input id="aiStyleActions" type="checkbox"'+checked(st.concreteActions)+'> Давать конкретные действия</label>',
-      '<label><input id="aiStyleLively" type="checkbox"'+checked(st.lively)+'> Живой разговорный стиль</label>',
-      '</div>',
-      '<div class="field full"><label>Мои дополнительные правила общения</label><textarea id="aiStyleCustom" class="text-input" rows="6" placeholder="Напиши своими словами, как ИИ должен с тобой разговаривать...">'+esc(st.custom)+'</textarea></div>'
-    ].join('');
-    page.appendChild(card);
   }
 
   function injectV3Styles(){
@@ -643,11 +536,7 @@
       window.__itGirlOriginalGoV3=originalGo;
       window.go=function(page){
         ensureLifeSystemData();
-        if(page==='goals'){currentPage='goals';setActivePage('goals');closeMobileSidebar();renderGoalsV3();return}
-        if(page==='mentor'){currentPage='mentor';setActivePage('mentor');closeMobileSidebar();renderMentorV3();return}
-        if(page==='progress'){currentPage='progress';setActivePage('progress');closeMobileSidebar();renderProgressV3();return}
-        if(page==='weekly'){currentPage='weekly';setActivePage('weekly');closeMobileSidebar();renderWeeklyV3();return}
-        if(page==='weeks') page='goals';
+        if(page==='mentor'||page==='progress'||page==='weekly'||page==='goals'||page==='weeks'){page='today';}
         const result=window.__itGirlOriginalGoV3(page);
         setActivePage(page);
         return result;
@@ -667,8 +556,7 @@
     });
 
     persist();
-    if(currentPage==='weeks') window.go('goals');
-    else if(currentPage==='maddy') renderMaddyV3('main');
+    if(currentPage==='maddy') renderMaddyV3('main');
     else setActivePage(currentPage||'today');
   }
 
